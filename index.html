@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Conditional Field Display</title>
+	<link rel="stylesheet" href="./build/style-conditional-field.css" />
+	<link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+
+<div class="wrapper">
+
+	<form action="#" method="post">
+		<ul>
+			<li>
+				<label for="InputName">Name:</label>
+				<input type="text" class="form-control" value="" id="InputName" placeholder="Name">
+			</li>
+			<li>
+				<label for="InputEmail">Email address:</label>
+				<input type="email" class="form-control" value="" id="InputEmail" placeholder="Email">
+			</li>
+			<li  data-storepress-conditional-field='[{"selector":"#InputName","value":"blue"}]'>
+				<label for="InputEmail2">Conditional Field if have (Email address):</label>
+				<input type="email" class="form-control" value="" id="InputEmail2" placeholder="Email 2">
+			</li>
+		</ul>
+	</form>
+</div>
+
+<script src="./build/storepress-utils.js"></script>
+<script src="./build/conditional-field.js"></script>
+</body>
+</html>

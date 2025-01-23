@@ -1,0 +1,34 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+}
+
+.wrapper {
+    width: 80%;
+    height: 80dvh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin-inline: auto;
+	font-size: 18px;
+}
+
+ul{
+	margin: 0;
+	padding: 0;
+}
+
+li{
+	list-style: none;
+	margin-block: 10px;
+}
+
+label{
+	display: block;
+}
+
+.form-control{
+	width: 100%;
+	padding: 10px;
+}

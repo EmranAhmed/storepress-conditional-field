@@ -1,0 +1,15 @@
+@mixin base-style() {
+	display: none;
+	&:is(.visible){
+		display: unset;
+	}
+}
+
+// @use "./mixins" as plugin;
+// :where(.selector){ @include plugin.init(); }
+
+@mixin init() {
+  & {
+    @include base-style();
+  }
+}
