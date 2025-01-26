@@ -39,7 +39,7 @@ export function Plugin( element, options ) {
 		TYPE_OPERATOR: {
 			KEY: 'type',
 			DEFAULT: 'STRING',
-			AVAILABLE: [ 'STRING', 'CHAR', 'NUMBER', 'ELEMENT' ],
+			AVAILABLE: [ 'STRING', 'CHAR', 'NUMBER', 'BOOLEAN', 'ELEMENT' ],
 		},
 
 		RELATION_OPERATOR: {
@@ -59,8 +59,10 @@ export function Plugin( element, options ) {
 		PARENT_OPERATOR: [ 'parent', 'wrapper', 'context' ],
 	};
 
-	const initial = () => {
-		triggerEvent( this.$element, 'afterInit', {} );
+	const toBool = ( value ) => {
+		return typeof value === 'boolean'
+			? value
+			: [ 'true', 'TRUE', '1', 'yes' ].includes( value );
 	};
 
 	const hasWrapper = () => {
@@ -93,16 +95,100 @@ export function Plugin( element, options ) {
 		return condition[ OPERATORS.SELECTOR_OPERATOR.KEY ];
 	};
 
-	const getInputValue = ( condition ) => {
-		return document.querySelector( getSelector( condition ) ).value;
-	};
-
 	const getValue = ( condition ) => {
 		return condition[ OPERATORS.VALUE_OPERATOR.KEY ];
 	};
 
+	const getType = ( condition ) => {
+		const type = condition[ OPERATORS.TYPE_OPERATOR.KEY ];
+
+		const value = getValue( condition );
+
+		if ( type === 'STRING' && typeof value === 'boolean' ) {
+			return 'BOOLEAN';
+		}
+
+		if ( type === 'STRING' && typeof value === 'number' ) {
+			return 'NUMBER';
+		}
+
+		return type;
+	};
+
+	const getInputValue = ( condition ) => {
+		return document.querySelector( getSelector( condition ) ).value;
+	};
+
 	const getCompare = ( condition ) => {
 		return condition[ OPERATORS.COMPARE_OPERATOR.KEY ];
+	};
+
+	const checkExists = ( condition, currentValue ) => {
+		const compare = getCompare( condition );
+
+		if ( [ 'NOT EMPTY', 'EXISTS' ].includes( compare ) ) {
+			this.showField = currentValue.length > 0;
+		}
+	};
+
+	const checkNotExists = ( condition, currentValue ) => {
+		const compare = getCompare( condition );
+
+		if ( [ 'EMPTY', 'NOT EXISTS' ].includes( compare ) ) {
+			this.showField = currentValue.length === 0;
+		}
+	};
+
+	const checkEqual = ( condition, currentValue ) => {
+		const compare = getCompare( condition );
+		const value = getValue( condition );
+		const type = getType( condition );
+
+		if ( [ '=', '==' ].includes( compare ) ) {
+			if ( type === 'STRING' ) {
+				this.showField = currentValue === value;
+			}
+
+			if ( type === 'BOOLEAN' ) {
+				this.showField =
+					toBool( value ) === true && currentValue.length > 0;
+			}
+		}
+	};
+
+	const checkNotEqual = ( condition, currentValue ) => {
+		const compare = getCompare( condition );
+		const value = getValue( condition );
+		const type = getType( condition );
+
+		if ( [ '!=', '!==' ].includes( compare ) ) {
+			if ( type === 'STRING' ) {
+				this.showField = currentValue !== value;
+			}
+
+			if ( type === 'BOOLEAN' ) {
+				this.showField =
+					toBool( value ) === false && currentValue.length === 0;
+			}
+		}
+	};
+
+	const checkConditions = ( condition, currentValue ) => {
+		// const compare = getCompare( condition );
+
+		checkExists( condition, currentValue );
+
+		checkNotExists( condition, currentValue );
+
+		checkEqual( condition, currentValue );
+
+		checkNotEqual( condition, currentValue );
+
+		if ( this.showField ) {
+			this.$element.removeAttribute( 'inert' );
+		} else {
+			this.$element.setAttribute( 'inert', '' );
+		}
 	};
 
 	const addClasses = () => {};
@@ -154,6 +240,25 @@ export function Plugin( element, options ) {
 		return this.conditions;
 	};
 
+	const initial = () => {
+		const availableConditions = getConditions();
+		availableConditions.forEach( ( condition ) => {
+			const selector = getSelector( condition );
+			[ 'input', 'change' ].forEach( ( eventType ) => {
+				document
+					.querySelector( selector )
+					.addEventListener( eventType, ( event ) => {
+						checkConditions( condition, event.target.value );
+					} );
+			} );
+
+			const inputValue = getInputValue( condition );
+			checkConditions( condition, inputValue );
+		} );
+
+		triggerEvent( this.$element, 'afterInit', {} );
+	};
+
 	// Expose to public.
 	const expose = () => ( {
 		removeEvents,
@@ -173,43 +278,13 @@ export function Plugin( element, options ) {
 		this.relation =
 			this.settings.relation || OPERATORS.RELATION_OPERATOR.DEFAULT;
 
+		this.showField = false;
+
 		this.conditions = [];
 
 		this.$wrappers = getWrappers();
 
 		prepareConditions();
-
-		getConditions().forEach( ( condition ) => {
-			const compare = getCompare( condition );
-			const inputValue = getInputValue( condition );
-			const selector = getSelector( condition );
-
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			const value = getValue( condition );
-
-			document
-				.querySelector( selector )
-				.addEventListener( 'input', ( event ) => {
-					const currentValue = event.target.value;
-					// @todo: Check have on available list.
-					if ( [ 'NOT EMPTY', 'EXISTS' ].includes( compare ) ) {
-						if ( currentValue !== '' ) {
-							this.$element.classList.add( 'visible' );
-						} else {
-							this.$element.classList.remove( 'visible' );
-						}
-					}
-				} );
-
-			// @todo: Check have on available list.
-			if ( [ 'NOT EMPTY', 'EXISTS' ].includes( compare ) ) {
-				if ( inputValue !== '' ) {
-					this.$element.classList.add( 'visible' );
-				} else {
-					this.$element.classList.remove( 'visible' );
-				}
-			}
-		} );
 
 		initial();
 

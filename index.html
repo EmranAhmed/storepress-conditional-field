@@ -12,6 +12,19 @@
 
 <div class="wrapper">
 
+
+	<code>
+		- {"selector":"#InputName"}
+		- {"selector":"#InputName", "value": true}
+		- {"selector":"#InputName", "compare": "NOT EMPTY"}
+		- {"selector":"#InputName", "compare": "EXISTS"}
+
+
+		- {"selector":"#InputName", "compare": "EMPTY"}
+		- {"selector":"#InputName", "compare": "NOT EXISTS"}
+	</code>
+
+
 	<form action="#" method="post">
 		<ul>
 			<li>
@@ -22,8 +35,8 @@
 				<label for="InputEmail">Email address:</label>
 				<input type="email" class="form-control" value="" id="InputEmail" placeholder="Email">
 			</li>
-			<li  data-storepress-conditional-field='[{"selector":"#InputName","value":"blue"}]'>
-				<label for="InputEmail2">Conditional Field if have (Email address):</label>
+			<li inert data-storepress-conditional-field='{"selector":"#InputName", "compare": "EMPTY"}'>
+				<label for="InputEmail2">Conditional Field: Show if Name filed not empty:</label>
 				<input type="email" class="form-control" value="" id="InputEmail2" placeholder="Email 2">
 			</li>
 		</ul>

@@ -1,15 +1,17 @@
 @mixin base-style() {
-	display: none;
-	&:is(.visible){
-		display: unset;
+
+	&[inert] {
+		opacity: 0.5;
+		display: none;
 	}
+
 }
 
 // @use "./mixins" as plugin;
 // :where(.selector){ @include plugin.init(); }
 
 @mixin init() {
-  & {
-    @include base-style();
-  }
+	& {
+		@include base-style();
+	}
 }
