@@ -166,7 +166,7 @@ module.exports = {
 		'import/resolver': {
 			node: {},
 			webpack: {},
-        },
+		},
 	},
 	env: {
 		browser: true,
@@ -182,6 +182,8 @@ module.exports = {
 		StorePress: true,
 	},
 	rules: {
+		'@typescript-eslint/no-unused-vars': 'off',
+		'no-console': 'off',
 		'@woocommerce/dependency-group': 'off',
 		'@wordpress/no-unsafe-wp-apis': 'warn',
 		'react/react-in-jsx-scope': 'off',
@@ -191,6 +193,6 @@ module.exports = {
 				paths: restrictedImports,
 			},
 		],
-		'@wordpress/no-global-active-element': 'warn'
+		'@wordpress/no-global-active-element': 'warn',
 	},
 };

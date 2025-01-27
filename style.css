@@ -22,11 +22,32 @@ ul {
 
 li {
 	list-style: none;
-	margin-block: 10px;
+	margin-block: 15px;
 }
 
 label {
 	display: block;
+}
+
+input[type="checkbox"], input[type="radio"]{
+	width: 20px;
+	aspect-ratio: 1;
+}
+
+li:has(input[type="checkbox"]) {
+	display: flex;
+	gap: 5px;
+	flex-direction: row-reverse;
+	justify-content: flex-end;
+	align-items: center;
+}
+
+li:has(input[type="radio"]) > label {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	width: fit-content;
+	margin-block: 5px ;
 }
 
 form {
@@ -38,6 +59,6 @@ form {
 	padding: 10px;
 }
 
-code{
+code {
 	white-space: pre-line;
 }

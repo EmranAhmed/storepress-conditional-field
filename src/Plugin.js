@@ -91,48 +91,102 @@ export function Plugin( element, options ) {
 		return document.querySelectorAll( 'body' );
 	};
 
-	const getSelector = ( condition ) => {
+	const getConditionSelector = ( condition ) => {
 		return condition[ OPERATORS.SELECTOR_OPERATOR.KEY ];
 	};
 
-	const getValue = ( condition ) => {
-		return condition[ OPERATORS.VALUE_OPERATOR.KEY ];
+	const getConditionValue = ( condition ) => {
+		return condition[ OPERATORS.VALUE_OPERATOR.KEY ]
+			? condition[ OPERATORS.VALUE_OPERATOR.KEY ]
+			: true;
 	};
 
-	const getType = ( condition ) => {
-		const type = condition[ OPERATORS.TYPE_OPERATOR.KEY ];
+	const getConditionValueType = ( condition ) => {
+		return typeof getConditionValue( condition );
+	};
 
-		const value = getValue( condition );
+	const getInputType = ( $selector ) => {
+		return $selector.type.toUpperCase();
+	};
 
-		if ( type === 'STRING' && typeof value === 'boolean' ) {
-			return 'BOOLEAN';
+	const getInputValue = ( $selector ) => {
+		if ( getInputType( $selector ) === 'CHECKBOX' ) {
+			return $selector.checked;
 		}
 
-		if ( type === 'STRING' && typeof value === 'number' ) {
-			return 'NUMBER';
-		}
-
-		return type;
+		return $selector.value;
 	};
 
-	const getInputValue = ( condition ) => {
-		return document.querySelector( getSelector( condition ) ).value;
-	};
-
-	const getCompare = ( condition ) => {
+	const getConditionKey = ( condition ) => {
 		return condition[ OPERATORS.COMPARE_OPERATOR.KEY ];
 	};
 
-	const checkExists = ( condition, currentValue ) => {
-		const compare = getCompare( condition );
+	const getConditionType = ( condition ) => {
+		const conditionType = condition[ OPERATORS.TYPE_OPERATOR.KEY ];
 
-		if ( [ 'NOT EMPTY', 'EXISTS' ].includes( compare ) ) {
-			this.showField = currentValue.length > 0;
+		// Change Condition Type Based on Condition Value.
+		if ( conditionType === 'STRING' ) {
+			const conditionValue = getConditionValue( condition );
+
+			if ( typeof conditionValue === 'boolean' ) {
+				return 'BOOLEAN';
+			}
+
+			if ( typeof conditionValue === 'number' ) {
+				return 'NUMBER';
+			}
+
+			if (
+				typeof conditionValue === 'string' &&
+				[ '>', '>=', '<', '<=' ].includes(
+					getConditionKey( condition )
+				)
+			) {
+				return 'NUMBER';
+			}
+		}
+
+		return conditionType;
+	};
+
+	const isValidCompareKey = ( key ) => {
+		return OPERATORS.COMPARE_OPERATOR.AVAILABLE.includes( key );
+	};
+
+	const checkExists = ( condition, currentValue, $selector ) => {
+		const compareKey = getConditionKey( condition );
+		const inputType = getInputType( $selector );
+		const compareValue = getConditionValue( condition );
+		const compareValueType = getConditionValueType( condition );
+		// const inputValue = getInputValue( $selector );
+		console.log( currentValue, '-', compareValue, compareValueType );
+
+		const isValid =
+			isValidCompareKey( compareKey ) &&
+			[ 'NOT EMPTY', 'EXISTS' ].includes( compareKey );
+
+		if ( isValid ) {
+			switch ( inputType ) {
+				case 'CHECKBOX':
+					this.showField = $selector.checked;
+					break;
+
+				case 'RADIO':
+					this.showField =
+						compareValue === true
+							? $selector.checked
+							: $selector.checked &&
+							  compareValue === currentValue;
+					break;
+
+				default:
+					this.showField = currentValue.length > 0;
+			}
 		}
 	};
 
 	const checkNotExists = ( condition, currentValue ) => {
-		const compare = getCompare( condition );
+		const compare = getConditionKey( condition );
 
 		if ( [ 'EMPTY', 'NOT EXISTS' ].includes( compare ) ) {
 			this.showField = currentValue.length === 0;
@@ -140,9 +194,9 @@ export function Plugin( element, options ) {
 	};
 
 	const checkEqual = ( condition, currentValue ) => {
-		const compare = getCompare( condition );
-		const value = getValue( condition );
-		const type = getType( condition );
+		const compare = getConditionKey( condition );
+		const value = getConditionValue( condition );
+		const type = getConditionType( condition );
 
 		if ( [ '=', '==' ].includes( compare ) ) {
 			if ( type === 'STRING' ) {
@@ -157,9 +211,9 @@ export function Plugin( element, options ) {
 	};
 
 	const checkNotEqual = ( condition, currentValue ) => {
-		const compare = getCompare( condition );
-		const value = getValue( condition );
-		const type = getType( condition );
+		const compare = getConditionKey( condition );
+		const value = getConditionValue( condition );
+		const type = getConditionType( condition );
 
 		if ( [ '!=', '!==' ].includes( compare ) ) {
 			if ( type === 'STRING' ) {
@@ -173,16 +227,132 @@ export function Plugin( element, options ) {
 		}
 	};
 
-	const checkConditions = ( condition, currentValue ) => {
-		// const compare = getCompare( condition );
+	const checkGreaterThan = ( condition, currentValue ) => {
+		const compare = getConditionKey( condition );
+		const value = getConditionValue( condition );
+		const type = getConditionType( condition );
 
-		checkExists( condition, currentValue );
+		if ( [ '>' ].includes( compare ) ) {
+			//  Number(currentValue)
+			//  Number(value)
+			// console.log( compare );
+			// console.log( value );
+			// console.log( type );
 
-		checkNotExists( condition, currentValue );
+			if ( type === 'NUMBER' ) {
+				this.showField = Number( currentValue ) > Number( value );
+			}
 
-		checkEqual( condition, currentValue );
+			if ( type === 'CHAR' ) {
+				this.showField = currentValue.length > Number( value );
+			}
+		}
+	};
 
-		checkNotEqual( condition, currentValue );
+	const checkLessThan = ( condition, currentValue ) => {
+		const compare = getConditionKey( condition );
+		const value = getConditionValue( condition );
+		const type = getConditionType( condition );
+
+		if ( [ '<' ].includes( compare ) ) {
+			if ( type === 'NUMBER' ) {
+				this.showField = Number( currentValue ) < Number( value );
+			}
+
+			if ( type === 'CHAR' ) {
+				this.showField = currentValue.length < Number( value );
+			}
+		}
+	};
+
+	const checkLessThanEqual = ( condition, currentValue ) => {
+		const compare = getConditionKey( condition );
+		const value = getConditionValue( condition );
+		const type = getConditionType( condition );
+
+		if ( [ '<=' ].includes( compare ) ) {
+			if ( type === 'NUMBER' ) {
+				this.showField = Number( currentValue ) <= Number( value );
+			}
+
+			if ( type === 'CHAR' ) {
+				this.showField = currentValue.length <= Number( value );
+			}
+		}
+	};
+
+	const checkIn = ( condition, currentValue ) => {
+		const compare = getConditionKey( condition );
+		const value = getConditionValue( condition );
+		const type = getConditionType( condition );
+
+		if ( [ 'IN' ].includes( compare ) ) {
+			if ( type === 'STRING' ) {
+				this.showField = value.includes( currentValue );
+			}
+			if ( type === 'NUMBER' ) {
+				this.showField = value.includes( Number( currentValue ) );
+			}
+			if ( type === 'CHAR' ) {
+				const toNumber = value.reduce( ( acc, v ) => {
+					acc.push( Number( v ) );
+					return acc;
+				}, [] );
+				this.showField = toNumber.includes( currentValue.length );
+			}
+		}
+	};
+
+	const checkNotIn = ( condition, currentValue ) => {
+		const compare = getConditionKey( condition );
+		const value = getConditionValue( condition );
+		const type = getConditionType( condition );
+
+		if ( [ 'NOT IN' ].includes( compare ) ) {
+			if ( type === 'STRING' ) {
+				this.showField = ! value.includes( currentValue );
+			}
+			if ( type === 'NUMBER' ) {
+				this.showField = ! value.includes( Number( currentValue ) );
+			}
+		}
+	};
+
+	const checkGreaterThanEqual = ( condition, currentValue ) => {
+		const compare = getConditionKey( condition );
+		const value = getConditionValue( condition );
+		const type = getConditionType( condition );
+
+		if ( [ '>=' ].includes( compare ) ) {
+			//  Number(currentValue)
+			//  Number(value)
+
+			this.showField = Number( currentValue ) >= Number( value );
+		}
+	};
+
+	const checkConditions = ( condition, currentValue, $selector ) => {
+		// const compare = getConditionKey( condition );
+
+		checkExists( condition, currentValue, $selector );
+
+		checkNotExists( condition, currentValue, $selector );
+
+		checkEqual( condition, currentValue, $selector );
+
+		checkNotEqual( condition, currentValue, $selector );
+
+		checkGreaterThan( condition, currentValue, $selector );
+
+		checkLessThan( condition, currentValue, $selector );
+
+		checkGreaterThanEqual( condition, currentValue, $selector );
+
+		checkLessThanEqual( condition, currentValue, $selector );
+
+		checkIn( condition, currentValue, $selector );
+
+		checkNotIn( condition, currentValue, $selector );
 
 		if ( this.showField ) {
 			this.$element.removeAttribute( 'inert' );
@@ -243,17 +413,23 @@ export function Plugin( element, options ) {
 	const initial = () => {
 		const availableConditions = getConditions();
 		availableConditions.forEach( ( condition ) => {
-			const selector = getSelector( condition );
-			[ 'input', 'change' ].forEach( ( eventType ) => {
-				document
-					.querySelector( selector )
-					.addEventListener( eventType, ( event ) => {
-						checkConditions( condition, event.target.value );
-					} );
-			} );
+			const $selectors = document.querySelectorAll(
+				getConditionSelector( condition )
+			);
 
-			const inputValue = getInputValue( condition );
-			checkConditions( condition, inputValue );
+			$selectors.forEach( ( $selector ) => {
+				[ 'input' ].forEach( ( eventType ) => {
+					$selector.addEventListener( eventType, ( event ) => {
+						checkConditions(
+							condition,
+							event.target.value,
+							$selector
+						);
+					} );
+				} );
+
+				checkConditions( condition, $selector.value, $selector );
+			} );
 		} );
 
 		triggerEvent( this.$element, 'afterInit', {} );

@@ -28,14 +28,26 @@
 	<form action="#" method="post">
 		<ul>
 			<li>
-				<label for="InputName">Name:</label>
-				<input type="text" class="form-control" value="" id="InputName" placeholder="Name">
+				<label for="InputName">Input Field:</label>
+				<input type="text" class="form-control" value="" id="InputName" placeholder="Input Field">
 			</li>
+
+			<li>
+				<label for="InputCheckbox">Input Check</label>
+				<input type="checkbox" value="1" id="InputCheckbox">
+			</li>
+
+			<li class="radio-group">
+				<label><input type="radio" name="radio" value="1"> <span>Radio One</span></label>
+				<label><input type="radio" name="radio" value="2"> <span>Radio Two</span></label>
+				<label><input type="radio" name="radio" value="3"> <span>Radio Three</span></label>
+			</li>
+
 			<li>
 				<label for="InputEmail">Email address:</label>
 				<input type="email" class="form-control" value="" id="InputEmail" placeholder="Email">
 			</li>
-			<li inert data-storepress-conditional-field='{"selector":"#InputName", "compare": "EMPTY"}'>
+			<li inert data-storepress-conditional-field='{"selector":".radio-group input", "value":"3"}'>
 				<label for="InputEmail2">Conditional Field: Show if Name filed not empty:</label>
 				<input type="email" class="form-control" value="" id="InputEmail2" placeholder="Email 2">
 			</li>
