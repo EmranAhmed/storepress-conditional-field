@@ -14,10 +14,17 @@
 
 
 	<code>
-		- {"selector":"#InputName"}
-		- {"selector":"#InputName", "value": true}
-		- {"selector":"#InputName", "compare": "NOT EMPTY"}
+		- {"selector":"#InputName"} // Show if: not empty
+		- {"selector":"#InputName", "value": true} // Show if: not empty
+		- {"selector":"#InputName", "value": false} // Show if: empty
+		- {"selector":"#InputName", "value": "hello"} // Show if: value is "hello"
+		- {"selector":"#InputName", "value": ["yes", "no"]} // Show if: value = "yes" or "no"
+		- {"selector":"#InputName", "value": 5} // Show if: value length >= 5
+
+
+		- {"selector":"#InputName", "compare": "NOT EXISTS"}
 		- {"selector":"#InputName", "compare": "EXISTS"}
+		- {"selector":".radio-group input", "value":"3"}
 
 
 		- {"selector":"#InputName", "compare": "EMPTY"}
@@ -32,9 +39,12 @@
 				<input type="text" class="form-control" value="" id="InputName" placeholder="Input Field">
 			</li>
 
-			<li>
-				<label for="InputCheckbox">Input Check</label>
+			<li class="checkbox-group">
+				<label for="InputCheckbox">Input Check 1</label>
 				<input type="checkbox" value="1" id="InputCheckbox">
+
+				<label for="InputCheckbox2">Input Check 2</label>
+				<input type="checkbox" value="2" id="InputCheckbox2">
 			</li>
 
 			<li class="radio-group">
@@ -47,7 +57,8 @@
 				<label for="InputEmail">Email address:</label>
 				<input type="email" class="form-control" value="" id="InputEmail" placeholder="Email">
 			</li>
-			<li inert data-storepress-conditional-field='{"selector":".radio-group input", "value":"3"}'>
+
+			<li inert data-storepress-conditional-field='{"selector":".checkbox-group input"}'>
 				<label for="InputEmail2">Conditional Field: Show if Name filed not empty:</label>
 				<input type="email" class="form-control" value="" id="InputEmail2" placeholder="Email 2">
 			</li>
