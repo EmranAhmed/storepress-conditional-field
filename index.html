@@ -29,6 +29,13 @@
 
 		- {"selector":"#InputName", "compare": "EMPTY"}
 		- {"selector":"#InputName", "compare": "NOT EXISTS"}
+
+		- data-storepress-conditional-field--relation="OR"
+
+		- StorePress.Utils.triggerEvent( document, 'storepress_conditional_field_destroy', {
+		element: [ '[data-storepress-conditional-field]' ],
+		settings: {},
+		} )
 	</code>
 
 
@@ -76,7 +83,7 @@
 				<input type="email" class="form-control" value="" id="InputEmail" placeholder="Email">
 			</li>
 
-			<li inert data-storepress-conditional-field--relation="OR" data-storepress-conditional-field='[{"selector":"#InputText", "value": true}, {"selector":"#InputText2", "value": true}]'>
+			<li inert data-storepress-conditional-field--relation="OR" data-storepress-conditional-field='[{"selector":".select-group select", "value": true}, {"selector":".checkbox-group input", "value": true}]'>
 				<label for="InputEmail2">Conditional Field: Show if Name filed not empty:</label>
 				<input type="email" class="form-control" value="" id="InputEmail2" placeholder="Email 2">
 			</li>

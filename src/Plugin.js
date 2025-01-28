@@ -303,28 +303,6 @@ export function Plugin( element, options ) {
 		}
 	};
 
-	const checkGreaterThan = ( condition, currentValue ) => {
-		const compare = getConditionKey( condition );
-		const value = getConditionValue( condition );
-		const type = getConditionType( condition );
-
-		if ( [ '>' ].includes( compare ) ) {
-			//  Number(currentValue)
-			//  Number(value)
-			// console.log( compare );
-			// console.log( value );
-			// console.log( type );
-
-			if ( type === 'NUMBER' ) {
-				this.showField = Number( currentValue ) > Number( value );
-			}
-
-			if ( type === 'CHAR' ) {
-				this.showField = currentValue.length > Number( value );
-			}
-		}
-	};
-
 	const checkGreaterThanEqual = (
 		condition,
 		currentValue,
@@ -358,38 +336,6 @@ export function Plugin( element, options ) {
 			// We check checkbox or radio checked length
 			if ( isCheck && values.length >= compareValue ) {
 				this.showField = true;
-			}
-		}
-	};
-
-	const checkLessThan = ( condition, currentValue ) => {
-		const compare = getConditionKey( condition );
-		const value = getConditionValue( condition );
-		const type = getConditionType( condition );
-
-		if ( [ '<' ].includes( compare ) ) {
-			if ( type === 'NUMBER' ) {
-				this.showField = Number( currentValue ) < Number( value );
-			}
-
-			if ( type === 'CHAR' ) {
-				this.showField = currentValue.length < Number( value );
-			}
-		}
-	};
-
-	const checkLessThanEqual = ( condition, currentValue ) => {
-		const compare = getConditionKey( condition );
-		const value = getConditionValue( condition );
-		const type = getConditionType( condition );
-
-		if ( [ '<=' ].includes( compare ) ) {
-			if ( type === 'NUMBER' ) {
-				this.showField = Number( currentValue ) <= Number( value );
-			}
-
-			if ( type === 'CHAR' ) {
-				this.showField = currentValue.length <= Number( value );
 			}
 		}
 	};
@@ -448,8 +394,6 @@ export function Plugin( element, options ) {
 		$selector,
 		$selectors
 	) => {
-		// const compare = getConditionKey( condition );
-
 		const compareKey = getConditionKey( condition );
 
 		console.log( compareKey );
@@ -474,24 +418,6 @@ export function Plugin( element, options ) {
 				$selectors
 			);
 		}
-		/*
-
-
-		checkNotEqual( condition, currentValue, $selector );
-
-		checkGreaterThan( condition, currentValue, $selector );
-
-		checkGreaterThanEqual( condition, currentValue, $selector );
-
-		checkLessThan( condition, currentValue, $selector );
-
-		checkLessThanEqual( condition, currentValue, $selector );
-
-		checkIn( condition, currentValue, $selector );
-
-		checkNotIn( condition, currentValue, $selector );
-
-		 */
 
 		this.matched.set( condition.selector, this.showField );
 
@@ -512,17 +438,10 @@ export function Plugin( element, options ) {
 		}
 	};
 
-	const addClasses = () => {};
-
-	const removeClasses = () => {};
-
-	const addEvents = () => {};
-
-	const removeEvents = () => {};
-
 	const reset = () => {
-		removeClasses();
-		removeEvents();
+		this.$element.setAttribute( 'inert', '' );
+
+		this.controller.abort();
 	};
 
 	const prepareCondition = ( condition ) => {
@@ -579,14 +498,18 @@ export function Plugin( element, options ) {
 
 			$selectors.forEach( ( $selector ) => {
 				[ 'input' ].forEach( ( eventType ) => {
-					$selector.addEventListener( eventType, ( event ) => {
-						checkConditions(
-							condition,
-							event.target.value,
-							$selector,
-							$selectors
-						);
-					} );
+					$selector.addEventListener(
+						eventType,
+						( event ) => {
+							checkConditions(
+								condition,
+								event.target.value,
+								$selector,
+								$selectors
+							);
+						},
+						{ signal: this.signal, passive: true }
+					);
 				} );
 
 				checkConditions(
@@ -603,7 +526,6 @@ export function Plugin( element, options ) {
 
 	// Expose to public.
 	const expose = () => ( {
-		removeEvents,
 		reset,
 	} );
 
@@ -626,15 +548,14 @@ export function Plugin( element, options ) {
 
 		this.matched = new Map();
 
+		this.controller = new AbortController();
+		this.signal = this.controller.signal;
+
 		this.$wrappers = getWrappers();
 
 		prepareConditions();
 
 		initial();
-
-		addClasses();
-
-		addEvents();
 
 		return expose();
 	};
