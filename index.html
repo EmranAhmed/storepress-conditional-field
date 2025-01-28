@@ -34,9 +34,14 @@
 
 	<form action="#" method="post">
 		<ul>
+			<li class="input-group">
+				<label for="InputText">Input Field:</label>
+				<input type="text" class="form-control input-name" value="" id="InputText" placeholder="Input Field">
+			</li>
+
 			<li>
-				<label for="InputName">Input Field:</label>
-				<input type="text" class="form-control" value="" id="InputName" placeholder="Input Field">
+				<label for="InputText2">Input Field 2:</label>
+				<input type="text" class="form-control input-name" value="" id="InputText2" placeholder="Input Field 2">
 			</li>
 
 			<li class="checkbox-group">
@@ -45,6 +50,9 @@
 
 				<label for="InputCheckbox2">Input Check 2</label>
 				<input type="checkbox" value="2" id="InputCheckbox2">
+
+				<label for="InputCheckbox3">Input Check 3</label>
+				<input type="checkbox" value="3" id="InputCheckbox3">
 			</li>
 
 			<li class="radio-group">
@@ -53,12 +61,22 @@
 				<label><input type="radio" name="radio" value="3"> <span>Radio Three</span></label>
 			</li>
 
+			<li class="select-group">
+				<label for="InputSelect"> Select </label>
+				<select id="InputSelect" name="inp-select">
+					<option value=""> - Choose -</option>
+					<option value="1">One</option>
+					<option value="2">Two</option>
+					<option value="3">Three</option>
+				</select>
+			</li>
+
 			<li>
 				<label for="InputEmail">Email address:</label>
 				<input type="email" class="form-control" value="" id="InputEmail" placeholder="Email">
 			</li>
 
-			<li inert data-storepress-conditional-field='{"selector":".checkbox-group input"}'>
+			<li inert data-storepress-conditional-field--relation="OR" data-storepress-conditional-field='[{"selector":"#InputText", "value": true}, {"selector":"#InputText2", "value": true}]'>
 				<label for="InputEmail2">Conditional Field: Show if Name filed not empty:</label>
 				<input type="email" class="form-control" value="" id="InputEmail2" placeholder="Email 2">
 			</li>

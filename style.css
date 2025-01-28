@@ -3,8 +3,7 @@ body {
 }
 
 .wrapper {
-	width: 600px;
-	height: 80dvh;
+	width: 800px;
 
 	display: flex;
 	flex-direction: column;
@@ -29,7 +28,7 @@ label {
 	display: block;
 }
 
-input[type="checkbox"], input[type="radio"]{
+input[type="checkbox"], input[type="radio"] {
 	width: 20px;
 	aspect-ratio: 1;
 }
@@ -47,7 +46,17 @@ li:has(input[type="radio"]) > label {
 	gap: 10px;
 	align-items: center;
 	width: fit-content;
-	margin-block: 5px ;
+	margin-block: 5px;
+}
+
+li:has(select) {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+select{
+	padding: 10px;
 }
 
 form {
@@ -61,4 +70,6 @@ form {
 
 code {
 	white-space: pre-line;
+	font-family: monospace;
+	font-size: .8rem;
 }
