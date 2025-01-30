@@ -3,10 +3,7 @@
  */
 import { getOptionsFromAttribute, triggerEvent } from '@storepress/utils';
 
-export function Plugin( element, options ) {
-	// Default Settings
-	const DEFAULTS = {};
-
+export function Plugin(element, options) {
 	const PRIVATE = {};
 
 	// Collecting settings from html attribute
@@ -17,37 +14,38 @@ export function Plugin( element, options ) {
 			KEY: 'compare',
 			DEFAULT: 'NOT EMPTY',
 			AVAILABLE: {
-				EMPTY: [ 'EMPTY', 'NOT EXISTS' ],
-				'NOT EMPTY': [ 'NOT EMPTY', 'EXISTS' ],
-				EQUAL: [ 'EQUAL', '=', 'EQ' ],
-				'NOT EQUAL': [ 'NOT EQUAL', '!=', 'NOEQ' ],
-				'GREATER THAN': [ 'GREATER THAN', '>', 'GT' ],
-				'LESS THAN': [ 'LESS THAN', '<', 'LT' ],
+				EMPTY: ['EMPTY', 'NOT EXISTS'],
+				'NOT EMPTY': ['NOT EMPTY', 'EXISTS'],
+				EQUAL: ['EQUAL', '=', 'EQ'],
+				'NOT EQUAL': ['NOT EQUAL', '!=', 'NOEQ'],
+				'GREATER THAN': ['GREATER THAN', '>', 'GT'],
+				'LESS THAN': ['LESS THAN', '<', 'LT'],
 				'GREATER THAN OR EQUAL': [
 					'GREATER THAN OR EQUAL',
 					'>=',
 					'GTEQ',
 				],
-				'LESS THAN OR EQUAL': [ 'LESS THAN OR EQUAL', '<=', 'LTEQ' ],
-				LIKE: [ 'LIKE' ],
-				'NOT LIKE': [ 'NOT LIKE' ],
-				BETWEEN: [ 'BETWEEN' ],
-				'NOT BETWEEN': [ 'NOT BETWEEN' ],
-				IN: [ 'IN' ],
-				'NOT IN': [ 'NOT IN' ],
+				'LESS THAN OR EQUAL': ['LESS THAN OR EQUAL', '<=', 'LTEQ'],
+				LIKE: ['LIKE'],
+				'NOT LIKE': ['NOT LIKE'],
+				BETWEEN: ['BETWEEN'],
+				'NOT BETWEEN': ['NOT BETWEEN'],
+				IN: ['IN'],
+				'NOT IN': ['NOT IN'],
 			},
 		},
 
+		//
 		TYPE_OPERATOR: {
 			KEY: 'type',
 			DEFAULT: 'STRING',
-			AVAILABLE: [ 'STRING', 'CHAR', 'NUMBER', 'BOOLEAN', 'ELEMENT' ],
+			AVAILABLE: ['STRING', 'CHAR', 'NUMBER', 'BOOLEAN', 'ELEMENT'],
 		},
 
 		RELATION_OPERATOR: {
 			DEFAULT: 'AND',
 			KEY: 'relation',
-			AVAILABLE: [ 'AND', 'OR' ],
+			AVAILABLE: ['AND', 'OR'],
 		},
 
 		SELECTOR_OPERATOR: {
@@ -57,122 +55,98 @@ export function Plugin( element, options ) {
 		VALUE_OPERATOR: {
 			KEY: 'value',
 		},
-
-		PARENT_OPERATOR: [ 'parent', 'wrapper', 'context' ],
 	};
 
-	const toBool = ( value ) => {
+	// Default Settings
+	const DEFAULTS = {
+		relation: OPERATORS.RELATION_OPERATOR.DEFAULT,
+	};
+
+	const toBool = (value) => {
 		return typeof value === 'boolean'
 			? value
-			: [ 'true', 'TRUE', '1', 'yes' ].includes( value );
+			: ['true', 'TRUE', '1', 'yes'].includes(value);
 	};
 
-	const hasWrapper = () => {
-		return OPERATORS.PARENT_OPERATOR.some( ( key ) => {
-			const $selector = this.settings[ key ];
-
-			return document.querySelectorAll( $selector ).length > 0;
-		} );
+	const getConditionSelector = (condition) => {
+		return condition[OPERATORS.SELECTOR_OPERATOR.KEY];
 	};
 
-	const getWrappers = () => {
-		if ( hasWrapper() ) {
-			const wrapperKey = OPERATORS.PARENT_OPERATOR.filter(
-				( $selector_key ) => {
-					const $selector = this.settings[ $selector_key ];
-
-					return document.querySelectorAll( $selector ).length > 0;
-				}
-			).at( 0 );
-
-			const $selector = this.settings[ wrapperKey ];
-
-			return document.querySelectorAll( $selector );
-		}
-
-		return document.querySelectorAll( 'body' );
-	};
-
-	const getConditionSelector = ( condition ) => {
-		return condition[ OPERATORS.SELECTOR_OPERATOR.KEY ];
-	};
-
-	const getConditionValue = ( condition ) => {
-		return typeof condition[ OPERATORS.VALUE_OPERATOR.KEY ] === 'undefined'
+	const getConditionValue = (condition) => {
+		return typeof condition[OPERATORS.VALUE_OPERATOR.KEY] === 'undefined'
 			? true
-			: condition[ OPERATORS.VALUE_OPERATOR.KEY ];
+			: condition[OPERATORS.VALUE_OPERATOR.KEY];
 	};
 
-	const getConditionValueType = ( condition ) => {
-		return typeof getConditionValue( condition );
+	const getConditionValueType = (condition) => {
+		return typeof getConditionValue(condition);
 	};
 
-	const getInputType = ( $selector ) => {
+	const getInputType = ($selector) => {
 		return $selector.type.toUpperCase();
 	};
 
-	const getInputValue = ( $selector ) => {
-		if ( getInputType( $selector ) === 'CHECKBOX' ) {
-			return $selector.checked;
+	const getInputValue = ($selector) => {
+		if (
+			getInputType($selector) === 'CHECKBOX' ||
+			getInputType($selector) === 'RADIO'
+		) {
+			return $selector.checked ? $selector.value : false;
 		}
 
 		return $selector.value;
 	};
 
-	const getCompareKey = ( key ) => {
-		return Object.keys( OPERATORS.COMPARE_OPERATOR.AVAILABLE ).find(
-			( index ) =>
-				OPERATORS.COMPARE_OPERATOR.AVAILABLE[ index ].includes( key )
+	const getCompareKey = (key) => {
+		return Object.keys(OPERATORS.COMPARE_OPERATOR.AVAILABLE).find((index) =>
+			OPERATORS.COMPARE_OPERATOR.AVAILABLE[index].includes(key)
 		);
 	};
 
-	const isValidCompareKey = ( key ) => {
-		const k = getCompareKey( key );
+	const isValidCompareKey = (key) => {
+		const k = getCompareKey(key);
 		return k || false;
 	};
 
-	const getConditionKey = ( condition ) => {
-		const compareValue = getConditionValue( condition );
+	const getConditionKey = (condition) => {
+		const compareValue = getConditionValue(condition);
 
-		if ( typeof compareValue === 'boolean' ) {
+		if (typeof compareValue === 'boolean') {
 			return compareValue ? 'NOT EMPTY' : 'EMPTY';
 		}
 
-		if ( typeof compareValue === 'string' ) {
+		if (typeof compareValue === 'string') {
 			return 'EQUAL';
 		}
 
-		if ( typeof compareValue === 'number' ) {
+		if (typeof compareValue === 'number') {
 			return 'GREATER THAN OR EQUAL'; // >=
 		}
 
-		if ( compareValue === null ) {
+		if (compareValue === null) {
 			return 'NOT EMPTY';
 		}
 
-		if (
-			typeof compareValue === 'object' &&
-			Array.isArray( compareValue )
-		) {
+		if (typeof compareValue === 'object' && Array.isArray(compareValue)) {
 			return 'IN';
 		}
 
-		const k = condition[ OPERATORS.COMPARE_OPERATOR.KEY ];
-		return getCompareKey( k );
+		const k = condition[OPERATORS.COMPARE_OPERATOR.KEY];
+		return getCompareKey(k);
 	};
 
-	const getConditionType = ( condition ) => {
-		const conditionType = condition[ OPERATORS.TYPE_OPERATOR.KEY ];
+	const getConditionType = (condition) => {
+		const conditionType = condition[OPERATORS.TYPE_OPERATOR.KEY];
 
 		// Change Condition Type Based on Condition Value.
-		if ( conditionType === 'STRING' ) {
-			const conditionValue = getConditionValue( condition );
+		if (conditionType === 'STRING') {
+			const conditionValue = getConditionValue(condition);
 
-			if ( typeof conditionValue === 'boolean' ) {
+			if (typeof conditionValue === 'boolean') {
 				return 'BOOLEAN';
 			}
 
-			if ( typeof conditionValue === 'number' ) {
+			if (typeof conditionValue === 'number') {
 				return 'NUMBER';
 			}
 
@@ -185,7 +159,7 @@ export function Plugin( element, options ) {
 
 			if (
 				typeof conditionValue === 'string' &&
-				numericCheckOp.includes( getConditionKey( condition ) )
+				numericCheckOp.includes(getConditionKey(condition))
 			) {
 				return 'NUMBER';
 			}
@@ -194,112 +168,102 @@ export function Plugin( element, options ) {
 		return conditionType;
 	};
 
-	const checkExists = ( condition, currentValue, $selector, $selectors ) => {
-		const compareKey = getConditionKey( condition );
-		const inputType = getInputType( $selector );
-		const compareValue = getConditionValue( condition );
-		const compareValueType = getConditionValueType( condition );
+	const checkExists = (condition, currentValue, $selector, $selectors) => {
+		const compareKey = getConditionKey(condition);
+		const inputType = getInputType($selector);
+		const compareValue = getConditionValue(condition);
+		const compareValueType = getConditionValueType(condition);
 
-		const isValid = [ 'NOT EMPTY' ].includes( compareKey );
+		const isValid = ['NOT EMPTY'].includes(compareKey);
 
-		if ( isValid && [ null, true ].includes( compareValue ) ) {
+		if (isValid && [null, true].includes(compareValue)) {
 			this.showField = false;
-			$selectors.forEach( ( $sl ) => {
+			$selectors.forEach(($sl) => {
 				if (
-					getInputType( $sl ) === 'CHECKBOX' ||
-					getInputType( $sl ) === 'RADIO'
+					getInputType($sl) === 'CHECKBOX' ||
+					getInputType($sl) === 'RADIO'
 				) {
-					if ( $sl.checked ) {
+					if ($sl.checked) {
 						this.showField = true;
 					}
-				} else if ( $sl.value.length > 0 ) {
+				} else if ($sl.value.length > 0) {
 					this.showField = true;
 				}
-			} );
+			});
 		}
 	};
 
-	const checkNotExists = (
-		condition,
-		currentValue,
-		$selector,
-		$selectors
-	) => {
+	const checkNotExists = (condition, currentValue, $selector, $selectors) => {
 		///
-		const compareKey = getConditionKey( condition );
-		const inputType = getInputType( $selector );
-		const compareValue = getConditionValue( condition );
-		const compareValueType = getConditionValueType( condition );
+		const compareKey = getConditionKey(condition);
+		const inputType = getInputType($selector);
+		const compareValue = getConditionValue(condition);
+		const compareValueType = getConditionValueType(condition);
 
-		const isValid = [ 'EMPTY' ].includes( compareKey );
+		const isValid = ['EMPTY'].includes(compareKey);
 
-		if ( isValid && [ false ].includes( compareValue ) ) {
+		if (isValid && [false].includes(compareValue)) {
 			this.showField = true;
-			$selectors.forEach( ( $sl ) => {
+			$selectors.forEach(($sl) => {
 				if (
-					getInputType( $sl ) === 'CHECKBOX' ||
-					getInputType( $sl ) === 'RADIO'
+					getInputType($sl) === 'CHECKBOX' ||
+					getInputType($sl) === 'RADIO'
 				) {
-					if ( $sl.checked ) {
+					if ($sl.checked) {
 						this.showField = false;
 					}
-				} else if ( $sl.value.length > 0 ) {
+				} else if ($sl.value.length > 0) {
 					this.showField = false;
 				}
-			} );
+			});
 		}
 	};
 
-	const checkEqual = ( condition, currentValue, $selector, $selectors ) => {
-		const compareKey = getConditionKey( condition );
-		const inputType = getInputType( $selector );
-		const compareValue = getConditionValue( condition );
+	const checkEqual = (condition, currentValue, $selector, $selectors) => {
+		const compareKey = getConditionKey(condition);
+		const inputType = getInputType($selector);
+		const compareValue = getConditionValue(condition);
 
-		const isValid = [ 'EQUAL' ].includes( compareKey );
+		const isValid = ['EQUAL'].includes(compareKey);
 
-		if ( isValid ) {
+		if (isValid) {
 			this.showField = false;
-			$selectors.forEach( ( $sl ) => {
+			$selectors.forEach(($sl) => {
 				if (
-					getInputType( $sl ) === 'CHECKBOX' ||
-					getInputType( $sl ) === 'RADIO'
+					getInputType($sl) === 'CHECKBOX' ||
+					getInputType($sl) === 'RADIO'
 				) {
-					if ( $sl.checked && $sl.value === compareValue ) {
+					if ($sl.checked && $sl.value === compareValue) {
 						this.showField = true;
 					}
-				} else if ( $sl.value === compareValue ) {
+				} else if ($sl.value === compareValue) {
 					this.showField = true;
 				}
-			} );
+			});
 		}
 	};
 
-	const checkNotEqual = (
-		condition,
-		currentValue,
-		$selector,
-		$selectors
-	) => {
-		const compareKey = getConditionKey( condition );
-		const inputType = getInputType( $selector );
-		const compareValue = getConditionValue( condition );
+	const checkNotEqual = (condition, currentValue, $selector, $selectors) => {
+		const compareKey = getConditionKey(condition);
+		const inputType = getInputType($selector);
+		const compareValue = getConditionValue(condition);
 
-		const isValid = [ 'NOT EQUAL' ].includes( compareKey );
+		const isValid = ['NOT EQUAL'].includes(compareKey);
 
-		if ( isValid ) {
+		if (isValid) {
 			this.showField = true;
-			$selectors.forEach( ( $sl ) => {
+			$selectors.forEach(($sl) => {
 				if (
-					getInputType( $sl ) === 'CHECKBOX' ||
-					getInputType( $sl ) === 'RADIO'
+					getInputType($sl) === 'CHECKBOX' ||
+					getInputType($sl) === 'RADIO'
 				) {
-					if ( $sl.checked && $sl.value === compareValue ) {
+					if ($sl.checked && $sl.value === compareValue) {
 						this.showField = false;
 					}
-				} else if ( $sl.value === compareValue ) {
+				} else if ($sl.value === compareValue) {
 					this.showField = false;
 				}
-			} );
+			});
 		}
 	};
 
@@ -309,82 +273,82 @@ export function Plugin( element, options ) {
 		$selector,
 		$selectors
 	) => {
-		const compareKey = getConditionKey( condition );
-		const inputType = getInputType( $selector );
-		const compareValue = getConditionValue( condition );
+		const compareKey = getConditionKey(condition);
+		const inputType = getInputType($selector);
+		const compareValue = getConditionValue(condition);
 
-		const isValid = [ 'GREATER THAN OR EQUAL' ].includes( compareKey );
+		const isValid = ['GREATER THAN OR EQUAL'].includes(compareKey);
 
-		if ( isValid ) {
+		if (isValid) {
 			this.showField = false;
 			const values = [];
 			let isCheck = false;
-			$selectors.forEach( ( $sl ) => {
+			$selectors.forEach(($sl) => {
 				if (
-					getInputType( $sl ) === 'CHECKBOX' ||
-					getInputType( $sl ) === 'RADIO'
+					getInputType($sl) === 'CHECKBOX' ||
+					getInputType($sl) === 'RADIO'
 				) {
-					if ( $sl.checked ) {
+					if ($sl.checked) {
 						isCheck = true;
-						values.push( $sl.value );
+						values.push($sl.value);
 					}
-				} else if ( $sl.value.length >= compareValue ) {
+				} else if ($sl.value.length >= compareValue) {
 					this.showField = true;
 				}
-			} );
+			});
 
 			// We check checkbox or radio checked length
-			if ( isCheck && values.length >= compareValue ) {
+			if (isCheck && values.length >= compareValue) {
 				this.showField = true;
 			}
 		}
 	};
 
-	const checkIn = ( condition, currentValue, $selector, $selectors ) => {
-		const compareKey = getConditionKey( condition );
-		const inputType = getInputType( $selector );
-		const compareValue = getConditionValue( condition );
+	const checkIn = (condition, currentValue, $selector, $selectors) => {
+		const compareKey = getConditionKey(condition);
+		const inputType = getInputType($selector);
+		const compareValue = getConditionValue(condition);
 
-		const isValid = [ 'IN' ].includes( compareKey );
+		const isValid = ['IN'].includes(compareKey);
 
-		if ( isValid ) {
+		if (isValid) {
 			this.showField = false;
-			$selectors.forEach( ( $sl ) => {
+			$selectors.forEach(($sl) => {
 				if (
-					getInputType( $sl ) === 'CHECKBOX' ||
-					getInputType( $sl ) === 'RADIO'
+					getInputType($sl) === 'CHECKBOX' ||
+					getInputType($sl) === 'RADIO'
 				) {
-					if ( $sl.checked ) {
-						this.showField = compareValue.includes( $sl.value );
+					if ($sl.checked) {
+						this.showField = compareValue.includes($sl.value);
 					}
-				} else if ( $sl.value.length > 0 ) {
-					this.showField = compareValue.includes( $sl.value );
+				} else if ($sl.value.length > 0) {
+					this.showField = compareValue.includes($sl.value);
 				}
-			} );
+			});
 		}
 	};
 
-	const checkNotIn = ( condition, currentValue, $selector, $selectors ) => {
-		const compareKey = getConditionKey( condition );
-		const inputType = getInputType( $selector );
-		const compareValue = getConditionValue( condition );
+	const checkNotIn = (condition, currentValue, $selector, $selectors) => {
+		const compareKey = getConditionKey(condition);
+		const inputType = getInputType($selector);
+		const compareValue = getConditionValue(condition);
 
-		const isValid = [ 'NOT IN' ].includes( compareKey );
+		const isValid = ['NOT IN'].includes(compareKey);
 
-		if ( isValid ) {
+		if (isValid) {
 			this.showField = true;
-			$selectors.forEach( ( $sl ) => {
+			$selectors.forEach(($sl) => {
 				if (
-					getInputType( $sl ) === 'CHECKBOX' ||
-					getInputType( $sl ) === 'RADIO'
+					getInputType($sl) === 'CHECKBOX' ||
+					getInputType($sl) === 'RADIO'
 				) {
-					if ( $sl.checked ) {
-						this.showField = ! compareValue.includes( $sl.value );
+					if ($sl.checked) {
+						this.showField = !compareValue.includes($sl.value);
 					}
-				} else if ( $sl.value.length > 0 ) {
-					this.showField = ! compareValue.includes( $sl.value );
+				} else if ($sl.value.length > 0) {
+					this.showField = !compareValue.includes($sl.value);
 				}
-			} );
+			});
 		}
 	};
 
@@ -394,22 +358,22 @@ export function Plugin( element, options ) {
 		$selector,
 		$selectors
 	) => {
-		const compareKey = getConditionKey( condition );
+		const compareKey = getConditionKey(condition);
 
-		console.log( compareKey );
+		console.log(compareKey);
 
-		if ( isValidCompareKey( compareKey ) ) {
-			checkExists( condition, currentValue, $selector, $selectors );
+		if (isValidCompareKey(compareKey)) {
+			checkExists(condition, currentValue, $selector, $selectors);
 
-			checkNotExists( condition, currentValue, $selector, $selectors );
+			checkNotExists(condition, currentValue, $selector, $selectors);
 
-			checkEqual( condition, currentValue, $selector, $selectors );
+			checkEqual(condition, currentValue, $selector, $selectors);
 
-			checkNotEqual( condition, currentValue, $selector, $selectors );
+			checkNotEqual(condition, currentValue, $selector, $selectors);
 
-			checkIn( condition, currentValue, $selector, $selectors );
+			checkIn(condition, currentValue, $selector, $selectors);
 
-			checkNotIn( condition, currentValue, $selector, $selectors );
+			checkNotIn(condition, currentValue, $selector, $selectors);
 
 			checkGreaterThanEqual(
 				condition,
@@ -419,64 +383,60 @@ export function Plugin( element, options ) {
 			);
 		}
 
-		this.matched.set( condition.selector, this.showField );
+		this.matched.set(condition.selector, this.showField);
 
-		if ( this.relation === 'AND' ) {
-			if ( [ ...this.matched.values() ].every( ( t ) => t === true ) ) {
-				this.$element.removeAttribute( 'inert' );
+		if (this.relation === 'AND') {
+			if ([...this.matched.values()].every((t) => t === true)) {
+				this.$element.removeAttribute('inert');
 			} else {
-				this.$element.setAttribute( 'inert', '' );
+				this.$element.setAttribute('inert', '');
 			}
 		}
 
-		if ( this.relation === 'OR' ) {
-			if ( [ ...this.matched.values() ].some( ( t ) => t === true ) ) {
-				this.$element.removeAttribute( 'inert' );
+		if (this.relation === 'OR') {
+			if ([...this.matched.values()].some((t) => t === true)) {
+				this.$element.removeAttribute('inert');
 			} else {
-				this.$element.setAttribute( 'inert', '' );
+				this.$element.setAttribute('inert', '');
 			}
 		}
 	};
 
 	const reset = () => {
-		this.$element.setAttribute( 'inert', '' );
+		this.$element.setAttribute('inert', '');
 
 		this.controller.abort();
 	};
 
-	const prepareCondition = ( condition ) => {
-		if ( typeof condition[ OPERATORS.TYPE_OPERATOR.KEY ] === 'undefined' ) {
-			condition[ OPERATORS.TYPE_OPERATOR.KEY ] =
+	const prepareCondition = (condition) => {
+		/*if (typeof condition[OPERATORS.TYPE_OPERATOR.KEY] === 'undefined') {
+			condition[OPERATORS.TYPE_OPERATOR.KEY] =
 				OPERATORS.TYPE_OPERATOR.DEFAULT;
-		}
+		}*/
 
-		if (
-			typeof condition[ OPERATORS.COMPARE_OPERATOR.KEY ] === 'undefined'
-		) {
-			condition[ OPERATORS.COMPARE_OPERATOR.KEY ] =
+		if (typeof condition[OPERATORS.COMPARE_OPERATOR.KEY] === 'undefined') {
+			condition[OPERATORS.COMPARE_OPERATOR.KEY] =
 				OPERATORS.COMPARE_OPERATOR.DEFAULT;
 		}
 
-		if (
-			typeof condition[ OPERATORS.VALUE_OPERATOR.KEY ] === 'undefined'
-		) {
-			condition[ OPERATORS.VALUE_OPERATOR.KEY ] = null;
+		if (typeof condition[OPERATORS.VALUE_OPERATOR.KEY] === 'undefined') {
+			condition[OPERATORS.VALUE_OPERATOR.KEY] = null;
 		}
 		return condition;
 	};
 
 	const prepareConditions = () => {
-		for ( const key in this.settings ) {
-			if ( ! isNaN( key ) ) {
-				const condition = this.settings[ key ];
-				this.conditions.push( prepareCondition( condition ) );
+		for (const key in this.settings) {
+			if (!isNaN(key)) {
+				const condition = this.settings[key];
+				this.conditions.push(prepareCondition(condition));
 			}
 		}
 
-		if ( this.conditions.length < 1 ) {
+		if (this.conditions.length < 1) {
 			const condition = this.settings;
 
-			this.conditions.push( prepareCondition( condition ) );
+			this.conditions.push(prepareCondition(condition));
 		}
 	};
 
@@ -487,20 +447,20 @@ export function Plugin( element, options ) {
 	const initial = () => {
 		const availableConditions = getConditions();
 
-		availableConditions.forEach( ( condition ) => {
-			this.matched.set( condition.selector, false );
-		} );
+		availableConditions.forEach((condition) => {
+			this.matched.set(condition.selector, false);
+		});
 
-		availableConditions.forEach( ( condition ) => {
+		availableConditions.forEach((condition) => {
 			const $selectors = document.querySelectorAll(
-				getConditionSelector( condition )
+				getConditionSelector(condition)
 			);
 
-			$selectors.forEach( ( $selector ) => {
-				[ 'input' ].forEach( ( eventType ) => {
+			$selectors.forEach(($selector) => {
+				['input'].forEach((eventType) => {
 					$selector.addEventListener(
 						eventType,
-						( event ) => {
+						(event) => {
 							checkConditions(
 								condition,
 								event.target.value,
@@ -510,7 +470,7 @@ export function Plugin( element, options ) {
 						},
 						{ signal: this.signal, passive: true }
 					);
-				} );
+				});
 
 				checkConditions(
 					condition,
@@ -518,16 +478,16 @@ export function Plugin( element, options ) {
 					$selector,
 					$selectors
 				);
-			} );
-		} );
+			});
+		});
 
-		triggerEvent( this.$element, 'afterInit', {} );
+		triggerEvent(this.$element, 'afterInit', {});
 	};
 
 	// Expose to public.
-	const expose = () => ( {
+	const expose = () => ({
 		reset,
-	} );
+	});
 
 	// Do what you need and return expose fn.
 	const init = () => {
@@ -535,12 +495,11 @@ export function Plugin( element, options ) {
 		this.settings = {
 			...DEFAULTS,
 			...options,
-			...getOptionsFromAttribute( this.$element, ATTRIBUTE ),
+			...getOptionsFromAttribute(this.$element, ATTRIBUTE),
 			...PRIVATE,
 		};
 
-		this.relation =
-			this.settings.relation || OPERATORS.RELATION_OPERATOR.DEFAULT;
+		this.relation = this.settings.relation;
 
 		this.showField = false;
 
@@ -550,8 +509,6 @@ export function Plugin( element, options ) {
 
 		this.controller = new AbortController();
 		this.signal = this.controller.signal;
-
-		this.$wrappers = getWrappers();
 
 		prepareConditions();
 

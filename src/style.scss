@@ -2,24 +2,13 @@
 
 @use "./mixins" as plugin;
 
-$default-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-
 :where(
 [data-storepress-conditional-field],
 [data-storepress-conditional-field--selector],
 [data-storepress-conditional-field--value],
 [data-storepress-conditional-field--type],
 [data-storepress-conditional-field--relation],
-[data-storepress-conditional-field--compare],
-[data-storepress-conditional-field--parent],
-[data-storepress-conditional-field--wrapper],
-[data-storepress-conditional-field--context]
+[data-storepress-conditional-field--compare]
 ) {
-	font-family: $default-font;
-
 	@include plugin.init();
-
-	& {
-		--custom-variable: 1px;
-	}
 }
