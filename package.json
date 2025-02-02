@@ -24,13 +24,13 @@
 		"javascript",
 		"storepress"
 	],
-	"homepage": "https://github.com/EmranAhmed/https://github.com/EmranAhmed/storepress-conditional-field#readme",
+	"homepage": "https://github.com/EmranAhmed/storepress-conditional-field#readme",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/EmranAhmed/storepress-create-plugin-html.git"
 	},
 	"bugs": {
-		"url": "https://github.com/EmranAhmed/https://github.com/EmranAhmed/storepress-conditional-field/issues"
+		"url": "https://github.com/EmranAhmed/storepress-conditional-field/issues"
 	},
 	"files": [
 		"build/**",
