@@ -1,6 +1,6 @@
 {
 	"name": "@storepress/conditional-field",
-	"version": "0.1.0",
+	"version": "0.0.1",
 	"description": "A StorePress Plugin",
 	"author": "EmranAhmed",
 	"license": "GPL-2.0-or-later",
