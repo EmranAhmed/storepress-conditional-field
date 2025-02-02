@@ -182,8 +182,8 @@ module.exports = {
 		StorePress: true,
 	},
 	rules: {
-		'@typescript-eslint/no-unused-vars': 'off',
-		'no-console': 'off',
+		//'@typescript-eslint/no-unused-vars': 'off',
+		//'no-console': 'off',
 		'@woocommerce/dependency-group': 'off',
 		'@wordpress/no-unsafe-wp-apis': 'warn',
 		'react/react-in-jsx-scope': 'off',

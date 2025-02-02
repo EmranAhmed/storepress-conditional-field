@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getOptionsFromAttribute, triggerEvent } from '@storepress/utils';
+import { getOptionsFromAttribute } from '@storepress/utils';
 
 export function Plugin(element, options) {
 	const PRIVATE = {};
@@ -64,22 +64,12 @@ export function Plugin(element, options) {
 		relation: OPERATORS.RELATION_OPERATOR.DEFAULT,
 	};
 
-	const toBool = (value) => {
-		return typeof value === 'boolean'
-			? value
-			: ['true', 'TRUE', '1', 'yes'].includes(value);
-	};
-
 	const getConditionSelector = (condition) => {
 		return condition[OPERATORS.SELECTOR_OPERATOR.KEY];
 	};
 
 	const getConditionValue = (condition) => {
 		return condition[OPERATORS.VALUE_OPERATOR.KEY];
-	};
-
-	const getConditionValueType = (condition) => {
-		return typeof getConditionValue(condition);
 	};
 
 	const getInputType = ($selector) => {
@@ -506,7 +496,7 @@ export function Plugin(element, options) {
 	};
 
 	const reset = () => {
-		this.$element.setAttribute('inert', '');
+		toggleInertAttribute(true);
 
 		this.controller.abort();
 	};
