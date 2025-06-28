@@ -21,7 +21,12 @@ ul {
 
 li {
 	list-style: none;
-	margin-block: 15px;
+	margin-block: 50px;
+}
+
+li li{
+	list-style: none;
+	margin-block: 10px;
 }
 
 label {
@@ -33,12 +38,12 @@ input[type="checkbox"], input[type="radio"] {
 	aspect-ratio: 1;
 }
 
-li:has(input[type="checkbox"]) {
+li li:has(input[type="checkbox"]) {
 	display: flex;
 	gap: 5px;
 	flex-direction: row-reverse;
 	justify-content: flex-end;
-	align-items: center;
+	align-items: flex-start;
 }
 
 li:has(input[type="radio"]) > label {
@@ -52,11 +57,17 @@ li:has(input[type="radio"]) > label {
 li:has(select) {
 	display: flex;
 	gap: 10px;
-	align-items: center;
+	align-items: flex-start;
+	flex-direction: column;
 }
 
 select {
 	padding: 10px;
+	width: 50%;
+}
+
+select[multiple]{
+	height: 180px;
 }
 
 form {
@@ -72,6 +83,13 @@ code {
 	white-space: pre-line;
 	font-family: monospace;
 	font-size: .8rem;
+}
+
+code.inline{
+	background: #d6d4d4;
+	padding: 10px;
+	display: inline-block;
+	vertical-align: middle;
 }
 
 .message {

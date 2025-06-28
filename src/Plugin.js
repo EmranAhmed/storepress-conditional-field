@@ -12,39 +12,62 @@ export function Plugin(element, options) {
 	const OPERATORS = {
 		COMPARE_OPERATOR: {
 			KEY: 'compare',
-			DEFAULT: 'NOT EMPTY',
+			DEFAULT: 'EQ',
 			AVAILABLE: {
-				EMPTY: ['EMPTY', 'NOT EXISTS'],
-				'NOT EMPTY': ['NOT EMPTY', 'EXISTS'],
-				EQUAL: ['EQUAL', '=', 'EQ'],
-				'NOT EQUAL': ['NOT EQUAL', '!=', 'NOEQ'],
-				'GREATER THAN': ['GREATER THAN', '>', 'GT'],
-				'LESS THAN': ['LESS THAN', '<', 'LT'],
-				'GREATER THAN OR EQUAL': [
-					'GREATER THAN OR EQUAL',
-					'>=',
-					'GTEQ',
-				],
-				'LESS THAN OR EQUAL': ['LESS THAN OR EQUAL', '<=', 'LTEQ'],
-				LIKE: ['LIKE'],
-				'NOT LIKE': ['NOT LIKE'],
-				BETWEEN: ['BETWEEN'],
-				'NOT BETWEEN': ['NOT BETWEEN'],
-				IN: ['IN'],
-				'NOT IN': ['NOT IN'],
+				// ONLY IF VALUE TYPE NUMBER, CHECK BY LENGTH.
+				EQ: ['EQUAL', '=', 'EQ'],
+				GT: ['GREATER THAN', '>', 'GT'],
+				LT: ['LESS THAN', '<', 'LT'],
+				GTEQ: ['GREATER THAN OR EQUAL', '>=', 'GTEQ'],
+				LTEQ: ['LESS THAN OR EQUAL', '<=', 'LTEQ'],
 			},
 		},
 
+		// TEXT, NUMBER, RANGE, CHECKBOX, RADIO, SELECT-ONE, SELECT-MULTIPLE
+
+		// Value Type
+		// STRING: {"selector":"#InputRange", "value":"string", "inert":true} 				// input value === value
+		// STRING-ARRAY: {"selector":"#InputRange", "value":["X", "Y"], "strict": true}  	// input value IN values
+		// NUMBER: {"selector":"#InputRange", "value":100}  								// input value length
+		// NUMBER-ARRAY: {"selector":"#InputRange", "value":[50, 100, 300]} 				// input value length IN values
+		// BOOLEAN: {"selector":"#InputRange", "value":true}				 				// input value not blank or check length > 0
+		// MINMAX: {"selector":"#InputRange", "value":[10, 20], "type":"MINMAX"} 			// input value length MIN and MAX values
+		// MINMAX: {"selector":"#InputRange", "value":[10, 20], "type":"RANGE"} 			// input value MIN < VALUE and VALUE > MAX
+		// ELEMENT: {"selector":"#InputRange", "value":"#other-input", "type":"ELEMENT"} 	// input value === value element value
+		// REGEXP: {"selector":"#InputRange", "value":"/[\w.-]+@[\w.-]+\.\w+/g"}  			// input value match regexp
+
 		TYPE_OPERATOR: {
 			KEY: 'type',
-			DEFAULT: 'STRING',
-			AVAILABLE: ['STRING', 'CHAR', 'NUMBER', 'BOOLEAN', 'ELEMENT'],
+			DEFAULT: 'BOOLEAN', // If no value specified.
+			AVAILABLE: [
+				'STRING',
+				'STRING-ARRAY',
+				'NUMBER',
+				'NUMBER-ARRAY',
+				'BOOLEAN',
+				'RANGE', // Should Define Explicitly. for number and range type only. [10, 20] = {start: 10, end: 20}
+				'MINMAX', // Should Define Explicitly. check min length and max length [10, 20] = {min: 10, max: 20}
+				'ELEMENT', // Should Define Explicitly.
+				'REGEXP',
+			],
+		},
+
+		FUNCTIONS_FOR_TYPE: {
+			BOOLEAN: 'EXISTS', // check by length.
+			STRING: 'STRING_EQUAL', // check by value.
+			'STRING-ARRAY': 'IN_STRING_ARRAY', // check by value.
+			NUMBER: 'NUMBER_EQUAL', // check by length.
+			'NUMBER-ARRAY': 'IN_NUMBER_ARRAY', // check by length.
+			ELEMENT: 'ELEMENT_EQUAL', // Get from Explicitly defined. Check by value.
+			MINMAX: 'MINMAX', // Get from Explicitly defined. Check by length. minLength, maxLength
+			RANGE: 'RANGE', // Get from Explicitly defined. Check by value. for Number and Range Input.
+			REGEXP: 'MATCH', // Check by value.
 		},
 
 		RELATION_OPERATOR: {
 			DEFAULT: 'AND',
 			KEY: 'relation',
-			AVAILABLE: ['AND', 'OR'],
+			AVAILABLE: ['AND', 'OR', 'NOT', 'XOR'],
 		},
 
 		SELECTOR_OPERATOR: {
@@ -56,6 +79,32 @@ export function Plugin(element, options) {
 			DEFAULT: true,
 		},
 
+		// inert: true = hide, inert: false = show
+		INERT_OPERATOR: {
+			KEY: 'inert',
+			DEFAULT: false,
+		},
+		// strict: will apply for only MultiSelectBox and CheckBox values.
+		STRICT_OPERATOR: {
+			KEY: 'strict',
+			DEFAULT: false,
+		},
+		// Check Case Sensitivity.
+		CASE_SENSITIVITY_OPERATOR: {
+			KEY: 'case',
+			DEFAULT: false,
+		},
+		// Check Case Sensitivity.
+		CHECK_BY_OPERATOR: {
+			KEY: 'check',
+			DEFAULT: 'LENGTH',
+			AVAILABLE: ['LENGTH', 'VALUE'],
+		},
+
+		FN_OPERATOR: {
+			KEY: 'fn',
+		},
+
 		EVENTS: ['input'],
 	};
 
@@ -64,377 +113,578 @@ export function Plugin(element, options) {
 		relation: OPERATORS.RELATION_OPERATOR.DEFAULT,
 	};
 
+	const getFnNameByType = (type) => {
+		return OPERATORS.FUNCTIONS_FOR_TYPE[type];
+	};
+
+	const getSelectorOperatorKey = () => {
+		return OPERATORS.SELECTOR_OPERATOR.KEY;
+	};
+
+	const getCaseOperatorKey = () => {
+		return OPERATORS.CASE_SENSITIVITY_OPERATOR.KEY;
+	};
+
+	const getCheckByOperatorKey = () => {
+		return OPERATORS.CHECK_BY_OPERATOR.KEY;
+	};
+
+	const getFnOperatorKey = () => {
+		return OPERATORS.FN_OPERATOR.KEY;
+	};
+
+	const getValueOperatorKey = () => {
+		return OPERATORS.VALUE_OPERATOR.KEY;
+	};
+
+	const getValueOperatorDefault = () => {
+		return OPERATORS.VALUE_OPERATOR.DEFAULT;
+	};
+
+	const getCaseOperatorDefault = () => {
+		return OPERATORS.CASE_SENSITIVITY_OPERATOR.DEFAULT;
+	};
+
+	const getCheckByOperatorDefault = () => {
+		return OPERATORS.CHECK_BY_OPERATOR.DEFAULT;
+	};
+
+	const getAvailableCheckByOperators = () => {
+		return OPERATORS.CHECK_BY_OPERATOR.AVAILABLE;
+	};
+
+	const getTypeOperatorKey = () => {
+		return OPERATORS.TYPE_OPERATOR.KEY;
+	};
+
+	const getTypeOperatorDefault = () => {
+		return OPERATORS.TYPE_OPERATOR.DEFAULT;
+	};
+
+	const getInertOperatorKey = () => {
+		return OPERATORS.INERT_OPERATOR.KEY;
+	};
+
+	const getInertOperatorDefault = () => {
+		return OPERATORS.INERT_OPERATOR.DEFAULT;
+	};
+
+	const getStrictOperatorKey = () => {
+		return OPERATORS.STRICT_OPERATOR.KEY;
+	};
+
+	const getStrictOperatorDefault = () => {
+		return OPERATORS.STRICT_OPERATOR.DEFAULT;
+	};
+
+	const getCompareOperatorKey = () => {
+		return OPERATORS.COMPARE_OPERATOR.KEY;
+	};
+
+	const getCompareOperatorDefault = () => {
+		return OPERATORS.COMPARE_OPERATOR.DEFAULT;
+	};
+
+	// Get condition data from html attribute.
+	const getConditionFn = (condition) => {
+		return condition[getFnOperatorKey()];
+	};
+
+	const setConditionFn = (condition, value) => {
+		condition[getFnOperatorKey()] = value;
+	};
+
 	const getConditionSelector = (condition) => {
-		return condition[OPERATORS.SELECTOR_OPERATOR.KEY];
+		return condition[getSelectorOperatorKey()];
+	};
+
+	const setConditionSelector = (condition, value) => {
+		condition[getSelectorOperatorKey()] = value;
+	};
+
+	const getConditionCase = (condition) => {
+		return condition[getCaseOperatorKey()];
+	};
+
+	const getConditionCheckBy = (condition) => {
+		return condition[getCheckByOperatorKey()];
+	};
+
+	const setConditionCheckBy = (condition, value) => {
+		condition[getCheckByOperatorKey()] = value;
+	};
+
+	const setConditionCase = (condition, value) => {
+		condition[getCaseOperatorKey()] = value;
 	};
 
 	const getConditionValue = (condition) => {
-		return condition[OPERATORS.VALUE_OPERATOR.KEY];
+		return condition[getValueOperatorKey()];
 	};
 
-	const getInputType = ($selector) => {
-		return $selector.type.toUpperCase();
+	const setConditionValue = (condition, value) => {
+		condition[getValueOperatorKey()] = value;
 	};
 
-	const getInputValue = ($selector) => {
-		if (
-			getInputType($selector) === 'CHECKBOX' ||
-			getInputType($selector) === 'RADIO'
-		) {
-			return $selector.checked ? $selector.value : false;
-		}
-
-		return $selector.value.length > 0 ? $selector.value : false;
+	const getConditionType = (condition) => {
+		return condition[getTypeOperatorKey()];
 	};
 
-	const getCompareKey = (key) => {
+	const setConditionType = (condition, value) => {
+		condition[getTypeOperatorKey()] = value;
+	};
+
+	const getConditionInert = (condition) => {
+		return condition[getInertOperatorKey()];
+	};
+
+	const setConditionInert = (condition, value) => {
+		condition[getInertOperatorKey()] = value;
+	};
+
+	const getConditionCompare = (condition) => {
+		const key = condition[getCompareOperatorKey()];
+
 		return Object.keys(OPERATORS.COMPARE_OPERATOR.AVAILABLE).find((index) =>
 			OPERATORS.COMPARE_OPERATOR.AVAILABLE[index].includes(key)
 		);
 	};
 
-	const isValidCompareKey = (key) => {
-		const k = getCompareKey(key);
-		return k || false;
+	const setConditionCompare = (condition, value) => {
+		condition[getCompareOperatorKey()] = value;
 	};
 
-	const getConditionKey = (condition) => {
-		const key = condition[OPERATORS.COMPARE_OPERATOR.KEY];
-		return getCompareKey(key);
+	const getConditionStrict = (condition) => {
+		return condition[getStrictOperatorKey()];
 	};
 
-	const getConditionType = (condition) => {
-		return condition[OPERATORS.TYPE_OPERATOR.KEY];
+	const setConditionStrict = (condition, value) => {
+		condition[getStrictOperatorKey()] = value;
 	};
 
-	const checkExists = (condition, $selector, $selectors) => {
-		const compareKey = getConditionKey(condition);
+	// Get Input data.
+	const getInputType = ($selector) => {
+		return $selector.type.toUpperCase();
+	};
 
-		const isValid = ['NOT EMPTY'].includes(compareKey);
+	const isMultiValueInputType = ($selector) => {
+		return ['CHECKBOX', 'SELECT-MULTIPLE'].includes(
+			getInputType($selector)
+		);
+	};
 
-		if (isValid) {
-			this.showField = false;
-			$selectors.forEach(($sl) => {
-				const v = getInputValue($sl);
+	const isNumberValueInputType = ($selector) => {
+		return ['RANGE', 'NUMBER'].includes(getInputType($selector));
+	};
 
-				if (v && v.length > 0) {
-					this.showField = true;
+	const getInputValues = ($selectors) => {
+		const selectedValues = [];
+		const groupInputs = ['CHECKBOX', 'RADIO', 'SELECT-MULTIPLE'];
+		$selectors.forEach(($selector) => {
+			if (['CHECKBOX', 'RADIO'].includes(getInputType($selector))) {
+				if ($selector.checked) {
+					selectedValues.push($selector.value);
 				}
-			});
-		}
-	};
+			}
 
-	const checkNotExists = (condition, $selector, $selectors) => {
-		const compareKey = getConditionKey(condition);
-
-		const isValid = ['EMPTY'].includes(compareKey);
-
-		if (isValid) {
-			this.showField = true;
-			$selectors.forEach(($sl) => {
-				const v = getInputValue($sl);
-
-				if (v && v.length > 0) {
-					this.showField = false;
-				}
-			});
-		}
-	};
-
-	const checkEqual = (condition, $selector, $selectors) => {
-		const compareKey = getConditionKey(condition);
-		const compareValue = getConditionValue(condition);
-		const conditionType = getConditionType(condition);
-
-		const isValid = ['EQUAL'].includes(compareKey);
-		const compareValues = [];
-
-		if (isValid) {
-			this.showField = false;
-
-			if (conditionType === 'ELEMENT') {
-				const $valueSelectors = document.querySelectorAll(compareValue);
-
-				$valueSelectors.forEach(($sl) => {
-					const v = getInputValue($sl);
-
-					if (v) {
-						compareValues.push(v);
+			if (['SELECT-MULTIPLE'].includes(getInputType($selector))) {
+				for (const option of $selector.options) {
+					if (option.selected && option.value.length > 0) {
+						selectedValues.push(option.value);
 					}
-				});
+				}
 			}
 
-			$selectors.forEach(($sl) => {
-				const tempValues =
-					conditionType === 'ELEMENT'
-						? compareValues
-						: [compareValue];
-
-				const v = getInputValue($sl);
-
-				if (v && tempValues.includes(v)) {
-					this.showField = true;
+			if (!groupInputs.includes(getInputType($selector))) {
+				if ($selector.value.length > 0) {
+					selectedValues.push($selector.value);
 				}
-			});
-		}
+			}
+		});
+		return selectedValues;
 	};
 
-	const checkNotEqual = (condition, $selector, $selectors) => {
-		const compareKey = getConditionKey(condition);
-		const compareValue = getConditionValue(condition);
-		const conditionType = getConditionType(condition);
+	const getInputValue = ($selector) => {
+		if (['CHECKBOX', 'RADIO'].includes(getInputType($selector))) {
+			return $selector.checked ? $selector.value : false;
+		}
 
-		const isValid = ['NOT EQUAL'].includes(compareKey);
-		const compareValues = [];
+		if (getInputType($selector) === 'SELECT-MULTIPLE') {
+			const selectedValues = [];
+			for (const option of $selector.options) {
+				if (option.selected && option.value.length > 0) {
+					selectedValues.push(option.value);
+				}
+			}
+			return selectedValues.length > 0 ? selectedValues : false;
+		}
 
-		if (isValid) {
-			this.showField = true;
+		return $selector.value.length > 0 ? $selector.value : false;
+	};
 
-			if (conditionType === 'ELEMENT') {
-				const $valueSelectors = document.querySelectorAll(compareValue);
+	const isValidRegExp = (value) => {
+		return (
+			typeof value === 'string' &&
+			new RegExp('\/(.+)\/([gimuy]*)').test(value)
+		);
+	};
 
-				$valueSelectors.forEach(($sl) => {
-					const v = getInputValue($sl);
+	const getRegExpParams = (value) => {
+		const [_, pattern, flags] = value.match(/^\/(.+)\/([gimuy]*)$/);
+		return { pattern, flags, _ };
+	};
 
-					if (v) {
-						compareValues.push(v);
-					}
-				});
+	const arrayCompareInSensitiveStrict = (conditionValues, inputValues) => {
+		const values = [...conditionValues].sort();
+
+		const inputs = [...inputValues].sort();
+
+		const isSame = inputs.length > 0 && values.length === inputs.length;
+
+		const match = values.every((value) => {
+			return inputs.some((v) => new RegExp(`^${value}$`, 'ui').test(v));
+		});
+
+		return isSame && match;
+	};
+
+	const arrayCompareInSensitiveNonStrict = (conditionValues, inputValues) => {
+		const values = [...conditionValues].sort();
+
+		const inputs = [...inputValues].sort();
+
+		const isSame = inputs.length > 0;
+
+		const match = values.every((value) => {
+			return inputs.some((v) => new RegExp(`^${value}$`, 'ui').test(v));
+		});
+
+		return isSame && match;
+	};
+
+	const arrayCompareInSensitiveNonStrictSoft = (
+		conditionValues,
+		inputValues
+	) => {
+		const values = [...conditionValues].sort();
+
+		const inputs = [...inputValues].sort();
+
+		const isSame = inputs.length > 0;
+
+		const match = values.some((value) => {
+			return inputs.some((v) => new RegExp(`^${value}$`, 'ui').test(v));
+		});
+
+		return isSame && match;
+	};
+
+	const arrayCompareSensitiveStrict = (conditionValues, inputValues) => {
+		const values = [...conditionValues].sort();
+
+		const inputs = [...inputValues].sort();
+
+		const isSame = inputs.length > 0 && values.length === inputs.length;
+
+		const match = values.every((value) => inputs.includes(value));
+
+		return isSame && match;
+	};
+
+	const arrayCompareSensitiveNonStrict = (conditionValues, inputValues) => {
+		const values = [...conditionValues].sort();
+
+		const inputs = [...inputValues].sort();
+
+		const isSame = inputs.length > 0;
+
+		const match = values.every((value) => inputs.includes(value));
+
+		return isSame && match;
+	};
+
+	const arrayCompareSensitiveNonStrictSoft = (
+		conditionValues,
+		inputValues
+	) => {
+		const values = [...conditionValues].sort();
+
+		const inputs = [...inputValues].sort();
+
+		const isSame = inputs.length > 0;
+
+		const match = values.some((value) => inputs.includes(value));
+
+		return isSame && match;
+	};
+
+	const valueCompareSensitive = (conditionValues, inputValue) => {
+		return inputValue.length > 0 && conditionValues.includes(inputValue);
+	};
+
+	const valueCompareInSensitive = (conditionValues, inputValue) => {
+		return (
+			inputValue.length > 0 &&
+			conditionValues.some((value) =>
+				new RegExp(`^${value}$`, 'ui').test(inputValue)
+			)
+		);
+	};
+
+	const COMPARE_FUNCTIONS = {
+		EXISTS: (condition, $selector, $selectors) => {
+			this.showField = getConditionInert(condition);
+			$selectors.forEach(($sl) => {
+				const inputValue = getInputValue($sl);
+
+				if (inputValue && inputValue.length > 0) {
+					this.showField = !getConditionInert(condition);
+				}
+			});
+		},
+
+		STRING_EQUAL: (condition, $selector, $selectors) => {
+			this.showField = getConditionInert(condition);
+
+			const conditionValue = getConditionValue(condition);
+			const conditionValues = [conditionValue].sort((a, b) => a - b);
+			const isStrict = getConditionStrict(condition); // for CHECKBOX and MULTI SELECT values check.
+			const isCaseSensitive = getConditionCase(condition);
+			/*const inputValue = getInputValue($selector);
+			const inputValues = getInputValues($selectors).sort(
+				(a, b) => a - b
+			);*/
+
+			const isMultiValues = isMultiValueInputType($selector); //  Should check strict too.
+
+			const inputValue = isMultiValues
+				? getInputValues($selectors)
+				: getInputValue($selector);
+
+			const isInputTypeNumber = isNumberValueInputType($selector);
+
+			// Multiple Input Value With Case Sensitive Check.
+			if (isMultiValues && isCaseSensitive) {
+				// Case Sensitive NON-Strict.
+				if (
+					!isStrict &&
+					arrayCompareSensitiveNonStrict(conditionValues, inputValue)
+				) {
+					this.showField = !getConditionInert(condition);
+				}
+
+				// Case Sensitive Strict.
+				if (
+					isStrict &&
+					arrayCompareSensitiveStrict(conditionValues, inputValue)
+				) {
+					this.showField = !getConditionInert(condition);
+				}
 			}
 
-			$selectors.forEach(($sl) => {
-				const tempValues =
-					conditionType === 'ELEMENT'
-						? compareValues
-						: [compareValue];
-
-				const v = getInputValue($sl);
-
-				if (v && tempValues.includes(v)) {
-					this.showField = false;
+			// Multiple Input Value With Case In Sensitive Check.
+			if (isMultiValues && !isCaseSensitive) {
+				// Case In Sensitive NON-Strict.
+				if (
+					!isStrict &&
+					arrayCompareInSensitiveNonStrict(
+						conditionValues,
+						inputValue
+					)
+				) {
+					this.showField = !getConditionInert(condition);
 				}
-			});
-		}
-	};
 
-	const checkGreaterThanEqual = (condition, $selector, $selectors) => {
-		const compareKey = getConditionKey(condition);
+				// Case In Sensitive Strict.
+				if (
+					isStrict &&
+					arrayCompareInSensitiveStrict(conditionValues, inputValue)
+				) {
+					this.showField = !getConditionInert(condition);
+				}
+			}
 
-		const compareValue = getConditionValue(condition);
+			// Single Input Value With Case Sensitive Check.
+			if (!isMultiValues && isCaseSensitive) {
+				if (conditionValues.includes(inputValue)) {
+					this.showField = !getConditionInert(condition);
+				}
+			}
 
-		const isValid = ['GREATER THAN OR EQUAL'].includes(compareKey);
+			// Single Input Value With Case In Sensitive Check.
+			if (!isMultiValues && !isCaseSensitive) {
+				if (
+					isInputTypeNumber &&
+					valueCompareSensitive(conditionValues, inputValue)
+				) {
+					this.showField = !getConditionInert(condition);
+				}
 
-		if (isValid) {
+				if (
+					!isInputTypeNumber &&
+					valueCompareInSensitive(conditionValues, inputValue)
+				) {
+					this.showField = !getConditionInert(condition);
+				}
+			}
+		},
+
+		NUMBER_EQUAL: (condition, $selector, $selectors) => {
+			const conditionValue = Number(getConditionValue(condition));
+
+			const compare = getConditionCompare(condition);
+
+			this.showField = getConditionInert(condition);
+
+			const isMultiValues = isMultiValueInputType($selector);
+
+			const inputValue = isMultiValues
+				? getInputValues($selectors)
+				: getInputValue($selector);
+
+			if (compare === 'EQ' && inputValue.length === conditionValue) {
+				this.showField = !getConditionInert(condition);
+			}
+
+			if (compare === 'GT' && inputValue.length > conditionValue) {
+				this.showField = !getConditionInert(condition);
+			}
+
+			if (compare === 'GTEQ' && inputValue.length >= conditionValue) {
+				this.showField = !getConditionInert(condition);
+			}
+
+			if (compare === 'LT' && inputValue.length < conditionValue) {
+				this.showField = !getConditionInert(condition);
+			}
+
+			if (compare === 'LTEQ' && inputValue.length <= conditionValue) {
+				this.showField = !getConditionInert(condition);
+			}
+		},
+
+		IN_STRING_ARRAY: (condition, $selector, $selectors) => {
+			this.showField = getConditionInert(condition);
+
+			const conditionValues = getConditionValue(condition);
+			// const conditionValues = [...conditionValue];
+			const isStrict = getConditionStrict(condition); // for CHECKBOX and MULTI SELECT values check.
+			const isCaseSensitive = getConditionCase(condition);
+
+			const isMultiValues = isMultiValueInputType($selector); //  Should check strict too.
+
+			const inputValue = isMultiValues
+				? getInputValues($selectors)
+				: getInputValue($selector);
+			const isInputTypeNumber = isNumberValueInputType($selector);
+
+			// Multiple Input Value With Case Sensitive Check.
+			if (isMultiValues && isCaseSensitive) {
+				// Case Sensitive NON-Strict.
+				if (
+					!isStrict &&
+					arrayCompareSensitiveNonStrictSoft(
+						conditionValues,
+						inputValue
+					)
+				) {
+					this.showField = !getConditionInert(condition);
+				}
+				// Case Sensitive Strict.
+				if (
+					isStrict &&
+					arrayCompareSensitiveStrict(conditionValues, inputValue)
+				) {
+					this.showField = !getConditionInert(condition);
+				}
+			}
+
+			// Multiple Input Value With Case In Sensitive Check.
+			if (isMultiValues && !isCaseSensitive) {
+				// Case In Sensitive NON-Strict.
+				if (
+					!isStrict &&
+					arrayCompareInSensitiveNonStrictSoft(
+						conditionValues,
+						inputValue
+					)
+				) {
+					this.showField = !getConditionInert(condition);
+				}
+
+				// Case In Sensitive Strict.
+				if (
+					isStrict &&
+					arrayCompareInSensitiveStrict(conditionValues, inputValue)
+				) {
+					this.showField = !getConditionInert(condition);
+				}
+			}
+
+			// Single Input Value With Case Sensitive Check.
+			if (!isMultiValues && isCaseSensitive) {
+				if (valueCompareSensitive(conditionValues, inputValue)) {
+					this.showField = !getConditionInert(condition);
+				}
+			}
+
+			// Single Input Value With Case In Sensitive Check.
+			if (!isMultiValues && !isCaseSensitive) {
+				if (
+					isInputTypeNumber &&
+					valueCompareSensitive(conditionValues, inputValue)
+				) {
+					this.showField = !getConditionInert(condition);
+				}
+
+				if (
+					!isInputTypeNumber &&
+					valueCompareInSensitive(conditionValues, inputValue)
+				) {
+					this.showField = !getConditionInert(condition);
+				}
+			}
+		},
+
+		IN_NUMBER_ARRAY: (condition, $selector, $selectors) => {
+			this.showField = getConditionInert(condition);
+
+			const conditionValues = getConditionValue(condition);
+
+			const isMultiValues = isMultiValueInputType($selector);
+
+			const inputValue = isMultiValues
+				? getInputValues($selectors)
+				: getInputValue($selector);
+
+			if (inputValue.length > 0 && conditionValues.includes(inputValue)) {
+				this.showField = !getConditionInert(condition);
+			}
+		},
+
+		// MATCH
+		MATCH: (condition, $selector, $selectors) => {
+			const compareValue = getConditionValue(condition);
+
 			this.showField = false;
-			const values = [];
-			let isCheck = false;
 			$selectors.forEach(($sl) => {
-				const v = getInputValue($sl);
+				const inputValue = getInputValue($sl);
 
-				if ($sl.checked && v) {
-					isCheck = true;
-					values.push(v);
+				// Multiple Select
+				if (!inputValue || Array.isArray(inputValue)) {
+					return;
 				}
+				const regexp = getRegExpParams(compareValue);
+				const matched = new RegExp(regexp.pattern, regexp.flags).test(
+					inputValue
+				);
 
-				if (v && v.length >= compareValue) {
+				// Text Input
+				if (inputValue && matched) {
 					this.showField = true;
 				}
 			});
-
-			// We check checkbox or radio checked length
-			if (isCheck && values.length >= compareValue) {
-				this.showField = true;
-			}
-		}
-	};
-
-	const checkLessThanEqual = (condition, $selector, $selectors) => {
-		const compareKey = getConditionKey(condition);
-
-		const compareValue = getConditionValue(condition);
-
-		const isValid = ['LESS THAN OR EQUAL'].includes(compareKey);
-
-		if (isValid) {
-			this.showField = false;
-			const values = [];
-			let isCheck = false;
-			$selectors.forEach(($sl) => {
-				const v = getInputValue($sl);
-
-				if ($sl.checked && v) {
-					isCheck = true;
-					values.push(v);
-				}
-
-				if (v && v.length <= compareValue) {
-					this.showField = true;
-				}
-			});
-
-			// We check checkbox or radio checked length
-			if (isCheck && values.length <= compareValue) {
-				this.showField = true;
-			}
-		}
-	};
-
-	const checkLessThan = (condition, $selector, $selectors) => {
-		const compareKey = getConditionKey(condition);
-
-		const compareValue = getConditionValue(condition);
-
-		const isValid = ['LESS THAN'].includes(compareKey);
-
-		if (isValid) {
-			this.showField = false;
-			const values = [];
-			let isCheck = false;
-			$selectors.forEach(($sl) => {
-				const v = getInputValue($sl);
-
-				if ($sl.checked && v) {
-					isCheck = true;
-					values.push(v);
-				}
-
-				if (v && v.length < compareValue) {
-					this.showField = true;
-				}
-			});
-
-			// We check checkbox or radio checked length
-			if (isCheck && values.length < compareValue) {
-				this.showField = true;
-			}
-		}
-	};
-
-	const checkGreaterThan = (condition, $selector, $selectors) => {
-		const compareKey = getConditionKey(condition);
-
-		const compareValue = getConditionValue(condition);
-
-		const isValid = ['GREATER THAN'].includes(compareKey);
-
-		if (isValid) {
-			this.showField = false;
-			const values = [];
-			let isCheck = false;
-			$selectors.forEach(($sl) => {
-				const v = getInputValue($sl);
-
-				if ($sl.checked && v) {
-					isCheck = true;
-					values.push(v);
-				}
-
-				if (v && v.length > compareValue) {
-					this.showField = true;
-				}
-			});
-
-			// We check checkbox or radio checked length
-			if (isCheck && values.length > compareValue) {
-				this.showField = true;
-			}
-		}
-	};
-
-	const checkBetween = (condition, $selector, $selectors) => {
-		const compareKey = getConditionKey(condition);
-		const compareValue = getConditionValue(condition);
-
-		const isValid = ['BETWEEN'].includes(compareKey);
-
-		if (isValid) {
-			this.showField = false;
-			const values = [];
-			let isCheck = false;
-			$selectors.forEach(($sl) => {
-				const v = getInputValue($sl);
-
-				if ($sl.checked && v) {
-					isCheck = true;
-					values.push(v);
-				}
-
-				if (v && compareValue.includes(v.length)) {
-					this.showField = true;
-				}
-			});
-
-			// We check checkbox or radio checked length
-			if (isCheck && compareValue.includes(values.length)) {
-				this.showField = true;
-			}
-		}
-	};
-
-	const checkNotBetween = (condition, $selector, $selectors) => {
-		const compareKey = getConditionKey(condition);
-		const compareValue = getConditionValue(condition);
-
-		const isValid = ['NOT BETWEEN'].includes(compareKey);
-
-		if (isValid) {
-			this.showField = true;
-			const values = [];
-			let isCheck = false;
-			$selectors.forEach(($sl) => {
-				const v = getInputValue($sl);
-
-				if ($sl.checked) {
-					isCheck = true;
-					values.push(v);
-				}
-				if (v && compareValue.includes(v.length)) {
-					this.showField = false;
-				}
-			});
-
-			// We check checkbox or radio checked length
-			if (isCheck && compareValue.includes(values.length)) {
-				this.showField = false;
-			}
-		}
-	};
-
-	const checkIn = (condition, $selector, $selectors) => {
-		const compareKey = getConditionKey(condition);
-
-		const compareValue = getConditionValue(condition);
-
-		const isValid = ['IN'].includes(compareKey);
-
-		if (isValid) {
-			this.showField = false;
-			$selectors.forEach(($sl) => {
-				const v = getInputValue($sl);
-
-				if (v && compareValue.includes(v)) {
-					this.showField = true;
-				}
-			});
-		}
-	};
-
-	const checkNotIn = (condition, $selector, $selectors) => {
-		const compareKey = getConditionKey(condition);
-
-		const compareValue = getConditionValue(condition);
-
-		const isValid = ['NOT IN'].includes(compareKey);
-
-		if (isValid) {
-			this.showField = true;
-			$selectors.forEach(($sl) => {
-				const v = getInputValue($sl);
-				if (v && !compareValue.includes(v)) {
-					this.showField = true;
-				}
-			});
-		}
+		},
 	};
 
 	const toggleInertAttribute = (value = true) => {
@@ -445,35 +695,22 @@ export function Plugin(element, options) {
 		}
 	};
 
+	// Check
 	const checkConditions = (condition, $selector, $selectors) => {
-		const compareKey = getConditionKey(condition);
+		const COMPARE_FUNCTION = getConditionFn(condition);
 
-		// console.log(compareKey);
+		console.log(COMPARE_FUNCTION);
 
-		if (isValidCompareKey(compareKey)) {
-			checkExists(condition, $selector, $selectors);
-
-			checkNotExists(condition, $selector, $selectors);
-
-			checkEqual(condition, $selector, $selectors);
-
-			checkNotEqual(condition, $selector, $selectors);
-
-			checkIn(condition, $selector, $selectors);
-
-			checkNotIn(condition, $selector, $selectors);
-
-			checkGreaterThanEqual(condition, $selector, $selectors);
-
-			checkGreaterThan(condition, $selector, $selectors);
-
-			checkLessThanEqual(condition, $selector, $selectors);
-
-			checkLessThan(condition, $selector, $selectors);
-
-			checkBetween(condition, $selector, $selectors);
-
-			checkNotBetween(condition, $selector, $selectors);
+		if (typeof COMPARE_FUNCTIONS[COMPARE_FUNCTION] === 'function') {
+			COMPARE_FUNCTIONS[COMPARE_FUNCTION](
+				condition,
+				$selector,
+				$selectors
+			);
+		} else {
+			throw new Error(
+				'Compare function "' + COMPARE_FUNCTION + '" not available.'
+			);
 		}
 
 		this.matched.set(condition.selector, this.showField);
@@ -493,6 +730,25 @@ export function Plugin(element, options) {
 				toggleInertAttribute(true);
 			}
 		}
+
+		if (this.relation === 'XOR') {
+			if (
+				[...this.matched.values()].filter((t) => t === true).length ===
+				1
+			) {
+				toggleInertAttribute(false);
+			} else {
+				toggleInertAttribute(true);
+			}
+		}
+
+		if (this.relation === 'NOT') {
+			if (![...this.matched.values()].every((t) => t === true)) {
+				toggleInertAttribute(false);
+			} else {
+				toggleInertAttribute(true);
+			}
+		}
 	};
 
 	const reset = () => {
@@ -501,63 +757,125 @@ export function Plugin(element, options) {
 		this.controller.abort();
 	};
 
-	const prepareCondition = (condition) => {
-		// Set default value true
-		if (typeof condition[OPERATORS.VALUE_OPERATOR.KEY] === 'undefined') {
-			condition[OPERATORS.VALUE_OPERATOR.KEY] =
-				OPERATORS.VALUE_OPERATOR.DEFAULT;
+	const isArrayValue = (condition) =>
+		typeof condition[getValueOperatorKey()] === 'object' &&
+		Array.isArray(condition[getValueOperatorKey()]);
+
+	const normalizeCondition = (condition) => {
+		// Remove Predefined FN, we will add fn based on type.
+		delete condition[getFnOperatorKey()];
+		// Remove Predefined Check, we will add on type.
+		delete condition[getCheckByOperatorKey()];
+
+		// Set default compare = EQ.
+		if (typeof getConditionCompare(condition) === 'undefined') {
+			setConditionCompare(condition, getCompareOperatorDefault());
 		}
 
-		// Value type boolean.
-		if (typeof condition[OPERATORS.VALUE_OPERATOR.KEY] === 'boolean') {
-			condition[OPERATORS.COMPARE_OPERATOR.KEY] = condition[
-				OPERATORS.VALUE_OPERATOR.KEY
-			]
-				? getCompareKey('NOT EMPTY')
-				: getCompareKey('EMPTY');
+		// Set default strict = false, will use for array values.
+		if (typeof getConditionStrict(condition) === 'undefined') {
+			setConditionStrict(condition, getStrictOperatorDefault());
 		}
 
-		// Value type string.
-		if (typeof condition[OPERATORS.VALUE_OPERATOR.KEY] === 'string') {
-			condition[OPERATORS.COMPARE_OPERATOR.KEY] = getCompareKey('EQUAL');
+		// Set default case = false
+		if (typeof getConditionCase(condition) === 'undefined') {
+			setConditionCase(condition, getCaseOperatorDefault());
 		}
 
-		// Value type number.
-		if (typeof condition[OPERATORS.VALUE_OPERATOR.KEY] === 'number') {
-			condition[OPERATORS.COMPARE_OPERATOR.KEY] = getCompareKey(
-				'GREATER THAN OR EQUAL'
+		// Set default inert = false
+		if (typeof getConditionInert(condition) === 'undefined') {
+			setConditionInert(condition, getInertOperatorDefault());
+		}
+
+		// Set default type = BOOLEAN
+		if (typeof getConditionType(condition) === 'undefined') {
+			setConditionType(condition, getTypeOperatorDefault());
+		}
+
+		// Set default value = false
+		if (typeof getConditionValue(condition) === 'undefined') {
+			setConditionValue(condition, getValueOperatorDefault());
+		}
+
+		// Decision based on type.
+
+		// If "value" type boolean.
+		if (typeof getConditionValue(condition) === 'boolean') {
+			setConditionType(condition, 'BOOLEAN');
+			setConditionCheckBy(condition, 'LENGTH');
+
+			if (getConditionValue(condition) === false) {
+				setConditionInert(condition, true);
+			}
+
+			setConditionFn(
+				condition,
+				getFnNameByType(getConditionType(condition))
 			);
-			condition[OPERATORS.TYPE_OPERATOR.KEY] = 'CHAR';
 		}
 
-		// Value type array.
-		if (
-			typeof condition[OPERATORS.VALUE_OPERATOR.KEY] === 'object' &&
-			Array.isArray(condition[OPERATORS.VALUE_OPERATOR.KEY])
-		) {
-			const isAllNumber = condition[OPERATORS.VALUE_OPERATOR.KEY].every(
-				(t) => typeof t === 'number'
+		// If "value" type string.
+		if (typeof getConditionValue(condition) === 'string') {
+			// Check for ELEMENT type.
+
+			if (!['ELEMENT'].includes(getConditionType(condition))) {
+				setConditionType(condition, 'STRING');
+			}
+
+			setConditionCheckBy(condition, 'VALUE');
+			setConditionFn(
+				condition,
+				getFnNameByType(getConditionType(condition))
+			);
+		}
+
+		// If "value" type number.
+		if (typeof getConditionValue(condition) === 'number') {
+			setConditionType(condition, 'NUMBER');
+			setConditionCheckBy(condition, 'LENGTH');
+			setConditionFn(
+				condition,
+				getFnNameByType(getConditionType(condition))
+			);
+		}
+
+		// If "value" type array.
+		if (isArrayValue(condition)) {
+			const IS_NUMBER_ARRAY = getConditionValue(condition).every(
+				(v) => typeof v === 'number'
 			);
 
-			if (isAllNumber) {
-				condition[OPERATORS.COMPARE_OPERATOR.KEY] =
-					getCompareKey('BETWEEN');
-				condition[OPERATORS.TYPE_OPERATOR.KEY] = 'CHAR';
+			if (IS_NUMBER_ARRAY) {
+				setConditionCheckBy(condition, 'LENGTH');
+				// Check for MINMAX and RANGE type.
+				if (
+					!['MINMAX', 'RANGE'].includes(getConditionType(condition))
+				) {
+					setConditionType(condition, 'NUMBER-ARRAY');
+				}
+
+				setConditionFn(
+					condition,
+					getFnNameByType(getConditionType(condition))
+				);
 			} else {
-				condition[OPERATORS.COMPARE_OPERATOR.KEY] = getCompareKey('IN');
+				setConditionCheckBy(condition, 'VALUE');
+				setConditionType(condition, 'STRING-ARRAY');
+				setConditionFn(
+					condition,
+					getFnNameByType(getConditionType(condition))
+				);
 			}
 		}
 
-		// Set Defaults
-		if (typeof condition[OPERATORS.COMPARE_OPERATOR.KEY] === 'undefined') {
-			condition[OPERATORS.COMPARE_OPERATOR.KEY] =
-				OPERATORS.COMPARE_OPERATOR.DEFAULT;
-		}
-
-		// Set Defaults
-		if (typeof condition[OPERATORS.TYPE_OPERATOR.KEY] === 'undefined') {
-			condition[OPERATORS.TYPE_OPERATOR.KEY] =
-				OPERATORS.TYPE_OPERATOR.DEFAULT;
+		// If "value" type RegExp.
+		if (isValidRegExp(condition)) {
+			setConditionCheckBy(condition, 'VALUE');
+			setConditionType(condition, 'REGEXP');
+			setConditionFn(
+				condition,
+				getFnNameByType(getConditionType(condition))
+			);
 		}
 
 		return condition;
@@ -567,14 +885,14 @@ export function Plugin(element, options) {
 		for (const key in this.settings) {
 			if (!isNaN(key)) {
 				const condition = this.settings[key];
-				this.conditions.push(prepareCondition(condition));
+				this.conditions.push(normalizeCondition(condition));
 			}
 		}
 
 		if (this.conditions.length < 1) {
 			const condition = this.settings;
 
-			this.conditions.push(prepareCondition(condition));
+			this.conditions.push(normalizeCondition(condition));
 		}
 	};
 
@@ -594,7 +912,7 @@ export function Plugin(element, options) {
 				getConditionSelector(condition)
 			);
 
-			if (condition[OPERATORS.TYPE_OPERATOR.KEY] === 'ELEMENT') {
+			if (getConditionType(condition) === 'ELEMENT') {
 				const $elements = document.querySelectorAll(
 					condition[OPERATORS.VALUE_OPERATOR.KEY]
 				);

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Conditional Field Display</title>
+	<link rel="stylesheet" href="../build/style-conditional-field.css" />
+	<link rel="stylesheet" href="../style.css" />
+</head>
+
+<body>
+
+<div class="wrapper">
+
+	<code>
+		- {"selector":"#InputName"} // Show if: not empty DEFAULT.
+		- {"selector":"#InputName", "value": true} // Show if: EXISTS
+		- {"selector":"#InputName", "value": false} // Show if: NOT EXISTS
+
+		- {"selector":"#InputName", "value": "hello"}
+		- {"selector":"#InputName", "value": "hello", "strict": true} // Check uppercase or lowercase too.
+		- {"selector":"#InputName", "value": "hello", "strict": true, "inert": true} // Check uppercase or lowercase too.
+		- {"selector":"#InputName", "value": "5"}
+
+		- {"selector":"#InputName", "value": 5}
+
+		- {"selector":"#InputName", "value": ["hello", "hi"]}
+		- {"selector":"#InputName", "value": ["hello", "hi"], "strict": true}
+
+
+		- {"selector":"#InputName", "value": [4, 5]}
+	</code>
+
+
+	<form action="#" method="post">
+		<h1>Example With <code class="inline">EXISTS</code></h1>
+
+
+		<select id="test-box">
+			<option>{"selector":"#selector", "value": "hello"}</option>
+			<option>{"selector":"#selector", "value": "hello", "inert": true}</option>
+
+			<option>{"selector":"#selector", "value": 4}</option>
+			<option>{"selector":"#selector", "value": 4, "compare":">"}</option>
+			<option>{"selector":"#selector", "value": 4, "compare":">="}</option>
+			<option>{"selector":"#selector", "value": 4, "compare":"<="}</option>
+			<option>{"selector":"#selector", "value": 4, "compare":"<"}</option>
+
+			<option>{"selector":"#selector", "value": "1"}</option>
+			<option>{"selector":"#selector", "value": "1", "inert": true}</option>
+
+			<option>{"selector":"#selector", "value": ["1", "2"]}</option>
+
+			<option>{"selector":"#selector", "value": "three"}</option>
+			<option>{"selector":"#selector", "value": "three", "case": true}</option>
+			<option>{"selector":"#selector", "value": "three", "case": true, "strict": true}</option>
+			<option>{"selector":"#selector", "value": "THREE", "case": true, "strict": true}</option>
+
+			<option>{"selector":"#selector", "value": "THREE"}</option>
+			<option>{"selector":"#selector", "value": "THREE", "strict": true}</option>
+
+			<option>{"selector":"#selector", "value": ["three", "four"]}</option>
+			<option>{"selector":"#selector", "value": ["Three", "four"], "case": true}</option>
+			<option>{"selector":"#selector", "value": ["three", "four"], "strict": true}</option>
+			<option>{"selector":"#selector", "value": ["THREE", "FOUR"]}</option>
+			<option>{"selector":"#selector", "value": ["THREE", "FOUR"], "strict": true}</option>
+
+			<option>{"selector":"#selector", "value": "FIVE"}</option>
+			<option>{"selector":"#selector", "value": "FIVE", "strict": true}</option>
+			<option>{"selector":"#selector", "value": ["FIVE"], "strict": true}</option>
+
+			<option>{"selector":"#selector", "value": "Eight"}</option>
+			<option>{"selector":"#selector", "value": "Eight", "strict": true}</option>
+			<option>{"selector":"#selector", "value": ["Eight"], "strict": true}</option>
+			<option>{"selector":"#selector", "value": "Eight", "inert": true}</option>
+		</select>
+
+		<button id="check-btn" type="button">Check</button>
+		<ul>
+
+			<li class="input-group">
+				<label for="InputText">#InputText: <code class="inline"></code></label>
+				<input type="search" class="form-control input-name" id="InputText">
+				<p inert data-storepress-conditional-field='{"selector":"#InputText"}' class="message"></p>
+			</li>
+
+			<li class="input-group">
+				<label for="InputNumber">#InputNumber: <code class="inline"></code></label>
+				<input type="number" class="form-control input-name" id="InputNumber">
+				<p inert data-storepress-conditional-field='{"selector":"#InputNumber"}' class="message"></p>
+			</li>
+
+
+			<li class="select-group">
+				<label for="InputSelect"> Select Box Single <code class="inline"></code></label>
+				<select id="InputSelect" name="inp-select">
+					<option value=""> - Choose -</option>
+					<option value="1">1</option>
+					<option value="2">2</option>
+
+					<option value="three">three</option>
+
+					<option value="four">four</option>
+
+					<option value="FIVE">FIVE</option>
+					<option value="SIX">SIX</option>
+
+					<option value="Seven">Seven</option>
+					<option value="Eight">Eight</option>
+				</select>
+				<p inert data-storepress-conditional-field='{"selector":"#InputSelect"}' class="message"></p>
+
+			</li>
+
+			<li class="select-group">
+				<label for="InputSelectMultiple"> Select Box Multiple <code class="inline"></code></label>
+				<select multiple id="InputSelectMultiple" name="inp-select">
+					<option value=""> - Choose -</option>
+					<option value="1">1</option>
+					<option value="2">2</option>
+
+					<option value="three">three</option>
+					<option value="four">four</option>
+
+					<option value="FIVE">FIVE</option>
+					<option value="SIX">SIX</option>
+
+					<option value="Seven">Seven</option>
+					<option value="Eight">Eight</option>
+				</select>
+				<p inert data-storepress-conditional-field='{"selector":"#InputSelectMultiple"}' class="message"></p>
+			</li>
+
+			<li class="input-group">
+
+				<code class="inline"></code>
+
+				<ul class="checkbox-group">
+
+
+					<li>
+						<label for="InputCheckboxE">Input Check value: empty</label>
+						<input type="checkbox" id="InputCheckboxE">
+					</li>
+
+					<li>
+						<label for="InputCheckbox1">Input Check value: 1</label>
+						<input type="checkbox" value="1" id="InputCheckbox1">
+					</li>
+					<li>
+						<label for="InputCheckbox1x">Input Check value: 2</label>
+						<input type="checkbox" value="2" id="InputCheckbox1x">
+					</li>
+					<li>
+						<label for="InputCheckbox2">Input Check value: three</label>
+						<input type="checkbox" value="three" id="InputCheckbox2">
+					</li>
+					<li>
+						<label for="InputCheckbox2x">Input Check value: four</label>
+						<input type="checkbox" value="four" id="InputCheckbox2x">
+					</li>
+					<li>
+						<label for="InputCheckbox3x">Input Check value: FIVE</label>
+						<input type="checkbox" value="FIVE" id="InputCheckbox3x">
+					</li>
+					<li>
+						<label for="InputCheckbox3">Input Check value: SIX</label>
+						<input type="checkbox" value="SIX" id="InputCheckbox3">
+					</li>
+					<li>
+						<label for="InputCheckbox4">Input Check value: Seven</label>
+						<input type="checkbox" value="Seven" id="InputCheckbox4">
+					</li>
+					<li>
+						<label for="InputCheckbox5x">Input Check value: Eight</label>
+						<input type="checkbox" value="Eight" id="InputCheckbox5x">
+					</li>
+				</ul>
+
+				<p inert data-storepress-conditional-field='{"selector":".checkbox-group input"}' class="message"></p>
+
+			</li>
+
+			<li class="radio-group">
+				<p>Radio Group</p>
+				<code class="inline"></code>
+				<label><input type="radio" name="radio" value=""> <span>Radio None - </span></label>
+				<label><input type="radio" name="radio" value="1"> <span>1</span></label>
+				<label><input type="radio" name="radio" value="2"> <span>2</span></label>
+				<label><input type="radio" name="radio" value="three"> <span>three</span></label>
+				<label><input type="radio" name="radio" value="four"> <span>four</span></label>
+				<label><input type="radio" name="radio" value="FIVE"> <span>FIVE</span></label>
+				<label><input type="radio" name="radio" value="SIX"> <span>SIX</span></label>
+				<label><input type="radio" name="radio" value="Seven"> <span>Seven</span></label>
+				<label><input type="radio" name="radio" value="Eight"> <span>Eight</span></label>
+
+				<p inert data-storepress-conditional-field='{"selector":".radio-group input"}' class="message"></p>
+
+			</li>
+
+			<li class="input-group">
+				<label for="InputRange">#InputRange: <code class="inline"></code></label>
+				<input value="" min="1" max="500" type="range" class="form-control input-name" id="InputRange">
+				<p inert data-storepress-conditional-field='{"selector":"#InputRange"}' class="message"></p>
+			</li>
+
+			<!--
+			<li class="input-group">
+				<label for="InputText2">#InputText2: <code class="inline">{"selector":"#InputText2", "value":false}</code></label>
+				<input type="text" class="form-control input-name" id="InputText2">
+				<p inert data-storepress-conditional-field='{"selector":"#InputText2", "value":false}' class="message">{"selector":"#InputText2", "value":false}</p>
+			</li>
+
+			<li class="input-group">
+				<label for="InputNumber">#InputNumber: <code class="inline">{"selector":"#InputNumber"}</code></label>
+				<input type="number" class="form-control input-name" id="InputNumber">
+				<p inert data-storepress-conditional-field='{"selector":"#InputNumber"}' class="message">{"selector":"#InputNumber"}</p>
+			</li>
+
+
+			<li class="select-group">
+				<label for="InputSelect"> Select Box Single <code class="inline">{"selector":"#InputSelect"}</code></label>
+				<select id="InputSelect" name="inp-select">
+					<option value=""> - Choose -</option>
+					<option value="1">One</option>
+					<option value="2">Two</option>
+					<option value="3">Three</option>
+					<option value="4">Four</option>
+					<option value="5">Five</option>
+					<option value="6">Six</option>
+				</select>
+				<p inert data-storepress-conditional-field='{"selector":"#InputSelect"}' class="message">{"selector":"#InputSelect"}</p>
+
+			</li>
+
+			<li class="select-group">
+				<label for="InputSelectMultiple"> Select Box Multiple <code class="inline">{"selector":"#InputSelectMultiple"}</code></label>
+				<select multiple id="InputSelectMultiple" name="inp-select">
+					<option value=""> - Choose -</option>
+					<option value="1">One</option>
+					<option value="2">Two</option>
+					<option value="3">Three</option>
+					<option value="4">Four</option>
+					<option value="5">Five</option>
+					<option value="6">Six</option>
+				</select>
+				<p inert data-storepress-conditional-field='{"selector":"#InputSelectMultiple"}' class="message">{"selector":"#InputSelectMultiple"}</p>
+			</li>
+
+
+			<li class="input-group">
+
+				<code class="inline">{"selector":".checkbox-group input"}</code>
+
+				<ul class="checkbox-group">
+					<li>
+						<label for="InputCheckbox1">Input Check value: 1</label>
+						<input type="checkbox" value="1" id="InputCheckbox1">
+					</li>
+					<li>
+						<label for="InputCheckbox2">Input Check value: 2</label>
+						<input type="checkbox" value="2" id="InputCheckbox2">
+					</li>
+					<li>
+						<label for="InputCheckbox3">Input Check value: 3</label>
+						<input type="checkbox" value="3" id="InputCheckbox3">
+					</li>
+					<li>
+						<label for="InputCheckbox4">Input Check value: 4</label>
+						<input type="checkbox" value="4" id="InputCheckbox4">
+					</li>
+					<li>
+						<label for="InputCheckbox5">Input Check value: 5</label>
+						<input type="checkbox" value="5" id="InputCheckbox5">
+					</li>
+					<li>
+						<label for="InputCheckbox6">Input Check value: 6</label>
+						<input type="checkbox" value="6" id="InputCheckbox6">
+					</li>
+				</ul>
+
+				<p inert data-storepress-conditional-field='[{"selector":".checkbox-group input", "value": ["2", "4"]}]' class="message">
+					{"selector":".checkbox-group input"}
+				</p>
+			</li>
+
+			<li class="radio-group">
+				<p>Radio Group</p>
+				<code class="inline">{"selector":".radio-group input"}</code>
+				<label><input type="radio" name="radio" value=""> <span>Radio None</span></label>
+				<label><input type="radio" name="radio" value="1"> <span>Radio One</span></label>
+				<label><input type="radio" name="radio" value="2"> <span>Radio Two</span></label>
+				<label><input type="radio" name="radio" value="3"> <span>Radio Three</span></label>
+				<label><input type="radio" name="radio" value="4"> <span>Radio Four</span></label>
+
+				<p inert data-storepress-conditional-field='{"selector":".radio-group input"}' class="message">
+					{"selector":".radio-group input"}
+				</p>
+
+			</li>
+
+
+			<li class="input-group">
+				<label for="InputRange">#InputRange: <code class="inline">{"selector":"#InputRange", "value": 9}</code></label>
+				<input min="1" max="500" type="number" class="form-control input-name" id="InputRange">
+				<p inert data-storepress-conditional-field='{"selector":"#InputRange", "value": 2}' class="message">{"selector":"#InputRange", "value": 9}</p>
+			</li>-->
+
+		</ul>
+		<input type="reset">
+	</form>
+</div>
+
+
+<script src="../build/storepress-utils.js"></script>
+
+
+<script type="text/javascript">
+	document.querySelectorAll('[data-storepress-conditional-field]').forEach((el) => {
+		const currentCondition = StorePress.Utils.getOptionsFromAttribute(el, 'storepress-conditional-field');
+
+		const inputCondition = JSON.parse(document.querySelector('#test-box').value.trim());
+
+		//const condition = { ...inputCondition, ...currentCondition };
+
+		inputCondition['selector'] = currentCondition['selector'];
+		// const condition = { ...inputCondition };
+
+		el.parentElement.querySelector('.inline').innerText = JSON.stringify(inputCondition);
+
+		el.innerText = JSON.stringify(inputCondition);
+
+		el.dataset.storepressConditionalField = JSON.stringify(inputCondition);
+	});
+
+	document.querySelector('#test-box').addEventListener('change', (event) => {
+
+		const input = event.target.value;
+
+		const inputCondition = JSON.parse(input);
+
+		document.querySelectorAll('[data-storepress-conditional-field]').forEach((el) => {
+			const currentCondition = StorePress.Utils.getOptionsFromAttribute(el, 'storepress-conditional-field');
+
+			inputCondition['selector'] = currentCondition['selector'];
+
+			// const condition = { ...inputCondition };
+
+			el.parentElement.querySelector('.inline').innerText = JSON.stringify(inputCondition);
+
+			el.innerText = JSON.stringify(inputCondition);
+
+			el.dataset.storepressConditionalField = JSON.stringify(inputCondition);
+		});
+
+		StorePress.Utils.triggerEvent(document, 'storepress_conditional_field_re_init', {
+			element: ['[data-storepress-conditional-field]'],
+			settings: {},
+		});
+	});
+</script>
+
+<script src="../build/conditional-field.js"></script>
+</body>
+</html>

@@ -47,6 +47,8 @@
 		{"selector":"#color","value":[10, 20]}
 		{"selector":"#color","value":[10, 20], "compare": "BETWEEN", "type": "CHAR"}
 
+		{"selector":"#color","value":[10, 20], "compare": "RANGE"}
+
 
 		{"selector":"#color","value":"#blue", "type": "ELEMENT"}
 		{"selector":"#color","value":"#blue", "compare": "EQUAL", "type": "ELEMENT"}
@@ -55,6 +57,7 @@
 		{"selector":"#color","value":"#blue","compare": "GREATER THAN OR EQUAL", "type": "ELEMENT"}
 		{"selector":"#color","value":"#blue", "compare": "GREATER THAN OR EQUAL", "type": "ELEMENT"}
 
+		{"relation": "AND","0": {"selector": "#r1"},"1": {"selector": "#r2"}}
 
 		- data-storepress-conditional-field--relation="OR"
 
@@ -67,6 +70,14 @@
 
 	<form action="#" method="post">
 		<ul>
+
+			<li>
+				<p>1: <input type="text" class="form-control input-name" value="" id="r1" placeholder="R1"></p>
+				<p>2: <input type="text" class="form-control input-name" value="" id="r2" placeholder="R2"></p>
+				<p class="message" inert data-storepress-conditional-field='{"relation": "AND","0": {"selector": "#r1"},"1": {"selector": "#r2"}}'>Show if R1 and R2 both have value</p>
+				<p class="message" inert data-storepress-conditional-field--relation="OR" data-storepress-conditional-field='[{"selector": "#r1"}, {"selector": "#r2"}]'>Show if R1 OR R2 have value</p>
+			</li>
+
 			<li class="input-group">
 				<label for="InputText">Input Field:</label>
 				<input type="text" class="form-control input-name" value="" id="InputText" placeholder="Input Field">
@@ -104,9 +115,17 @@
 
 			<li inert data-storepress-conditional-field='{"selector":"#InputText", "value":[5, 10]}'>
 				<p class="message">
-					This field will show if "Input Field" value length between 5 and 10.
+					This field will show if "Input Field" value length is 5 to 10.
 				</p>
 			</li>
+
+			<li inert data-storepress-conditional-field='{"selector":"#InputText", "value":[5, 10], "compare": "IN"}'>
+				<p class="message">
+					This field will show if "Input Field" value length in 5 or 10.
+				</p>
+			</li>
+
+
 
 
 			<li>
@@ -185,7 +204,6 @@
 				<label><input type="radio" name="radio" value="4"> <span>Radio Four</span></label>
 			</li>
 
-
 			<li inert data-storepress-conditional-field='{"selector":".radio-group input"}'>
 				<p class="message">
 					This field will show if "Radio Group" have some checked.
@@ -216,13 +234,6 @@
 				</p>
 			</li>
 
-			<li inert data-storepress-conditional-field='{"selector":".radio-group input", "value":[2, 3]}'>
-				<p class="message">
-					This field will show if "Radio Group" value length between 2 and 3.
-				</p>
-			</li>
-
-
 			<li class="select-group">
 				<label for="InputSelect"> Select Box </label>
 				<select id="InputSelect" name="inp-select">
@@ -234,6 +245,22 @@
 				</select>
 			</li>
 
+			<li class="select-group-2">
+				<label for="InputSelect2"> Select Box </label>
+				<select multiple id="InputSelect2" name="inp-select-2">
+					<option value=""> - Choose -</option>
+					<option value="1">One</option>
+					<option value="2">Two</option>
+					<option value="3">Three</option>
+					<option value="4">Four</option>
+				</select>
+			</li>
+
+			<li inert data-storepress-conditional-field='{"selector":"#InputSelect2", "value":[2,3]}'>
+				<p class="message">
+					xxxxx X This field will show if "Radio Group" value length between 2 and 3.
+				</p>
+			</li>
 
 			<li inert data-storepress-conditional-field='{"selector":"#InputSelect"}'>
 				<p class="message">
@@ -271,6 +298,24 @@
 				</p>
 			</li>
 
+
+
+			<li>
+				<label for="InputTextNumber">Input Field Number:</label>
+				<input type="number" class="form-control input-name" value="" id="InputTextNumber" placeholder="Input Field Number">
+			</li>
+
+			<li inert data-storepress-conditional-field='{"selector":"#InputTextNumber", "value":[5, 10]}'>
+				<p class="message">
+					Check Range: This field will show if "Input Field Number" value if 5 to 10.
+				</p>
+			</li>
+
+			<li inert data-storepress-conditional-field='{"selector":"#InputTextNumber", "value":[5, 10], "compare": "IN"}'>
+				<p class="message">
+					Check In: This field will show if "Input Field Number" value between 5 and 10.
+				</p>
+			</li>
 		</ul>
 	</form>
 </div>

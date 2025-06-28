@@ -5,6 +5,7 @@ import {
 	createPluginInstance,
 	triggerEvent,
 	getPluginInstance,
+	waitAsync,
 } from '@storepress/utils';
 
 /**
@@ -12,8 +13,8 @@ import {
  */
 import { Plugin } from './Plugin';
 
-export default function StorePressConditionalFieldPlugin() {
-	const StorePressConditionalField = {
+function StorePressConditionalField() {
+	const ConditionalField = {
 		getInstance(element, options) {
 			return createPluginInstance(element, options, Plugin);
 		},
@@ -55,10 +56,10 @@ export default function StorePressConditionalFieldPlugin() {
 
 			if (Array.isArray(element)) {
 				for (const el of element) {
-					StorePressConditionalField.initWith(el, settings);
+					ConditionalField.initWith(el, settings);
 				}
 			} else {
-				StorePressConditionalField.initWith(element, settings);
+				ConditionalField.initWith(element, settings);
 			}
 		},
 		{ passive: true }
@@ -72,10 +73,10 @@ export default function StorePressConditionalFieldPlugin() {
 
 			if (Array.isArray(element)) {
 				for (const el of element) {
-					StorePressConditionalField.destroyWith(el);
+					ConditionalField.destroyWith(el);
 				}
 			} else {
-				StorePressConditionalField.destroyWith(element);
+				ConditionalField.destroyWith(element);
 			}
 		},
 		{ passive: true }
@@ -91,10 +92,10 @@ export default function StorePressConditionalFieldPlugin() {
 
 			if (Array.isArray(element)) {
 				for (const el of element) {
-					StorePressConditionalField.reInitWith(el, settings);
+					ConditionalField.reInitWith(el, settings);
 				}
 			} else {
-				StorePressConditionalField.reInitWith(element, settings);
+				ConditionalField.reInitWith(element, settings);
 			}
 		},
 		{ passive: true }
@@ -102,9 +103,14 @@ export default function StorePressConditionalFieldPlugin() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-	StorePressConditionalFieldPlugin();
+	StorePressConditionalField();
+
+	//await waitAsync(1000);
+
 	triggerEvent(document, 'storepress_conditional_field_init', {
 		element: ['[data-storepress-conditional-field]'],
 		settings: {},
 	});
 });
+
+export default StorePressConditionalField;

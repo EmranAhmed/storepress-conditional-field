@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Conditional Field Display</title>
+	<link rel="stylesheet" href="./build/style-conditional-field.css" />
+	<link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+
+<div class="wrapper">
+
+
+	<code>
+		- {"selector":"#InputName"} // Show if: not empty
+		- {"selector":"#InputName", "value": true} // Show if: not empty
+		- {"selector":"#InputName", "value": false} // Show if: empty
+		- {"selector":"#InputName", "value": "hello"} // Show if: value is "hello"
+		- {"selector":"#InputName", "value": ["yes", "no"]} // Show if: value = "yes" or "no"
+		- {"selector":"#InputName", "value": 5} // Show if: value length >= 5
+
+
+		///
+
+		{"selector":"#color"}
+		{"selector":"#color","value":true, "compare": "NOT EMPTY", "type": "STRING"}
+
+
+		{"selector":"#color", "value":false}
+		{"selector":"#color","value":false, "compare": "EMPTY", "type": "STRING"}
+
+
+		{"selector":"#color","value":"blue"}
+		{"selector":"#color","value":"blue", "compare": "EQUAL", "type": "STRING"}
+
+
+		{"selector":"#color","value":10}
+		{"selector":"#color","value":10, "compare": "GREATER THAN OR EQUAL", "type": "CHAR"}
+
+
+		{"selector":"#color","value":["yes", "no"]}
+		{"selector":"#color","value":["yes", "no"], "compare": "IN", "type": "STRING"}
+
+
+		{"selector":"#color","value":[10, 20]}
+		{"selector":"#color","value":[10, 20], "compare": "BETWEEN", "type": "CHAR"}
+
+		{"selector":"#color","value":[10, 20], "compare": "RANGE"}
+
+
+		{"selector":"#color","value":"#blue", "type": "ELEMENT"}
+		{"selector":"#color","value":"#blue", "compare": "EQUAL", "type": "ELEMENT"}
+
+
+		{"selector":"#color","value":"#blue","compare": "GREATER THAN OR EQUAL", "type": "ELEMENT"}
+		{"selector":"#color","value":"#blue", "compare": "GREATER THAN OR EQUAL", "type": "ELEMENT"}
+
+		{"relation": "AND","0": {"selector": "#r1"},"1": {"selector": "#r2"}}
+
+		- data-storepress-conditional-field--relation="OR"
+
+		- StorePress.Utils.triggerEvent( document, 'storepress_conditional_field_destroy', {
+		element: [ '[data-storepress-conditional-field]' ],
+		settings: {},
+		} )
+	</code>
+
+
+	<form action="#" method="post">
+		<ul>
+
+			<li class="select-group">
+				<label for="InputSelect"> Select Box Single </label>
+				<select id="InputSelect" name="inp-select">
+					<option value=""> - Choose -</option>
+					<option value="1">One</option>
+					<option value="2">Two</option>
+					<option value="3">Three</option>
+					<option value="4">Four</option>
+					<option value="5">Five</option>
+					<option value="6">Six</option>
+				</select>
+			</li>
+
+			<li class="select-group-2">
+				<label for="InputSelect2"> Select Box Multiple </label>
+				<select multiple id="InputSelect2" name="inp-select-2">
+					<option value=""> - Choose -</option>
+					<option value="1">One</option>
+					<option value="2">Two</option>
+					<option value="3">Three</option>
+					<option value="4">Four</option>
+					<option value="5">Five</option>
+					<option value="6">Six</option>
+				</select>
+			</li>
+
+			<li inert data-storepress-conditional-field='{"selector":"#InputSelect2", "value":[2,4]}'>
+				<p class="message">
+					This field will show if "Select Box Multiple" selected value length between 2 and 4.
+				</p>
+			</li>
+
+			<li inert data-storepress-conditional-field='{"selector":"#InputSelect2", "value":["2","4"]}'>
+				<p class="message">
+					This field will show if "Select Box Multiple" selected value should 2 and 4.
+				</p>
+			</li>
+
+			<li inert data-storepress-conditional-field='{"selector":"#InputSelect2", "value":"2"}'>
+				<p class="message">
+					This field will show if "Select Box Multiple" selected value should 2.
+				</p>
+			</li>
+
+			<li inert data-storepress-conditional-field='{"selector":"#InputSelect2", "value":2}'>
+				<p class="message">
+					This field will show if "Select Box Multiple" selected value length should 2.
+				</p>
+			</li>
+
+			<li inert data-storepress-conditional-field='{"selector":"#InputSelect2"}'>
+				<p class="message">
+					This field will show if "Select Box Multiple" should not empty
+				</p>
+			</li>
+
+			<li inert data-storepress-conditional-field='{"selector":"#InputSelect2", "value": "#InputSelect"}'>
+				<p class="message">
+					This field will show if "Select Box Multiple" should match with "Select Box Single"
+				</p>
+			</li>
+
+
+		</ul>
+	</form>
+</div>
+
+<script src="./build/storepress-utils.js"></script>
+<script src="./build/conditional-field.js"></script>
+</body>
+</html>
