@@ -84,7 +84,16 @@ export function Plugin(element, options) {
 			KEY: 'inert',
 			DEFAULT: false,
 		},
-		// strict: will apply for only MultiSelectBox and CheckBox values.
+		// strict: boolean. Will apply for only SELECT-MULTIPLE and CHECKBOX values.
+		// Like: "A" == ['A'] will TRUE.
+		// Like: "B" == ['b'] will TRUE.
+		// Like: "A" == ['a','b'] will FALSE.
+		// Like: "B" == ['A','B'] will FALSE.
+
+		// Like: ["A", "B"] == ['A','B'] will TRUE.
+		// Like: ["A", "B"] == ['a','b'] will TRUE.
+		// Like: ["A", "B"] == ['b','a'] will TRUE.
+		// Like: ["A", "B"] == ['a','b','c'] will FALSE.
 		STRICT_OPERATOR: {
 			KEY: 'strict',
 			DEFAULT: false,
@@ -94,11 +103,19 @@ export function Plugin(element, options) {
 			KEY: 'case',
 			DEFAULT: false,
 		},
-		// Check Case Sensitivity.
+
 		CHECK_BY_OPERATOR: {
 			KEY: 'check',
 			DEFAULT: 'LENGTH',
 			AVAILABLE: ['LENGTH', 'VALUE'],
+		},
+		// require: boolean. if strict = false Will apply for only SELECT-MULTIPLE and CHECKBOX values.
+		// Only for STRING-ARRAY Type.
+		// "require" operator will always false if strict = true.
+
+		REQUIRE_OPERATOR: {
+			KEY: 'require',
+			DEFAULT: false,
 		},
 
 		FN_OPERATOR: {
@@ -135,6 +152,14 @@ export function Plugin(element, options) {
 
 	const getValueOperatorKey = () => {
 		return OPERATORS.VALUE_OPERATOR.KEY;
+	};
+
+	const getRequireOperatorKey = () => {
+		return OPERATORS.REQUIRE_OPERATOR.KEY;
+	};
+
+	const getRequireOperatorDefault = () => {
+		return OPERATORS.REQUIRE_OPERATOR.DEFAULT;
 	};
 
 	const getValueOperatorDefault = () => {
@@ -188,6 +213,14 @@ export function Plugin(element, options) {
 	// Get condition data from html attribute.
 	const getConditionFn = (condition) => {
 		return condition[getFnOperatorKey()];
+	};
+
+	const getConditionRequire = (condition) => {
+		return condition[getRequireOperatorKey()];
+	};
+
+	const setConditionRequire = (condition, value) => {
+		condition[getRequireOperatorKey()] = value;
 	};
 
 	const setConditionFn = (condition, value) => {
@@ -569,6 +602,7 @@ export function Plugin(element, options) {
 			const conditionValues = getConditionValue(condition);
 			// const conditionValues = [...conditionValue];
 			const isStrict = getConditionStrict(condition); // for CHECKBOX and MULTI SELECT values check.
+			const isRequire = getConditionRequire(condition); // for NON-STRICT CHECKBOX and MULTI SELECT values check with Array Values.
 			const isCaseSensitive = getConditionCase(condition);
 
 			const isMultiValues = isMultiValueInputType($selector); //  Should check strict too.
@@ -581,8 +615,18 @@ export function Plugin(element, options) {
 			// Multiple Input Value With Case Sensitive Check.
 			if (isMultiValues && isCaseSensitive) {
 				// Case Sensitive NON-Strict.
+
 				if (
 					!isStrict &&
+					isRequire &&
+					arrayCompareSensitiveNonStrict(conditionValues, inputValue)
+				) {
+					this.showField = !getConditionInert(condition);
+				}
+
+				if (
+					!isStrict &&
+					!isRequire &&
 					arrayCompareSensitiveNonStrictSoft(
 						conditionValues,
 						inputValue
@@ -602,9 +646,21 @@ export function Plugin(element, options) {
 			// Multiple Input Value With Case In Sensitive Check.
 			if (isMultiValues && !isCaseSensitive) {
 				// Case In Sensitive NON-Strict.
+				// getConditionRequire(condition);
 				if (
 					!isStrict &&
+					!isRequire &&
 					arrayCompareInSensitiveNonStrictSoft(
+						conditionValues,
+						inputValue
+					)
+				) {
+					this.showField = !getConditionInert(condition);
+				}
+				if (
+					!isStrict &&
+					isRequire &&
+					arrayCompareInSensitiveNonStrict(
 						conditionValues,
 						inputValue
 					)
@@ -662,28 +718,46 @@ export function Plugin(element, options) {
 			}
 		},
 
-		// MATCH
 		MATCH: (condition, $selector, $selectors) => {
-			const compareValue = getConditionValue(condition);
+			this.showField = getConditionInert(condition);
 
-			this.showField = false;
-			$selectors.forEach(($sl) => {
-				const inputValue = getInputValue($sl);
+			const conditionValue = getConditionValue(condition);
 
-				// Multiple Select
-				if (!inputValue || Array.isArray(inputValue)) {
-					return;
+			const isMultiValues = isMultiValueInputType($selector);
+
+			const isStrict = getConditionStrict(condition); // for CHECKBOX and MULTI SELECT values check.
+
+			const inputValue = isMultiValues
+				? getInputValues($selectors)
+				: getInputValue($selector);
+
+			const regexp = getRegExpParams(conditionValue);
+
+			if (isMultiValues && !isStrict) {
+				if (
+					inputValue.some((value) =>
+						new RegExp(regexp.pattern, regexp.flags).test(value)
+					)
+				) {
+					this.showField = !getConditionInert(condition);
 				}
-				const regexp = getRegExpParams(compareValue);
-				const matched = new RegExp(regexp.pattern, regexp.flags).test(
-					inputValue
-				);
+			}
 
-				// Text Input
-				if (inputValue && matched) {
-					this.showField = true;
+			if (isMultiValues && isStrict) {
+				if (
+					inputValue.every((value) =>
+						new RegExp(regexp.pattern, regexp.flags).test(value)
+					)
+				) {
+					this.showField = !getConditionInert(condition);
 				}
-			});
+			}
+
+			if (!isMultiValues) {
+				if (new RegExp(regexp.pattern, regexp.flags).test(inputValue)) {
+					this.showField = !getConditionInert(condition);
+				}
+			}
 		},
 	};
 
@@ -775,6 +849,15 @@ export function Plugin(element, options) {
 		// Set default strict = false, will use for array values.
 		if (typeof getConditionStrict(condition) === 'undefined') {
 			setConditionStrict(condition, getStrictOperatorDefault());
+		}
+
+		if (typeof getConditionRequire(condition) === 'undefined') {
+			setConditionRequire(condition, getRequireOperatorDefault());
+		}
+
+		// Set require false if strict is true.
+		if (getConditionStrict(condition) === true) {
+			setConditionRequire(condition, false);
 		}
 
 		// Set default case = false
@@ -869,7 +952,7 @@ export function Plugin(element, options) {
 		}
 
 		// If "value" type RegExp.
-		if (isValidRegExp(condition)) {
+		if (isValidRegExp(getConditionValue(condition))) {
 			setConditionCheckBy(condition, 'VALUE');
 			setConditionType(condition, 'REGEXP');
 			setConditionFn(

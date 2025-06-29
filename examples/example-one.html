@@ -60,10 +60,12 @@
 			<option>{"selector":"#selector", "value": "THREE", "strict": true}</option>
 
 			<option>{"selector":"#selector", "value": ["three", "four"]}</option>
+			<option>{"selector":"#selector", "value": ["three", "four"], "require": true}</option>
 			<option>{"selector":"#selector", "value": ["Three", "four"], "case": true}</option>
 			<option>{"selector":"#selector", "value": ["three", "four"], "strict": true}</option>
 			<option>{"selector":"#selector", "value": ["THREE", "FOUR"]}</option>
 			<option>{"selector":"#selector", "value": ["THREE", "FOUR"], "strict": true}</option>
+			<option>{"selector":"#selector", "value": ["THREE", "FOUR"], "require": true}</option>
 
 			<option>{"selector":"#selector", "value": "FIVE"}</option>
 			<option>{"selector":"#selector", "value": "FIVE", "strict": true}</option>
@@ -73,7 +75,9 @@
 			<option>{"selector":"#selector", "value": "Eight", "strict": true}</option>
 			<option>{"selector":"#selector", "value": ["Eight"], "strict": true}</option>
 			<option>{"selector":"#selector", "value": "Eight", "inert": true}</option>
+			<option>{"selector":"#selector", "value": "/^[\w.-]+@[\w.-]+\.\w+$/g"}</option>
 		</select>
+
 
 		<button id="check-btn" type="button">Check</button>
 		<ul>
@@ -319,23 +323,23 @@
 	document.querySelectorAll('[data-storepress-conditional-field]').forEach((el) => {
 		const currentCondition = StorePress.Utils.getOptionsFromAttribute(el, 'storepress-conditional-field');
 
-		const inputCondition = JSON.parse(document.querySelector('#test-box').value.trim());
+		const inputCondition = JSON.parse(document.querySelector('#test-box').value.trim().replace(/\\/g, '\\\\'));
 
 		//const condition = { ...inputCondition, ...currentCondition };
 
 		inputCondition['selector'] = currentCondition['selector'];
 		// const condition = { ...inputCondition };
 
-		el.parentElement.querySelector('.inline').innerText = JSON.stringify(inputCondition);
+		el.parentElement.querySelector('.inline').innerText = JSON.stringify(inputCondition).replace(/\\\\/g, '\\');
 
-		el.innerText = JSON.stringify(inputCondition);
+		el.innerText = JSON.stringify(inputCondition).replace(/\\\\/g, '\\');
 
-		el.dataset.storepressConditionalField = JSON.stringify(inputCondition);
+		el.dataset.storepressConditionalField = JSON.stringify(inputCondition).replace(/\\\\/g, '\\');
 	});
 
 	document.querySelector('#test-box').addEventListener('change', (event) => {
 
-		const input = event.target.value;
+		const input = event.target.value.replace(/\\/g, '\\\\');
 
 		const inputCondition = JSON.parse(input);
 
@@ -346,11 +350,18 @@
 
 			// const condition = { ...inputCondition };
 
-			el.parentElement.querySelector('.inline').innerText = JSON.stringify(inputCondition);
+			el.parentElement.querySelector('.inline').innerText = JSON.stringify(inputCondition).replace(/\\\\/g, '\\');
 
-			el.innerText = JSON.stringify(inputCondition);
+			el.innerText = JSON.stringify(inputCondition).replace(/\\\\/g, '\\');
 
-			el.dataset.storepressConditionalField = JSON.stringify(inputCondition);
+			console.log(JSON.stringify(inputCondition).replace(/\\\\/g, '\\'))
+
+			el.dataset.storepressConditionalField = JSON.stringify(inputCondition).replace(/\\\\/g, '\\');
+			// el.dataset.storepressConditionalField = JSON.stringify(inputCondition).replace(/\\\\/g, '\\').replace('&quot;', '"');
+
+
+			// el.setAttribute('data-storepress-conditional-field', JSON.stringify(inputCondition).replace(/\\\\/g, '\\'))
+
 		});
 
 		StorePress.Utils.triggerEvent(document, 'storepress_conditional_field_re_init', {
