@@ -54,14 +54,14 @@ export function Plugin(element, options) {
 
 		FUNCTIONS_FOR_TYPE: {
 			BOOLEAN: 'EXISTS', // check by length.
-			STRING: 'STRING_EQUAL', // check by value.
-			'STRING-ARRAY': 'IN_STRING_ARRAY', // check by value.
-			NUMBER: 'NUMBER_EQUAL', // check by length.
-			'NUMBER-ARRAY': 'IN_NUMBER_ARRAY', // check by length.
-			ELEMENT: 'ELEMENT_EQUAL', // Get from Explicitly defined. Check by value.
+			STRING: 'STRING', // check by value.
+			'STRING-ARRAY': 'STRING_ARRAY', // check by value.
+			NUMBER: 'NUMBER', // check by length.
+			'NUMBER-ARRAY': 'NUMBER_ARRAY', // check by length.
+			ELEMENT: 'ELEMENT', // Get from Explicitly defined. Check by value.
 			MINMAX: 'MINMAX', // Get from Explicitly defined. Check by length. minLength, maxLength
 			RANGE: 'RANGE', // Get from Explicitly defined. Check by value. for Number and Range Input.
-			REGEXP: 'MATCH', // Check by value.
+			REGEXP: 'REGEXP', // Check by value.
 		},
 
 		RELATION_OPERATOR: {
@@ -476,7 +476,7 @@ export function Plugin(element, options) {
 			});
 		},
 
-		STRING_EQUAL: (condition, $selector, $selectors) => {
+		STRING: (condition, $selector, $selectors) => {
 			this.showField = getConditionInert(condition);
 
 			const conditionValue = getConditionValue(condition);
@@ -562,7 +562,7 @@ export function Plugin(element, options) {
 			}
 		},
 
-		NUMBER_EQUAL: (condition, $selector, $selectors) => {
+		NUMBER: (condition, $selector, $selectors) => {
 			const conditionValue = Number(getConditionValue(condition));
 
 			const compare = getConditionCompare(condition);
@@ -596,7 +596,7 @@ export function Plugin(element, options) {
 			}
 		},
 
-		IN_STRING_ARRAY: (condition, $selector, $selectors) => {
+		STRING_ARRAY: (condition, $selector, $selectors) => {
 			this.showField = getConditionInert(condition);
 
 			const conditionValues = getConditionValue(condition);
@@ -702,7 +702,7 @@ export function Plugin(element, options) {
 			}
 		},
 
-		IN_NUMBER_ARRAY: (condition, $selector, $selectors) => {
+		NUMBER_ARRAY: (condition, $selector, $selectors) => {
 			this.showField = getConditionInert(condition);
 
 			const conditionValues = getConditionValue(condition);
@@ -713,12 +713,51 @@ export function Plugin(element, options) {
 				? getInputValues($selectors)
 				: getInputValue($selector);
 
-			if (inputValue.length > 0 && conditionValues.includes(inputValue)) {
+			if (
+				inputValue.length > 0 &&
+				conditionValues.includes(inputValue.length)
+			) {
 				this.showField = !getConditionInert(condition);
 			}
 		},
 
-		MATCH: (condition, $selector, $selectors) => {
+		MINMAX: (condition, $selector, $selectors) => {
+			this.showField = getConditionInert(condition);
+
+			const conditionValues = getConditionValue(condition);
+			const [min = 0, max = Number.MAX_SAFE_INTEGER] = conditionValues;
+
+			const isMultiValues = isMultiValueInputType($selector);
+
+			const inputValue = isMultiValues
+				? getInputValues($selectors)
+				: getInputValue($selector);
+
+			if (min <= inputValue.length && max >= inputValue.length) {
+				this.showField = !getConditionInert(condition);
+			}
+		},
+
+		// Only for NUMBER and RANGE Type.
+		RANGE: (condition, $selector, $selectors) => {
+			this.showField = getConditionInert(condition);
+
+			const conditionValues = getConditionValue(condition);
+
+			const [start = 0, end = Number.MAX_SAFE_INTEGER] = conditionValues;
+
+			const inputValue = Number(getInputValue($selector));
+
+			if (
+				!isNaN(inputValue) &&
+				start <= inputValue &&
+				end >= inputValue
+			) {
+				this.showField = !getConditionInert(condition);
+			}
+		},
+
+		REGEXP: (condition, $selector, $selectors) => {
 			this.showField = getConditionInert(condition);
 
 			const conditionValue = getConditionValue(condition);
