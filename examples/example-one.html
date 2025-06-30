@@ -79,11 +79,31 @@
 			<option>{"selector":"#selector", "value": ["Eight"], "strict": true}</option>
 			<option>{"selector":"#selector", "value": "Eight", "inert": true}</option>
 			<option>{"selector":"#selector", "value": "/^[\w.-]+@[\w.-]+\.\w+$/g"}</option>
+			<option selected> {"selector":"#selector", "value": "#InputElement1", "type": "ELEMENT"}</option>
+			<option>{"selector":"#selector", "value": "#InputElement1", "type": "ELEMENT", "check": "STRING"}</option>
+			<option>{"selector":"#selector", "value": "#InputElement2", "type": "ELEMENT", "check": "NUMBER"}</option>
 		</select>
 
 
 		<button id="check-btn" type="button">Check</button>
 		<ul>
+
+			<li class="input-group">
+				<label for="InputElement1">#InputElement1: </label>
+				<input type="text" class="form-control input-name" id="InputElement1">
+				<label for="InputElement2">#InputElement2: </label>
+				<input type="number" class="form-control input-name" id="InputElement2">
+				<label for="InputElement3">#InputElement3: </label>
+				<select multiple id="InputElement3">
+					<option value="">No Value</option>
+					<option>1</option>
+					<option>2</option>
+					<option>3</option>
+				</select>
+				CHECKBOX
+				<input type="checkbox" value=""> Check none
+				<input type="checkbox" value="1"> Check 1
+			</li>
 
 			<li class="input-group">
 				<label for="InputText">#InputText: <code class="inline"></code></label>
@@ -357,7 +377,7 @@
 
 			el.innerText = JSON.stringify(inputCondition).replace(/\\\\/g, '\\');
 
-			console.log(JSON.stringify(inputCondition).replace(/\\\\/g, '\\'))
+			// console.log(JSON.stringify(inputCondition).replace(/\\\\/g, '\\'))
 
 			el.dataset.storepressConditionalField = JSON.stringify(inputCondition).replace(/\\\\/g, '\\');
 			// el.dataset.storepressConditionalField = JSON.stringify(inputCondition).replace(/\\\\/g, '\\').replace('&quot;', '"');
