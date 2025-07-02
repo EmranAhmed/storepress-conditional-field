@@ -15,7 +15,7 @@ export function Plugin(element, options) {
 			DEFAULT: 'EQ',
 			AVAILABLE: {
 				// ONLY IF VALUE TYPE NUMBER, CHECK BY LENGTH.
-				EQ: ['EQUAL', '=', 'EQ'],
+				EQ: ['EQUAL', '=', 'EQ', 'SAME'],
 				GT: ['GREATER THAN', '>', 'GT'],
 				LT: ['LESS THAN', '<', 'LT'],
 				GTEQ: ['GREATER THAN OR EQUAL', '>=', 'GTEQ'],
@@ -84,16 +84,8 @@ export function Plugin(element, options) {
 			KEY: 'inert',
 			DEFAULT: false,
 		},
-		// strict: boolean. Will apply for only SELECT-MULTIPLE and CHECKBOX values.
-		// Like: "A" == ['A'] will TRUE.
-		// Like: "B" == ['b'] will TRUE.
-		// Like: "A" == ['a','b'] will FALSE.
-		// Like: "B" == ['A','B'] will FALSE.
-
-		// Like: ["A", "B"] == ['A','B'] will TRUE.
-		// Like: ["A", "B"] == ['a','b'] will TRUE.
-		// Like: ["A", "B"] == ['b','a'] will TRUE.
-		// Like: ["A", "B"] == ['a','b','c'] will FALSE.
+		// strict: boolean. Will apply for only for SELECT-MULTIPLE and CHECKBOX values.
+		// Check ALL value available case in-sensitive.
 		STRICT_OPERATOR: {
 			KEY: 'strict',
 			DEFAULT: false,
@@ -104,12 +96,11 @@ export function Plugin(element, options) {
 			DEFAULT: false,
 		},
 
-		// Only for TYPE ELEMENT
+		// Only for type="ELEMENT"
 		ELEMENT_CHECK_FN: {
 			KEY: 'check',
-			DEFAULT: 'EXISTS',
+			DEFAULT: 'STRING-ARRAY',
 			AVAILABLE: [
-				'EXISTS',
 				'STRING',
 				'STRING-ARRAY',
 				'NUMBER',
@@ -120,10 +111,9 @@ export function Plugin(element, options) {
 			],
 		},
 
-		// require: boolean. if strict = false Will apply for only SELECT-MULTIPLE and CHECKBOX values.
+		// require: boolean. if strict = false Will apply for only SELECT-MULTIPLE and CHECKBOX values to check ALL or ANY Values.
 		// Only for STRING-ARRAY Type.
 		// "require" operator will always false if strict = true.
-
 		REQUIRE_OPERATOR: {
 			KEY: 'require',
 			DEFAULT: false,
@@ -321,39 +311,18 @@ export function Plugin(element, options) {
 		return ['RANGE', 'NUMBER'].includes(getInputType($selector));
 	};
 
-	const _getInputValues = ($selectors) => {
-		const selectedValues = [];
-		const groupInputs = ['CHECKBOX', 'RADIO', 'SELECT-MULTIPLE'];
-		$selectors.forEach(($selector) => {
-			if (['CHECKBOX', 'RADIO'].includes(getInputType($selector))) {
-				if ($selector.checked) {
-					selectedValues.push($selector.value);
-				}
-			}
-
-			if (['SELECT-MULTIPLE'].includes(getInputType($selector))) {
-				for (const option of $selector.options) {
-					if (option.selected && option.value.length > 0) {
-						selectedValues.push(option.value);
-					}
-				}
-			}
-
-			if (!groupInputs.includes(getInputType($selector))) {
-				if ($selector.value.length > 0) {
-					selectedValues.push($selector.value);
-				}
-			}
-		});
-		return selectedValues;
-	};
-
 	const getElementValues = ($selectors) => {
 		const values = [];
+		const lengths = [];
 		$selectors.forEach(($selector) => {
+			// isNumberValueInputType
+			const isArrayValue = isMultiValueInputType($selector);
+			const isNumberValue = isNumberValueInputType($selector);
+
 			if (['CHECKBOX'].includes(getInputType($selector))) {
 				if ($selector.checked && $selector.value.length > 0) {
 					values.push($selector.value);
+					lengths.push($selector.value.length);
 				}
 			}
 
@@ -361,18 +330,24 @@ export function Plugin(element, options) {
 				for (const option of $selector.options) {
 					if (option.selected && option.value.length > 0) {
 						values.push(option.value);
+						lengths.push(option.value.length);
 					}
 				}
 			}
 
-			if (
-				!isMultiValueInputType($selector) &&
-				$selector.value.length > 0
-			) {
+			if (!isArrayValue && !isNumberValue && $selector.value.length > 0) {
 				values.push($selector.value);
+				lengths.push($selector.value.length);
+			}
+
+			if (!isArrayValue && isNumberValue && $selector.value.length > 0) {
+				values.push($selector.value);
+				// lengths.push($selector.value.length);
+				lengths.push(Number($selector.value));
 			}
 		});
-		return values;
+
+		return [values, lengths];
 	};
 
 	const getInputValue = ($selector, $selectors) => {
@@ -529,7 +504,7 @@ export function Plugin(element, options) {
 			this.showField = getConditionInert(condition);
 
 			const conditionValue = getConditionValue(condition);
-			const conditionValues = [conditionValue].sort((a, b) => a - b);
+			const conditionValues = [conditionValue].sort();
 			const isStrict = getConditionStrict(condition); // for CHECKBOX and MULTI SELECT values check.
 			const isCaseSensitive = getConditionCase(condition);
 
@@ -539,7 +514,7 @@ export function Plugin(element, options) {
 
 			const isInputTypeNumber = isNumberValueInputType($selector);
 
-			// Multiple Input Value With Case Sensitive Check.
+			// Array Values with Case Sensitive Check.
 			if (isMultiValues && isCaseSensitive) {
 				// Case Sensitive NON-Strict.
 				if (
@@ -558,7 +533,7 @@ export function Plugin(element, options) {
 				}
 			}
 
-			// Multiple Input Value With Case In Sensitive Check.
+			// Array Values with Case In Sensitive Check.
 			if (isMultiValues && !isCaseSensitive) {
 				// Case In Sensitive NON-Strict.
 				if (
@@ -580,14 +555,14 @@ export function Plugin(element, options) {
 				}
 			}
 
-			// Single Input Value With Case Sensitive Check.
+			// Single Value With Case Sensitive Check.
 			if (!isMultiValues && isCaseSensitive) {
 				if (conditionValues.includes(inputValue)) {
 					this.showField = !getConditionInert(condition);
 				}
 			}
 
-			// Single Input Value With Case In Sensitive Check.
+			// Input Value With Case In Sensitive Check.
 			if (!isMultiValues && !isCaseSensitive) {
 				if (
 					isInputTypeNumber &&
@@ -650,7 +625,7 @@ export function Plugin(element, options) {
 
 			const isInputTypeNumber = isNumberValueInputType($selector);
 
-			// Multiple Input Value With Case Sensitive Check.
+			// Array values With Case Sensitive Check.
 			if (isMultiValues && isCaseSensitive) {
 				// Case Sensitive NON-Strict.
 
@@ -681,7 +656,7 @@ export function Plugin(element, options) {
 				}
 			}
 
-			// Multiple Input Value With Case In Sensitive Check.
+			// Array values With Case In Sensitive Check.
 			if (isMultiValues && !isCaseSensitive) {
 				// Case In Sensitive NON-Strict.
 				// getConditionRequire(condition);
@@ -715,14 +690,14 @@ export function Plugin(element, options) {
 				}
 			}
 
-			// Single Input Value With Case Sensitive Check.
+			// Single Value With Case Sensitive Check.
 			if (!isMultiValues && isCaseSensitive) {
 				if (valueCompareSensitive(conditionValues, inputValue)) {
 					this.showField = !getConditionInert(condition);
 				}
 			}
 
-			// Single Input Value With Case In Sensitive Check.
+			// Single Value With Case In Sensitive Check.
 			if (!isMultiValues && !isCaseSensitive) {
 				if (
 					isInputTypeNumber &&
@@ -824,55 +799,81 @@ export function Plugin(element, options) {
 			}
 		},
 
+		VISIBLE: (condition) => {
+			this.showField = getConditionInert(condition);
+
+			const elements = getConditionValue(condition);
+			const isStrict = getConditionStrict(condition); // for Visible All Element or Visible any element.
+
+			const $elements = document.querySelectorAll(elements);
+
+			const visibility = [];
+
+			$elements.forEach(($element) => {
+				visibility.push($element.checkVisibility());
+			});
+
+			if (isStrict && visibility.every((value) => value)) {
+				this.showField = !getConditionInert(condition);
+			}
+
+			if (!isStrict && visibility.some((value) => value)) {
+				this.showField = !getConditionInert(condition);
+			}
+		},
+
 		ELEMENT: (condition, $selector, $selectors, caller) => {
-			const selector = getConditionSelector(condition);
-			const element = getConditionValue(condition);
+			const selectors = getConditionSelector(condition);
+			const elements = getConditionValue(condition);
 
-			const $elements = document.querySelectorAll(element);
+			// const inputValue = getInputValue($selector, $selectors);
 
-			const inputValue = getInputValue($selector, $selectors);
 			const COMPARE_FUNCTION = getConditionCheck(condition);
+			const COMPARE_FUNCTION_EXT = ['NUMBER', 'STRING'].includes(
+				COMPARE_FUNCTION
+			)
+				? '-ARRAY'
+				: '';
+
 			const isElementCaller = ['ELEMENT_INPUT', 'ELEMENT_INIT'].includes(
 				caller
 			);
-			const target = isElementCaller ? selector : element;
-			const compareValues = getElementValues(
+			const target = isElementCaller ? selectors : elements;
+			const [compareValues, compareLengths] = getElementValues(
 				document.querySelectorAll(target)
 			);
 
-			// ELEMENT SELECTOR.
-			if (isElementCaller) {
-				const c = { ...condition, value: compareValues };
+			const lengthCheck = [
+				'NUMBER',
+				'NUMBER-ARRAY',
+				'RANGE',
+				'MINMAX',
+			].includes(COMPARE_FUNCTION);
 
-				console.log(c, $selector);
-				COMPARE_FUNCTIONS[COMPARE_FUNCTION](c, $selector, $selectors);
-			} else {
-				// MAIN SELECTOR.
-				const c = { ...condition, value: compareValues };
-				if (COMPARE_FUNCTION === 'EXISTS') {
-					return;
-				}
+			const isVisibleCheck = ['VISIBLE'].includes(COMPARE_FUNCTION);
 
-				console.log(c, $selector);
+			const c = {
+				...condition,
+				[getValueOperatorKey()]: lengthCheck
+					? compareLengths
+					: compareValues,
+			};
 
-				COMPARE_FUNCTIONS[COMPARE_FUNCTION](c, $selector, $selectors);
+			if (isVisibleCheck) {
+				c[`${getValueOperatorKey()}`] = elements;
 			}
 
-			/*$elements.forEach(($element) => {
-				const elementValue = getInputValue($element, $elements);
+			COMPARE_FUNCTIONS[`${COMPARE_FUNCTION}${COMPARE_FUNCTION_EXT}`](
+				c,
+				$selector,
+				$selectors
+			);
 
-				if (COMPARE_FUNCTION === 'EXISTS' && elementValue.length > 0) {
-					this.showField = !getConditionInert(condition);
-				}
-
-				if (COMPARE_FUNCTION === 'STRING' && elementValue.length > 0) {
-					this.showField = !getConditionInert(condition);
-				}
-			});*/
-
-			// setConditionValue(condition, elementValues);
-
-			// this.showField = getConditionInert(condition);
+			console.log(
+				c,
+				`${COMPARE_FUNCTION}${COMPARE_FUNCTION_EXT}`,
+				caller
+			);
 		},
 	};
 
@@ -941,6 +942,12 @@ export function Plugin(element, options) {
 
 	const reset = () => {
 		toggleInertAttribute(true);
+
+		this.showField = false;
+
+		this.conditions = [];
+
+		this.matched = new Map();
 
 		this.controller.abort();
 	};
@@ -1099,6 +1106,11 @@ export function Plugin(element, options) {
 		return this.conditions;
 	};
 
+	// Expose to public.
+	const expose = () => ({
+		reset,
+	});
+
 	const initial = () => {
 		const availableConditions = getConditions();
 
@@ -1167,11 +1179,6 @@ export function Plugin(element, options) {
 		});
 	};
 
-	// Expose to public.
-	const expose = () => ({
-		reset,
-	});
-
 	// Do what you need and return expose fn.
 	const init = () => {
 		this.$element = element;
@@ -1187,6 +1194,8 @@ export function Plugin(element, options) {
 		this.showField = false;
 
 		this.conditions = [];
+
+		this.$parent = this.$element.closest('form');
 
 		this.matched = new Map();
 
