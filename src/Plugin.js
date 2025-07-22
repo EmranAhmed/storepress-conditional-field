@@ -500,14 +500,18 @@ export function Plugin( element, options ) {
 		const radioGroup = new Set();
 		const checkboxGroup = new Set();
 
-		// non checkbox and radio.
 		$selectors.forEach( ( $selector ) => {
 			const type = getInputType( $selector );
 
-			if ( [ 'CHECKBOX', 'RADIO' ].includes( type ) ) {
-				return false;
-			}
+			const name = $selector.name;
 
+			const group = selectors.find( ( selector ) => {
+				return $selector.matches( selector );
+			} );
+
+			const specialTypes = [ 'SELECT-MULTIPLE', 'CHECKBOX', 'RADIO' ];
+
+			// MultiSelect.
 			if ( type === 'SELECT-MULTIPLE' ) {
 				const selectValues = Array.from( $selector.selectedOptions )
 					.filter( ( opt ) => opt.length > 0 )
@@ -520,32 +524,10 @@ export function Plugin( element, options ) {
 					length: selectValues.length,
 					multiple: true,
 				} );
-			} else {
-				inputs.push( `INPUT:${ type }` );
-				const value = $selector.value.length > 0 ? $selector.value : '';
-				values.push( value );
-				exists.push( value.length > 0 );
-				map.push( {
-					input: value.length > 0 ? [ value ] : [],
-					length: value.length,
-					multiple: false,
-				} );
-			}
-		} );
-
-		// checkbox only
-		$selectors.forEach( ( $selector ) => {
-			const type = getInputType( $selector );
-
-			if ( ! [ 'CHECKBOX' ].includes( type ) ) {
-				return false;
 			}
 
-			const group = selectors.find( ( s ) => {
-				return $selector.matches( s );
-			} );
-
-			if ( ! checkboxGroup.has( group ) ) {
+			// Checkbox.
+			if ( type === 'CHECKBOX' && ! checkboxGroup.has( group ) ) {
 				inputs.push( `INPUT:${ type }` );
 
 				const checkboxes = Array.from( $selectors )
@@ -568,19 +550,9 @@ export function Plugin( element, options ) {
 
 				checkboxGroup.add( group );
 			}
-		} );
 
-		// radio only
-		$selectors.forEach( ( $selector ) => {
-			const type = getInputType( $selector );
-
-			if ( ! [ 'RADIO' ].includes( type ) ) {
-				return false;
-			}
-
-			const name = $selector.name;
-
-			if ( ! radioGroup.has( name ) ) {
+			// Radio.
+			if ( type === 'RADIO' && ! radioGroup.has( name ) ) {
 				inputs.push( `INPUT:${ type }` );
 				// Find all radios in the same group within the nodeList
 				const radio = Array.from( $selectors )
@@ -603,12 +575,26 @@ export function Plugin( element, options ) {
 
 				radioGroup.add( name );
 			}
+
+			// Others.
+			if ( ! specialTypes.includes( type ) ) {
+				inputs.push( `INPUT:${ type }` );
+				const value = $selector.value.length > 0 ? $selector.value : '';
+				values.push( value );
+				exists.push( value.length > 0 );
+				map.push( {
+					input: value.length > 0 ? [ value ] : [],
+					length: value.length,
+					multiple: false,
+				} );
+			}
 		} );
 
 		return {
 			inputs,
 			values,
 			empty: ! exists.every( ( val ) => val ),
+			notEmpty: exists.every( ( val ) => val ),
 			map,
 		};
 	};
@@ -1017,36 +1003,47 @@ export function Plugin( element, options ) {
 		EXISTS: ( condition, $selector, $selectors, caller, _selectors ) => {
 			this.showField = getConditionInert( condition );
 
-			// const [ , notEmpty ] = getInputsValue( $selectors, condition );
+			const { notEmpty } = analyzeSelectors( $selectors, _selectors );
 
-			const { empty } = analyzeSelectors( $selectors, _selectors );
-
-			if ( ! empty ) {
+			if ( notEmpty ) {
 				this.showField = ! getConditionInert( condition );
 			}
 		},
 
-		STRING: ( condition, $selector, $selectors, caller, _selectors ) => {
+		STRING: ( condition, $selector, $selectors ) => {
 			this.showField = getConditionInert( condition );
 
 			const conditionValue = getConditionValue( condition );
 			const isStrict = getConditionStrict( condition ); // for CHECKBOX and SELECT-MULTIPLE values check.
 			const isCaseSensitive = getConditionCase( condition );
-			//const [inputs, notEmpty] = getInputsValue($selectors, condition);
-			// const a = getInputsValue( $selectors, condition );
-			const { empty, map, inputs, values } = analyzeSelectors(
+			const _selectors = getConditionSelector( condition );
+			const { notEmpty, map } = analyzeSelectors(
 				$selectors,
 				_selectors
 			);
 
-			console.log( inputs, values );
+			if ( notEmpty ) {
+				const available = map.every(
+					( { input, multiple, length } ) => {
+						if ( isStrict && multiple ) {
+							if ( length > 1 ) {
+								return false;
+							}
 
-			if ( ! empty ) {
-				const available = map.every( ( { input } ) => {
-					return isStrict
-						? inArrayAll( input, conditionValue, isCaseSensitive )
-						: inArrayAny( input, conditionValue, isCaseSensitive );
-				} );
+							return inArrayAll(
+								input,
+								conditionValue,
+								isCaseSensitive
+							);
+						}
+
+						return inArrayAny(
+							input,
+							conditionValue,
+							isCaseSensitive
+						);
+					}
+				);
 
 				if ( available ) {
 					this.showField = ! getConditionInert( condition );
@@ -1058,16 +1055,17 @@ export function Plugin( element, options ) {
 			const conditionValue = Number( getConditionValue( condition ) );
 
 			const compare = getConditionCompare( condition );
+			const _selectors = getConditionSelector( condition );
 
 			this.showField = getConditionInert( condition );
 
-			const [ inputs, notEmpty ] = getInputsValue(
+			const { notEmpty, map } = analyzeSelectors(
 				$selectors,
-				condition
+				_selectors
 			);
 
 			if ( notEmpty ) {
-				const available = inputs.every( ( { length } ) => {
+				const available = map.every( ( { length } ) => {
 					if ( compare === 'EQ' && length === conditionValue ) {
 						return true;
 					}
@@ -1104,14 +1102,19 @@ export function Plugin( element, options ) {
 			const isStrict = getConditionStrict( condition ); // for CHECKBOX and MULTI SELECT values check.
 			const isRequire = getConditionRequire( condition ); // for NON-STRICT CHECKBOX and MULTI SELECT values check with Array Values.
 			const isCaseSensitive = getConditionCase( condition );
+			const _selectors = getConditionSelector( condition );
 
-			const [ inputs, notEmpty ] = getInputsValue(
+			const { notEmpty, map } = analyzeSelectors(
 				$selectors,
-				condition
+				_selectors
 			);
 
+			console.log( conditionValue, map );
+
 			if ( notEmpty ) {
-				const available = inputs.every( ( { input } ) => {
+				const available = map.every( ( { input, multiple } ) => {
+					console.log( input, multiple );
+
 					return isStrict
 						? arrayInArrayAll(
 								conditionValue,
@@ -1306,27 +1309,13 @@ export function Plugin( element, options ) {
 	};
 
 	// Check
-	const checkConditions = (
-		condition,
-		$selector,
-		$selectors,
-		caller,
-		_selector
-	) => {
-		const COMPARE_FUNCTION = getConditionFn( condition );
+	const checkConditions = ( condition, $selector, $selectors, caller ) => {
+		const CF = getConditionFn( condition );
 
-		if ( typeof COMPARE_FUNCTIONS[ COMPARE_FUNCTION ] === 'function' ) {
-			COMPARE_FUNCTIONS[ COMPARE_FUNCTION ](
-				condition,
-				$selector,
-				$selectors,
-				caller,
-				_selector
-			);
+		if ( typeof COMPARE_FUNCTIONS[ CF ] === 'function' ) {
+			COMPARE_FUNCTIONS[ CF ]( condition, $selector, $selectors, caller );
 		} else {
-			throw new Error(
-				'Compare function "' + COMPARE_FUNCTION + '" not available.'
-			);
+			throw new Error( 'Compare function "' + CF + '" not available.' );
 		}
 
 		this.matched.set( condition.selector, this.showField );
@@ -1564,8 +1553,7 @@ export function Plugin( element, options ) {
 									condition,
 									event.target,
 									$elements,
-									'ELEMENT_INPUT',
-									elements
+									'ELEMENT_INPUT'
 								);
 							},
 							{ signal: this.signal, passive: true }
@@ -1576,8 +1564,7 @@ export function Plugin( element, options ) {
 						condition,
 						$selector,
 						$selectors,
-						'ELEMENT_INIT',
-						elements
+						'ELEMENT_INIT'
 					);
 				} );
 			}
@@ -1591,8 +1578,7 @@ export function Plugin( element, options ) {
 								condition,
 								event.target,
 								$selectors,
-								'SELECTOR_INPUT',
-								selectors
+								'SELECTOR_INPUT'
 							);
 						},
 						{ signal: this.signal, passive: true }
@@ -1603,8 +1589,7 @@ export function Plugin( element, options ) {
 					condition,
 					$selector,
 					$selectors,
-					'SELECTOR_INIT',
-					selectors
+					'SELECTOR_INIT'
 				);
 			} );
 		} );
