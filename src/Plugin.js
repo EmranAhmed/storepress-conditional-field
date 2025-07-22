@@ -549,7 +549,11 @@ export function Plugin( element, options ) {
 				inputs.push( `INPUT:${ type }` );
 
 				const checkboxes = Array.from( $selectors )
-					.filter( ( c ) => getInputType( c ) === 'CHECKBOX' )
+					.filter(
+						( c ) =>
+							c.matches( group ) &&
+							getInputType( c ) === 'CHECKBOX'
+					)
 					.filter( ( c ) => c.checked && c.value.length > 0 )
 					.map( ( c ) => c.value );
 
@@ -1030,7 +1034,12 @@ export function Plugin( element, options ) {
 			const isCaseSensitive = getConditionCase( condition );
 			//const [inputs, notEmpty] = getInputsValue($selectors, condition);
 			// const a = getInputsValue( $selectors, condition );
-			const { empty, map } = analyzeSelectors( $selectors, _selectors );
+			const { empty, map, inputs, values } = analyzeSelectors(
+				$selectors,
+				_selectors
+			);
+
+			console.log( inputs, values );
 
 			if ( ! empty ) {
 				const available = map.every( ( { input } ) => {
