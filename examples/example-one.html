@@ -17,21 +17,23 @@
 		- {"selector":"#InputName", "value": true} // Show if: EXISTS
 		- {"selector":"#InputName", "value": false} // Show if: NOT EXISTS
 
-		- {"selector":"#InputName", "value": "hello"}
-		- {"selector":"#InputName", "value": "hello", "case": true} // Case sensitive check.
-		- {"selector":"#InputName", "value": "hello", "strict": true, "inert": true} // Check uppercase or lowercase too.
-		- {"selector":"#InputName", "value": "5"}
+		- {"selector":"#InputName", "value": "hello"} // Show if input value is "hello", Case in-sensitive.
+		- {"selector":"#InputName", "value": "hello", "case": true} // Show if input value is "hello", Case sensitive.
+		- {"selector":"#InputName", "value": "5", "inert": true} // Hide if input value is "5"
 
-		- {"selector":"#InputName", "value": 5}
+		- {"selector":"#InputName", "value": 5} // Show if input value length is 5
 
-		- "strict" and "require" Only for STRING-ARRAY ["hello", "hi"]
+		- {"selector":"#InputName", "value": [4, 5, 8]} // Length should be 4 or 5 or 8
 
-		- {"selector":"#InputName", "value": ["hello", "hi"]}
-		- {"selector":"#InputName", "value": ["hello", "hi"], "strict": true} // Have to available both on Checkbox and Multi select only this values.
-		- {"selector":"#InputName", "value": ["hello", "hi"], "require": true} // Have to available both on Checkbox and Multi select with any other values.
+		- "strict" and "require" use to compare Array in Array
+
+		- {"selector":"#InputName", "value": ["hello", "hi"]} // Show if input value available in array, Case in-sensitive.
+		- {"selector":"#InputName", "value": ["hello", "hi"], "case": true} // Show if input value available in array, Case sensitive.
+		- {"selector":"#InputName", "value": ["hello", "hi"], "strict": true} // Only "hello" and "hi" should be chosen other value will be NOT allowed.
+		- {"selector":"#InputName", "value": ["hello", "hi"], "require": true} // "hello" and "hi" should be chosen other value will be allowed.
 
 
-		- {"selector":"#InputName", "value": [4, 5]}
+
 	</code>
 
 
@@ -40,7 +42,9 @@
 
 
 		<select id="test-box">
+			<option>{"selector":"#selector"}</option>
 			<option>{"selector":"#selector", "value": "hello"}</option>
+			<option>{"selector":"#selector", "value": ["hello"]}</option>
 			<option>{"selector":"#selector", "value": "hello", "inert": true}</option>
 
 			<option>{"selector":"#selector", "value": 4}</option>
@@ -68,7 +72,7 @@
 			<option>{"selector":"#selector", "value": "THREE", "strict": true}</option>
 
 			<option>{"selector":"#selector", "value": ["three", "four"]}</option>
-			<option>{"selector":"#selector", "value": ["three", "four"], "require": true}</option>
+			<option selected>{"selector":"#selector", "value": ["three", "four"], "require": true}</option>
 			<option>{"selector":"#selector", "value": ["Three", "four"], "case": true}</option>
 			<option>{"selector":"#selector", "value": ["three", "four"], "strict": true}</option>
 			<option>{"selector":"#selector", "value": ["THREE", "FOUR"]}</option>
@@ -119,7 +123,13 @@
 					<option>1</option>
 					<option>2</option>
 					<option>3</option>
+					<option>three</option>
+					<option>hello</option>
 					<option>4</option>
+					<option>HELLO</option>
+					<option>Three</option>
+					<option>THREE</option>
+
 				</select>
 
 				<ul class="checkbox-group checkbox-element-group">
@@ -157,12 +167,33 @@
 
 			</li>
 
+			<li>
+				.checkbox-element-group input, #InputElement3 <code class="inline"></code>
+				<p inert data-storepress-conditional-field='{"selector":".checkbox-element-group input, #InputElement3"}' class="message green"></p>
+			</li>
+
+			<li>
+				#InputElement1, #InputElement3 <code class="inline"></code>
+				<p inert data-storepress-conditional-field='{"selector":"#InputElement1, #InputElement3"}' class="message green"></p>
+			</li>
+
 			<li><h2>Inputs</h2></li>
 
 			<li class="input-group">
+				<label for="InputSearch">#InputSearch: <code class="inline"></code></label>
+				<input type="search" class="form-control input-name" id="InputSearch">
+				<p inert data-storepress-conditional-field='{"selector":"#InputSearch"}' class="message"></p>
+			</li>
+
+			<li class="input-group">
 				<label for="InputText">#InputText: <code class="inline"></code></label>
-				<input type="search" class="form-control input-name" id="InputText">
+				<input type="text" class="form-control input-name" id="InputText">
 				<p inert data-storepress-conditional-field='{"selector":"#InputText"}' class="message"></p>
+			</li>
+
+			<li>
+				.checkbox-element-group input, #InputElement3 <code class="inline"></code>
+				<p inert data-storepress-conditional-field='{"selector":".checkbox-element-group input, #InputElement3"}' class="message green"></p>
 			</li>
 
 			<li class="input-group">
@@ -170,6 +201,8 @@
 				<input type="number" class="form-control input-name" id="InputNumber">
 				<p inert data-storepress-conditional-field='{"selector":"#InputNumber"}' class="message"></p>
 			</li>
+
+
 
 
 			<li class="select-group">
@@ -221,7 +254,7 @@
 
 					<li>
 						<label for="InputCheckboxE">Input Check value: empty</label>
-						<input type="checkbox" id="InputCheckboxE">
+						<input type="checkbox" value="" id="InputCheckboxE">
 					</li>
 
 					<li>
