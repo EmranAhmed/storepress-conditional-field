@@ -524,6 +524,7 @@ export function Plugin( element, options ) {
 					input: selectValues,
 					length: selectValues.length,
 					multiple: true,
+					type,
 				} );
 			}
 
@@ -547,6 +548,7 @@ export function Plugin( element, options ) {
 					input: checkboxes,
 					length: checkboxes.length,
 					multiple: true,
+					type,
 				} );
 
 				checkboxGroup.add( group );
@@ -572,6 +574,7 @@ export function Plugin( element, options ) {
 					input: value.length > 0 ? [ value ] : [],
 					length: value.length,
 					multiple: false,
+					type,
 				} );
 
 				radioGroup.add( name );
@@ -580,19 +583,23 @@ export function Plugin( element, options ) {
 			// Others.
 			if ( ! specialTypes.includes( type ) ) {
 				inputs.push( `INPUT:${ type }` );
-				let value = $selector.value.length > 0 ? $selector.value : '';
-
-				if ( numericTypes.includes( type ) ) {
-					value = Number( value );
-				}
-
-				values.push( value );
-				exists.push( value.length > 0 );
-				map.push( {
-					input: value.length > 0 ? [ value ] : [],
+				const value = $selector.value.length > 0 ? $selector.value : '';
+				const mapValue = {
 					length: value.length,
 					multiple: false,
-				} );
+					type,
+				};
+
+				// if ( numericTypes.includes( type ) ) {
+				//	values.push( Number( value ) );
+				//	mapValue.input = value.length > 0 ? [ Number( value ) ] : [];
+				// } else {
+				values.push( value );
+				mapValue.input = value.length > 0 ? [ value ] : [];
+				// }
+
+				exists.push( value.length > 0 );
+				map.push( mapValue );
 			}
 		} );
 
@@ -821,112 +828,6 @@ export function Plugin( element, options ) {
 		return { pattern, flags, _ };
 	};
 
-	const arrayCompareInSensitiveStrict = ( conditionValues, inputValues ) => {
-		const values = [ ...conditionValues ].sort();
-
-		const inputs = [ ...inputValues ].sort();
-
-		const isSame = inputs.length > 0 && values.length === inputs.length;
-
-		const match = values.every( ( value ) => {
-			return inputs.some( ( v ) =>
-				new RegExp( `^${ value }$`, 'ui' ).test( v )
-			);
-		} );
-
-		return isSame && match;
-	};
-
-	const arrayCompareInSensitiveNonStrict = (
-		conditionValues,
-		inputValues
-	) => {
-		const values = [ ...conditionValues ].sort();
-
-		const inputs = [ ...inputValues ].sort();
-
-		const isSame = inputs.length > 0;
-
-		const match = values.every( ( value ) => {
-			return inputs.some( ( v ) =>
-				new RegExp( `^${ value }$`, 'ui' ).test( v )
-			);
-		} );
-
-		return isSame && match;
-	};
-
-	const arrayCompareInSensitiveNonStrictSoft = (
-		conditionValues,
-		inputValues
-	) => {
-		const values = [ ...conditionValues ].sort();
-
-		const inputs = [ ...inputValues ].sort();
-
-		const isSame = inputs.length > 0;
-
-		const match = values.some( ( value ) => {
-			return inputs.some( ( v ) =>
-				new RegExp( `^${ value }$`, 'ui' ).test( v )
-			);
-		} );
-
-		return isSame && match;
-	};
-
-	const arrayCompareSensitiveStrict = ( conditionValues, inputValues ) => {
-		const values = [ ...conditionValues ].sort();
-
-		const inputs = [ ...inputValues ].sort();
-
-		const isSame = inputs.length > 0 && values.length === inputs.length;
-
-		const match = values.every( ( value ) => inputs.includes( value ) );
-
-		return isSame && match;
-	};
-
-	const arrayCompareSensitiveNonStrict = ( conditionValues, inputValues ) => {
-		const values = [ ...conditionValues ].sort();
-
-		const inputs = [ ...inputValues ].sort();
-
-		const isSame = inputs.length > 0;
-
-		const match = values.every( ( value ) => inputs.includes( value ) );
-
-		return isSame && match;
-	};
-
-	const arrayCompareSensitiveNonStrictSoft = (
-		conditionValues,
-		inputValues
-	) => {
-		const values = [ ...conditionValues ].sort();
-
-		const inputs = [ ...inputValues ].sort();
-
-		const isSame = inputs.length > 0;
-
-		const match = values.some( ( value ) => inputs.includes( value ) );
-
-		return isSame && match;
-	};
-
-	const valueCompareSensitive = ( conditionValues, inputValue ) => {
-		return inputValue.length > 0 && conditionValues.includes( inputValue );
-	};
-
-	const valueCompareInSensitive = ( conditionValues, inputValue ) => {
-		return (
-			inputValue.length > 0 &&
-			conditionValues.some( ( value ) =>
-				new RegExp( `^${ value }$`, 'ui' ).test( inputValue )
-			)
-		);
-	};
-
 	/**
 	 * Checks if a string exists at least once in an array, with an option for case-insensitive matching.
 	 *
@@ -1051,7 +952,7 @@ export function Plugin( element, options ) {
 	 * based on `strict` and `required` flags.
 	 *
 	 * @param {string[]} selected       The array of selected items.
-	 * @param {int}      selectedLength The length of selected items. not array length.
+	 * @param {number}  selectedLength The length of selected items. not array length.
 	 * @param {string}   condition      The array of condition items.
 	 * @param {boolean}  strict         If true, isRequired should be false. `selected` and `condition` must have the same length and elements.
 	 * @param {boolean}  sensitive      If true.
@@ -1081,9 +982,9 @@ export function Plugin( element, options ) {
 	};
 
 	const COMPARE_FUNCTIONS = {
-		EXISTS: ( condition, $selector, $selectors, caller, _selectors ) => {
+		EXISTS: ( condition, $selector, $selectors ) => {
 			this.showField = getConditionInert( condition );
-
+			const _selectors = getConditionSelector( condition );
 			const { notEmpty } = analyzeSelectors( $selectors, _selectors );
 
 			if ( notEmpty ) {
@@ -1271,8 +1172,12 @@ export function Plugin( element, options ) {
 			);
 
 			if ( notEmpty ) {
-				const available = map.every( ( { input } ) => {
-					return start <= input.at( 0 ) && end >= input.at( 0 );
+				const available = map.every( ( { input, type } ) => {
+					return (
+						[ 'NUMBER', 'RANGE' ].includes( type ) &&
+						start <= Number( input.at( 0 ) ) &&
+						end >= Number( input.at( 0 ) )
+					);
 				} );
 
 				if ( available ) {
@@ -1367,8 +1272,10 @@ export function Plugin( element, options ) {
 				'ELEMENT_INIT',
 			].includes( caller );
 			const target = isElementCaller ? selectors : elements;
-			const [ compareValues, compareLengths ] = getElementValues(
-				document.querySelectorAll( target )
+
+			const { notEmpty, map } = analyzeSelectors(
+				document.querySelectorAll( target ),
+				target
 			);
 
 			const lengthCheck = [
@@ -1380,26 +1287,48 @@ export function Plugin( element, options ) {
 
 			const isVisibleCheck = [ 'VISIBLE' ].includes( COMPARE_FUNCTION );
 
-			const c = {
-				...condition,
-				[ getValueOperatorKey() ]: lengthCheck
-					? compareLengths
-					: compareValues,
-			};
+			if ( notEmpty ) {
+				map.map( ( { input, multiple, length } ) => {
+					const c = {
+						...condition,
+						[ getValueOperatorKey() ]: lengthCheck
+							? [ length ]
+							: input,
+					};
 
-			if ( isVisibleCheck ) {
-				c[ `${ getValueOperatorKey() }` ] = elements;
+					if ( isVisibleCheck ) {
+						c[ `${ getValueOperatorKey() }` ] = elements;
+					}
+
+					/*console.log(
+						c,
+						`${ COMPARE_FUNCTION }${ COMPARE_FUNCTION_EXT }`,
+						caller
+					);*/
+
+					COMPARE_FUNCTIONS[
+						`${ COMPARE_FUNCTION }${ COMPARE_FUNCTION_EXT }`
+					]( c, $selector, $selectors );
+				} );
 			}
 
-			COMPARE_FUNCTIONS[
-				`${ COMPARE_FUNCTION }${ COMPARE_FUNCTION_EXT }`
-			]( c, $selector, $selectors );
+			/*
+						const c = {
+							...condition,
+							[ getValueOperatorKey() ]: lengthCheck
+								? compareLengths
+								: compareValues,
+						};
 
-			console.log(
-				c,
-				`${ COMPARE_FUNCTION }${ COMPARE_FUNCTION_EXT }`,
-				caller
-			);
+						if ( isVisibleCheck ) {
+							c[ `${ getValueOperatorKey() }` ] = elements;
+						}
+
+						COMPARE_FUNCTIONS[
+							`${ COMPARE_FUNCTION }${ COMPARE_FUNCTION_EXT }`
+						]( c, $selector, $selectors );
+
+						*/
 		},
 	};
 

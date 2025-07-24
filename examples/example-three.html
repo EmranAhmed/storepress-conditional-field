@@ -67,6 +67,10 @@
 			<option>{"selector":"#selector", "value": 5, "compare":">="}</option>
 			<option>{"selector":"#selector", "value": [5,7,9]}</option>
 			<option>{"selector":"#selector", "value": "/^[\w.-]+@[\w.-]+\.\w+$/g"}</option>
+
+			<option>{"selector":"#selector", "value": [4,9], "type":"RANGE"}</option>
+			<option>{"selector":"#selector", "value": [4, 6], "type": "MINMAX"}</option>
+			<option>{"selector":"#selector", "value": [50, 80.5], "type": "RANGE"}</option>
 		</select>
 
 
@@ -91,6 +95,12 @@
 				<label for="InputText">#InputText: <code class="inline"></code></label>
 				<input type="text" class="form-control input-name input-name-m" id="InputText">
 				<!--<p inert data-storepress-conditional-field='{"selector":".input-name-m"}' class="message"></p>-->
+			</li>
+
+			<li class="input-group">
+				<label for="InputNumber">#InputNumber: <code class="inline"></code></label>
+				<input type="number" class="form-control input-name input-name-m" id="InputNumber">
+				<p inert data-storepress-conditional-field='{"selector":"#InputNumber"}' class="message"></p>
 			</li>
 
 			<li class="select-group">

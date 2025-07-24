@@ -44,8 +44,15 @@
 		<select id="test-box">
 			<option>{"selector":"#selector"}</option>
 			<option>{"selector":"#selector", "value": "hello"}</option>
-			<option>{"selector":"#selector", "value": ["hello"]}</option>
+			<option>{"selector":"#selector", "value": "hello", "strict": true}</option>
+			<option>{"selector":"#selector", "value": "hello", "case": true}</option>
+			<option>{"selector":"#selector", "value": "hello", "strict": true, "case": true}</option>
 			<option>{"selector":"#selector", "value": "hello", "inert": true}</option>
+
+
+
+			<option>{"selector":"#selector", "value": ["hello"]}</option>
+
 
 			<option>{"selector":"#selector", "value": 4}</option>
 			<option>{"selector":"#selector", "value": [4, 6]}</option>
@@ -72,7 +79,7 @@
 			<option>{"selector":"#selector", "value": "THREE", "strict": true}</option>
 
 			<option>{"selector":"#selector", "value": ["three", "four"]}</option>
-			<option selected>{"selector":"#selector", "value": ["three", "four"], "require": true}</option>
+			<option>{"selector":"#selector", "value": ["three", "four"], "require": true}</option>
 			<option>{"selector":"#selector", "value": ["Three", "four"], "case": true}</option>
 			<option>{"selector":"#selector", "value": ["three", "four"], "strict": true}</option>
 			<option>{"selector":"#selector", "value": ["THREE", "FOUR"]}</option>
@@ -132,6 +139,7 @@
 
 				</select>
 
+				.checkbox-element-group
 				<ul class="checkbox-group checkbox-element-group">
 
 					<li>
@@ -189,6 +197,12 @@
 				<label for="InputText">#InputText: <code class="inline"></code></label>
 				<input type="text" class="form-control input-name" id="InputText">
 				<p inert data-storepress-conditional-field='{"selector":"#InputText"}' class="message"></p>
+			</li>
+
+			<li class="input-group">
+				<label for="InputEmail">#InputText: <code class="inline"></code></label>
+				<input type="email" class="form-control input-name" id="InputEmail">
+				<p inert data-storepress-conditional-field='{"selector":"#InputEmail"}' class="message"></p>
 			</li>
 
 			<li>
