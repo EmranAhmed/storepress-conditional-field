@@ -45,9 +45,20 @@
 			<option>{"selector":"#selector"}</option>
 			<option selected>{"selector":"#selector", "value": "hello"}</option>
 			<option>{"selector":"#selector", "value": "hello", "strict":true}</option>
+			<option>{"selector":"#selector", "value": "hello", "require":true}</option>
 			<option>{"selector":"#selector", "value": "hello", "case":true}</option>
+			<option>{"selector":"#selector", "value": "hello", "strict":true, "case":true}</option>
+			<option>{"selector":"#selector", "value": "hello", "inert": false}</option>
+
+
 			<option>{"selector":"#selector", "value": ["hello"]}</option>
-			<option>{"selector":"#selector", "value": "hello", "inert": true}</option>
+			<option>{"selector":"#selector", "value": ["hello"], "strict":true}</option>
+			<option>{"selector":"#selector", "value": ["hello"], "require":true}</option>
+			<option>{"selector":"#selector", "value": ["hello"], "case":true}</option>
+			<option>{"selector":"#selector", "value": ["hello"], "strict":true, "case":true}</option>
+			<option>{"selector":"#selector", "value": ["hello"], "require":true, "case":true}</option>
+			<option>{"selector":"#selector", "value": ["hello"], "strict":true, "case":true}</option>
+
 			<option>{"selector":"#selector", "value": ["three", "four"]}</option>
 		</select>
 
@@ -60,12 +71,13 @@
 			<li class="input-group">
 				<label for="InputSearch">#InputSearch: <code class="inline"></code></label>
 				<input type="search" class="form-control input-name input-name-m" id="InputSearch">
-
+				<!--<p inert data-storepress-conditional-field='{"selector":"#InputSearch"}' class="message"></p>-->
 			</li>
 
 			<li class="input-group">
 				<label for="InputText">#InputText: <code class="inline"></code></label>
 				<input type="text" class="form-control input-name input-name-m" id="InputText">
+				<p inert data-storepress-conditional-field='{"selector":".input-name-m"}' class="message"></p>
 			</li>
 
 			<li class="select-group">
@@ -88,6 +100,8 @@
 					<option value="HELLO">HELLO</option>
 					<option value="Hello">Hello</option>
 				</select>
+
+				<!--<p inert data-storepress-conditional-field='{"selector":"#InputSelectMultiple"}' class="message"></p>-->
 			</li>
 
 			<li class="select-group">
@@ -111,7 +125,6 @@
 					<option value="Hello">Hello</option>
 				</select>
 			</li>
-
 
 			<li class="input-group">
 
@@ -260,7 +273,12 @@
 
 			<li>
 				.input-name <code class="inline"></code>
+<!--
+				<p inert data-storepress-conditional-field='{"selector":"#InputSelectMultiple"}' class="message green"></p>
+-->
+<!--
 				<p inert data-storepress-conditional-field='{"selector":".checkbox-group-2 input"}' class="message green"></p>
+-->
 <!--
 				<p inert data-storepress-conditional-field='{"selector":".input-name-m, .select-group select, .checkbox-group input"}' class="message green"></p>
 -->

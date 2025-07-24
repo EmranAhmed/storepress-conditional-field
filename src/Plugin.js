@@ -514,8 +514,8 @@ export function Plugin( element, options ) {
 			// MultiSelect.
 			if ( type === 'SELECT-MULTIPLE' ) {
 				const selectValues = Array.from( $selector.selectedOptions )
-					.filter( ( opt ) => opt.length > 0 )
-					.map( ( opt ) => opt.value );
+					.filter( ( option ) => option.value.length > 0 )
+					.map( ( option ) => option.value );
 				values.push( selectValues );
 				inputs.push( `INPUT:${ type }` );
 				exists.push( selectValues.length > 0 );
@@ -999,6 +999,81 @@ export function Plugin( element, options ) {
 		} );
 	};
 
+	/**
+	 * Validates if a `selected` array meets the criteria of a `condition` array
+	 * based on `strict` and `required` flags.
+	 *
+	 * @param {string[]} selected  The array of selected items.
+	 * @param {string[]} condition The array of condition items.
+	 * @param {boolean}  strict    If true, isRequired should be false. `selected` and `condition` must have the same length and elements.
+	 * @param {boolean}  required  If true (and `strict` is false), every item in `condition` must be in `selected`.
+	 * @param {boolean}  sensitive If true.
+	 * @return {boolean} Returns true if the validation passes, otherwise false.
+	 */
+
+	const validateArrayInArray = (
+		selected,
+		condition,
+		strict,
+		required,
+		sensitive
+	) => {
+		// Case 1: strict = true
+		// `selected` and `condition` must have the same length
+		// Every item in `condition` must be present in `selected`.
+
+		if ( strict ) {
+			return (
+				selected.length === condition.length &&
+				arrayInArrayAll( condition, selected, sensitive )
+			);
+		}
+
+		// Case 2: strict = false, required = true
+		// Every item in `condition` must be present in `selected`.
+		if ( required ) {
+			return arrayInArrayAll( condition, selected, sensitive );
+		}
+
+		// Case 3: strict = false, required = false
+		// At least one item from `condition` must be present in `selected`.
+		return arrayInArrayAny( condition, selected, sensitive );
+	};
+
+	/**
+	 * Validates if a `selected` array meets the criteria of a `condition` array
+	 * based on `strict` and `required` flags.
+	 *
+	 * @param {string[]} selected       The array of selected items.
+	 * @param {int}      selectedLength The length of selected items. not array length.
+	 * @param {string}   condition      The array of condition items.
+	 * @param {boolean}  strict         If true, isRequired should be false. `selected` and `condition` must have the same length and elements.
+	 * @param {boolean}  sensitive      If true.
+	 * @return {boolean} Returns true if the validation passes, otherwise false.
+	 */
+	const validateStringInArray = (
+		selected,
+		selectedLength,
+		condition,
+		strict,
+		sensitive
+	) => {
+		// Case 1: strict = true
+		// `selected` length should be 1
+		// `condition` must be present in `selected`.
+
+		if ( strict ) {
+			return (
+				selectedLength === 1 &&
+				inArrayAll( selected, condition, sensitive )
+			);
+		}
+
+		// Case 3: strict = false, required = false
+		// At least one item from `condition` must be present in `selected`.
+		return inArrayAny( selected, condition, sensitive );
+	};
+
 	const COMPARE_FUNCTIONS = {
 		EXISTS: ( condition, $selector, $selectors, caller, _selectors ) => {
 			this.showField = getConditionInert( condition );
@@ -1013,7 +1088,7 @@ export function Plugin( element, options ) {
 		STRING: ( condition, $selector, $selectors ) => {
 			this.showField = getConditionInert( condition );
 
-			const conditionValue = getConditionValue( condition );
+			const conditionValue = getConditionValue( condition ); // String
 			const isStrict = getConditionStrict( condition ); // for CHECKBOX and SELECT-MULTIPLE values check.
 			const isCaseSensitive = getConditionCase( condition );
 			const _selectors = getConditionSelector( condition );
@@ -1025,23 +1100,19 @@ export function Plugin( element, options ) {
 			if ( notEmpty ) {
 				const available = map.every(
 					( { input, multiple, length } ) => {
-						if ( isStrict && multiple ) {
-							if ( length > 1 ) {
-								return false;
-							}
-
-							return inArrayAll(
-								input,
-								conditionValue,
-								isCaseSensitive
-							);
-						}
-
-						return inArrayAny(
-							input,
-							conditionValue,
-							isCaseSensitive
-						);
+						return multiple
+							? validateStringInArray(
+									input,
+									length,
+									conditionValue,
+									isStrict,
+									isCaseSensitive
+							  )
+							: inArrayAny(
+									input,
+									conditionValue,
+									isCaseSensitive
+							  );
 					}
 				);
 
@@ -1109,16 +1180,14 @@ export function Plugin( element, options ) {
 				_selectors
 			);
 
-			console.log( conditionValue, map );
-
 			if ( notEmpty ) {
 				const available = map.every( ( { input, multiple } ) => {
-					console.log( input, multiple );
-
-					return isStrict
-						? arrayInArrayAll(
-								conditionValue,
+					return multiple
+						? validateArrayInArray(
 								input,
+								conditionValue,
+								isStrict,
+								isRequire,
 								isCaseSensitive
 						  )
 						: arrayInArrayAny(
