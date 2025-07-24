@@ -510,6 +510,7 @@ export function Plugin( element, options ) {
 			} );
 
 			const specialTypes = [ 'SELECT-MULTIPLE', 'CHECKBOX', 'RADIO' ];
+			const numericTypes = [ 'NUMBER', 'RANGE' ];
 
 			// MultiSelect.
 			if ( type === 'SELECT-MULTIPLE' ) {
@@ -579,7 +580,12 @@ export function Plugin( element, options ) {
 			// Others.
 			if ( ! specialTypes.includes( type ) ) {
 				inputs.push( `INPUT:${ type }` );
-				const value = $selector.value.length > 0 ? $selector.value : '';
+				let value = $selector.value.length > 0 ? $selector.value : '';
+
+				if ( numericTypes.includes( type ) ) {
+					value = Number( value );
+				}
+
 				values.push( value );
 				exists.push( value.length > 0 );
 				map.push( {
@@ -1208,10 +1214,21 @@ export function Plugin( element, options ) {
 
 			const conditionValues = getConditionValue( condition );
 
-			const inputValue = getInputValue( $selector, $selectors );
+			const _selectors = getConditionSelector( condition );
 
-			if ( conditionValues.includes( inputValue.length ) ) {
-				this.showField = ! getConditionInert( condition );
+			const { notEmpty, map } = analyzeSelectors(
+				$selectors,
+				_selectors
+			);
+
+			if ( notEmpty ) {
+				const available = map.every( ( { length } ) => {
+					return conditionValues.includes( length );
+				} );
+
+				if ( available ) {
+					this.showField = ! getConditionInert( condition );
+				}
 			}
 		},
 
@@ -1220,11 +1237,21 @@ export function Plugin( element, options ) {
 
 			const conditionValues = getConditionValue( condition );
 			const [ min = 0, max = Number.MAX_SAFE_INTEGER ] = conditionValues;
+			const _selectors = getConditionSelector( condition );
 
-			const inputValue = getInputValue( $selector, $selectors );
+			const { notEmpty, map } = analyzeSelectors(
+				$selectors,
+				_selectors
+			);
 
-			if ( min <= inputValue.length && max >= inputValue.length ) {
-				this.showField = ! getConditionInert( condition );
+			if ( notEmpty ) {
+				const available = map.every( ( { length } ) => {
+					return min <= length && max >= length;
+				} );
+
+				if ( available ) {
+					this.showField = ! getConditionInert( condition );
+				}
 			}
 		},
 
@@ -1233,18 +1260,24 @@ export function Plugin( element, options ) {
 			this.showField = getConditionInert( condition );
 
 			const conditionValues = getConditionValue( condition );
+			const _selectors = getConditionSelector( condition );
 
 			const [ start = 0, end = Number.MAX_SAFE_INTEGER ] =
 				conditionValues;
 
-			const inputValue = Number( getInputValue( $selector, $selectors ) );
+			const { notEmpty, map } = analyzeSelectors(
+				$selectors,
+				_selectors
+			);
 
-			if (
-				! isNaN( inputValue ) &&
-				start <= inputValue &&
-				end >= inputValue
-			) {
-				this.showField = ! getConditionInert( condition );
+			if ( notEmpty ) {
+				const available = map.every( ( { input } ) => {
+					return start <= input.at( 0 ) && end >= input.at( 0 );
+				} );
+
+				if ( available ) {
+					this.showField = ! getConditionInert( condition );
+				}
 			}
 		},
 
@@ -1253,40 +1286,41 @@ export function Plugin( element, options ) {
 
 			const conditionValue = getConditionValue( condition );
 
-			const isMultiValues = isMultiValueInputType( $selector );
+			const _selectors = getConditionSelector( condition );
 
-			const isStrict = getConditionStrict( condition ); // for CHECKBOX and MULTI SELECT values check.
-
-			const inputValue = getInputValue( $selector, $selectors );
+			const { notEmpty, map } = analyzeSelectors(
+				$selectors,
+				_selectors
+			);
 
 			const regexp = getRegExpParams( conditionValue );
 
-			if ( isMultiValues && ! isStrict ) {
-				if (
-					inputValue.some( ( value ) =>
-						new RegExp( regexp.pattern, regexp.flags ).test( value )
-					)
-				) {
-					this.showField = ! getConditionInert( condition );
-				}
-			}
+			const isStrict = getConditionStrict( condition ); // for CHECKBOX and MULTI SELECT values check.
 
-			if ( isMultiValues && isStrict ) {
-				if (
-					inputValue.every( ( value ) =>
-						new RegExp( regexp.pattern, regexp.flags ).test( value )
-					)
-				) {
-					this.showField = ! getConditionInert( condition );
-				}
-			}
+			if ( notEmpty ) {
+				const available = map.every( ( { input, multiple } ) => {
+					if ( multiple ) {
+						return isStrict
+							? input.every( ( value ) =>
+									new RegExp(
+										regexp.pattern,
+										regexp.flags
+									).test( value )
+							  )
+							: input.some( ( value ) =>
+									new RegExp(
+										regexp.pattern,
+										regexp.flags
+									).test( value )
+							  );
+					}
 
-			if ( ! isMultiValues ) {
-				if (
-					new RegExp( regexp.pattern, regexp.flags ).test(
-						inputValue
-					)
-				) {
+					return input.every( ( value ) =>
+						new RegExp( regexp.pattern, regexp.flags ).test( value )
+					);
+				} );
+
+				if ( available ) {
 					this.showField = ! getConditionInert( condition );
 				}
 			}

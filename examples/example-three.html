@@ -58,8 +58,15 @@
 			<option>{"selector":"#selector", "value": ["hello"], "strict":true, "case":true}</option>
 			<option>{"selector":"#selector", "value": ["hello"], "require":true, "case":true}</option>
 			<option>{"selector":"#selector", "value": ["hello"], "strict":true, "case":true}</option>
-
 			<option>{"selector":"#selector", "value": ["three", "four"]}</option>
+
+			<option>{"selector":"#selector", "value": 5}</option>
+			<option>{"selector":"#selector", "value": 5, "compare":">"}</option>
+			<option>{"selector":"#selector", "value": 5, "compare":"<"}</option>
+			<option>{"selector":"#selector", "value": 5, "compare":"<="}</option>
+			<option>{"selector":"#selector", "value": 5, "compare":">="}</option>
+			<option>{"selector":"#selector", "value": [5,7,9]}</option>
+			<option>{"selector":"#selector", "value": "/^[\w.-]+@[\w.-]+\.\w+$/g"}</option>
 		</select>
 
 
@@ -67,6 +74,12 @@
 		<ul>
 
 			<li><h2>Inputs</h2></li>
+
+			<li class="input-group">
+				<label for="InputEmail">#InputEmail: <code class="inline"></code></label>
+				<input type="email" class="form-control input-name input-name-m" id="InputEmail">
+				<p inert data-storepress-conditional-field='{"selector":"#InputEmail"}' class="message"></p>
+			</li>
 
 			<li class="input-group">
 				<label for="InputSearch">#InputSearch: <code class="inline"></code></label>
@@ -77,7 +90,7 @@
 			<li class="input-group">
 				<label for="InputText">#InputText: <code class="inline"></code></label>
 				<input type="text" class="form-control input-name input-name-m" id="InputText">
-				<p inert data-storepress-conditional-field='{"selector":".input-name-m"}' class="message"></p>
+				<!--<p inert data-storepress-conditional-field='{"selector":".input-name-m"}' class="message"></p>-->
 			</li>
 
 			<li class="select-group">
