@@ -312,12 +312,12 @@ export function Plugin( element, options ) {
 		return [ 'RANGE', 'NUMBER' ].includes( getInputType( $selector ) );
 	};
 
-	const analyzeSelectors = ( $selectors, _selectors ) => {
+	const analyzeSelectors = ( $selectors, selectors ) => {
 		const inputs = [];
 		const values = [];
 		let count = 0;
 		const exists = [];
-		const selectors = _selectors.split( ',' );
+		const sls = selectors.split( ',' );
 		const map = [];
 
 		const radioGroup = new Set();
@@ -328,7 +328,7 @@ export function Plugin( element, options ) {
 
 			const name = $selector.name;
 
-			const group = selectors.find( ( selector ) => {
+			const group = sls.find( ( selector ) => {
 				return $selector.matches( selector );
 			} );
 
@@ -596,27 +596,30 @@ export function Plugin( element, options ) {
 	};
 
 	const COMPARE_FUNCTIONS = {
-		EXISTS: ( condition, $selector, $selectors ) => {
+		EXISTS: ( condition ) => {
 			this.showField = getConditionInert( condition );
-			const _selectors = getConditionSelector( condition );
-			const { notEmpty } = analyzeSelectors( $selectors, _selectors );
+
+			const selectors = getConditionSelector( condition );
+			const $selectors = document.querySelectorAll( selectors );
+
+			const { notEmpty } = analyzeSelectors( $selectors, selectors );
 
 			if ( notEmpty ) {
 				this.showField = ! getConditionInert( condition );
 			}
 		},
 
-		STRING: ( condition, $selector, $selectors ) => {
+		STRING: ( condition ) => {
 			this.showField = getConditionInert( condition );
 
 			const conditionValue = getConditionValue( condition ); // String
 			const isStrict = getConditionStrict( condition ); // for CHECKBOX and SELECT-MULTIPLE values check.
 			const isCaseSensitive = getConditionCase( condition );
-			const _selectors = getConditionSelector( condition );
-			const { notEmpty, map } = analyzeSelectors(
-				$selectors,
-				_selectors
-			);
+
+			const selectors = getConditionSelector( condition );
+			const $selectors = document.querySelectorAll( selectors );
+
+			const { notEmpty, map } = analyzeSelectors( $selectors, selectors );
 
 			if ( notEmpty ) {
 				const available = map.every(
@@ -643,18 +646,17 @@ export function Plugin( element, options ) {
 			}
 		},
 
-		NUMBER: ( condition, $selector, $selectors ) => {
+		NUMBER: ( condition ) => {
 			const conditionValue = Number( getConditionValue( condition ) );
 
 			const compare = getConditionCompare( condition );
-			const _selectors = getConditionSelector( condition );
+
+			const selectors = getConditionSelector( condition );
+			const $selectors = document.querySelectorAll( selectors );
 
 			this.showField = getConditionInert( condition );
 
-			const { notEmpty, map } = analyzeSelectors(
-				$selectors,
-				_selectors
-			);
+			const { notEmpty, map } = analyzeSelectors( $selectors, selectors );
 
 			if ( notEmpty ) {
 				const available = map.every( ( { length } ) => {
@@ -687,19 +689,17 @@ export function Plugin( element, options ) {
 			}
 		},
 
-		'STRING-ARRAY': ( condition, $selector, $selectors ) => {
+		'STRING-ARRAY': ( condition ) => {
 			this.showField = getConditionInert( condition );
 
 			const conditionValue = getConditionValue( condition );
 			const isStrict = getConditionStrict( condition ); // for CHECKBOX and MULTI SELECT values check.
 			const isRequire = getConditionRequire( condition ); // for NON-STRICT CHECKBOX and MULTI SELECT values check with Array Values.
 			const isCaseSensitive = getConditionCase( condition );
-			const _selectors = getConditionSelector( condition );
+			const selectors = getConditionSelector( condition );
+			const $selectors = document.querySelectorAll( selectors );
 
-			const { notEmpty, map } = analyzeSelectors(
-				$selectors,
-				_selectors
-			);
+			const { notEmpty, map } = analyzeSelectors( $selectors, selectors );
 
 			if ( notEmpty ) {
 				const available = map.every( ( { input, multiple } ) => {
@@ -724,17 +724,15 @@ export function Plugin( element, options ) {
 			}
 		},
 
-		'NUMBER-ARRAY': ( condition, $selector, $selectors ) => {
+		'NUMBER-ARRAY': ( condition ) => {
 			this.showField = getConditionInert( condition );
 
 			const conditionValues = getConditionValue( condition );
 
-			const _selectors = getConditionSelector( condition );
+			const selectors = getConditionSelector( condition );
+			const $selectors = document.querySelectorAll( selectors );
 
-			const { notEmpty, map } = analyzeSelectors(
-				$selectors,
-				_selectors
-			);
+			const { notEmpty, map } = analyzeSelectors( $selectors, selectors );
 
 			if ( notEmpty ) {
 				const available = map.every( ( { length } ) => {
@@ -747,17 +745,16 @@ export function Plugin( element, options ) {
 			}
 		},
 
-		MINMAX: ( condition, $selector, $selectors ) => {
+		MINMAX: ( condition ) => {
 			this.showField = getConditionInert( condition );
 
 			const conditionValues = getConditionValue( condition );
 			const [ min = 0, max = Number.MAX_SAFE_INTEGER ] = conditionValues;
-			const _selectors = getConditionSelector( condition );
 
-			const { notEmpty, map } = analyzeSelectors(
-				$selectors,
-				_selectors
-			);
+			const selectors = getConditionSelector( condition );
+			const $selectors = document.querySelectorAll( selectors );
+
+			const { notEmpty, map } = analyzeSelectors( $selectors, selectors );
 
 			if ( notEmpty ) {
 				const available = map.every( ( { length } ) => {
@@ -771,19 +768,17 @@ export function Plugin( element, options ) {
 		},
 
 		// Only for NUMBER and RANGE Type.
-		RANGE: ( condition, $selector, $selectors ) => {
+		RANGE: ( condition ) => {
 			this.showField = getConditionInert( condition );
 
 			const conditionValues = getConditionValue( condition );
-			const _selectors = getConditionSelector( condition );
+			const selectors = getConditionSelector( condition );
+			const $selectors = document.querySelectorAll( selectors );
 
 			const [ start = 0, end = Number.MAX_SAFE_INTEGER ] =
 				conditionValues;
 
-			const { notEmpty, map } = analyzeSelectors(
-				$selectors,
-				_selectors
-			);
+			const { notEmpty, map } = analyzeSelectors( $selectors, selectors );
 
 			if ( notEmpty ) {
 				const available = map.every( ( { input, type } ) => {
@@ -800,17 +795,15 @@ export function Plugin( element, options ) {
 			}
 		},
 
-		REGEXP: ( condition, $selector, $selectors ) => {
+		REGEXP: ( condition ) => {
 			this.showField = getConditionInert( condition );
 
 			const conditionValue = getConditionValue( condition );
 
-			const _selectors = getConditionSelector( condition );
+			const selectors = getConditionSelector( condition );
+			const $selectors = document.querySelectorAll( selectors );
 
-			const { notEmpty, map } = analyzeSelectors(
-				$selectors,
-				_selectors
-			);
+			const { notEmpty, map } = analyzeSelectors( $selectors, selectors );
 
 			const regexp = getRegExpParams( conditionValue );
 
@@ -868,24 +861,16 @@ export function Plugin( element, options ) {
 			}
 		},
 
-		ELEMENT: ( condition, $selector, $selectors, caller ) => {
-			const selectors = getConditionSelector( condition );
-
+		ELEMENT: ( condition ) => {
 			const COMPARE_FUNCTION = getConditionCheck( condition );
 			const isVisibleCheck = [ 'VISIBLE' ].includes( COMPARE_FUNCTION );
-
-			const $sls = document.querySelectorAll( selectors );
 
 			if ( isVisibleCheck ) {
 				const c = {
 					...condition,
 				};
 
-				COMPARE_FUNCTIONS[ `${ COMPARE_FUNCTION }` ](
-					c,
-					$selector,
-					$sls
-				);
+				COMPARE_FUNCTIONS[ `${ COMPARE_FUNCTION }` ]( c );
 
 				return;
 			}
@@ -934,12 +919,10 @@ export function Plugin( element, options ) {
 				[ getValueOperatorKey() ]: values,
 			};
 
-			// console.log( `${ COMPARE_FUNCTION }${ COMPARE_FUNCTION_EXT }` );
-			console.log( '----->', COMPARE_FUNCTION_EXT, values, c );
 			if ( notEmpty ) {
 				COMPARE_FUNCTIONS[
 					`${ COMPARE_FUNCTION }${ COMPARE_FUNCTION_EXT }`
-				]( c, $selector, $sls );
+				]( c );
 			}
 		},
 	};
