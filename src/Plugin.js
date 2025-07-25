@@ -99,7 +99,7 @@ export function Plugin( element, options ) {
 		// Only for type="ELEMENT"
 		ELEMENT_CHECK_FN: {
 			KEY: 'check',
-			DEFAULT: 'STRING-ARRAY',
+			DEFAULT: 'STRING',
 			AVAILABLE: [
 				'STRING',
 				'STRING-ARRAY',
@@ -302,7 +302,7 @@ export function Plugin( element, options ) {
 		return $selector.type.toUpperCase();
 	};
 
-	const isMultiValueInputType = ( $selector ) => {
+	const isArrayValueInputType = ( $selector ) => {
 		return [ 'CHECKBOX', 'SELECT-MULTIPLE' ].includes(
 			getInputType( $selector )
 		);
@@ -312,187 +312,10 @@ export function Plugin( element, options ) {
 		return [ 'RANGE', 'NUMBER' ].includes( getInputType( $selector ) );
 	};
 
-	const getElementValues = ( $selectors ) => {
-		const values = [];
-		const lengths = [];
-		$selectors.forEach( ( $selector ) => {
-			// isNumberValueInputType
-			const isArrayValue = isMultiValueInputType( $selector );
-			const isNumberValue = isNumberValueInputType( $selector );
-
-			if (
-				[ 'CHECKBOX', 'RADIO' ].includes( getInputType( $selector ) )
-			) {
-				if ( $selector.checked && $selector.value.length > 0 ) {
-					values.push( $selector.value );
-					lengths.push( $selector.value.length );
-				}
-			}
-
-			if ( [ 'SELECT-MULTIPLE' ].includes( getInputType( $selector ) ) ) {
-				for ( const option of $selector.options ) {
-					if ( option.selected && option.value.length > 0 ) {
-						values.push( option.value );
-						lengths.push( option.value.length );
-					}
-				}
-			}
-
-			if (
-				! isArrayValue &&
-				! isNumberValue &&
-				$selector.value.length > 0
-			) {
-				values.push( $selector.value );
-				lengths.push( $selector.value.length );
-			}
-
-			if (
-				! isArrayValue &&
-				isNumberValue &&
-				$selector.value.length > 0
-			) {
-				values.push( $selector.value );
-				// lengths.push($selector.value.length);
-				lengths.push( Number( $selector.value ) );
-			}
-		} );
-
-		return [ values, lengths ];
-	};
-
-	const getInputValue = ( $selector, $selectors ) => {
-		if ( [ 'CHECKBOX' ].includes( getInputType( $selector ) ) ) {
-			const selectedValues = [];
-			$selectors.forEach( ( $checkbox ) => {
-				if ( [ 'CHECKBOX' ].includes( getInputType( $checkbox ) ) ) {
-					if ( $checkbox.checked && $checkbox.value.length > 0 ) {
-						selectedValues.push( $checkbox.value );
-					}
-				}
-			} );
-			return selectedValues;
-		}
-
-		if ( [ 'RADIO' ].includes( getInputType( $selector ) ) ) {
-			return $selector.checked ? $selector.value : '';
-		}
-
-		if ( [ 'SELECT-MULTIPLE' ].includes( getInputType( $selector ) ) ) {
-			const selectedValues = [];
-			for ( const option of $selector.options ) {
-				if ( option.selected && option.value.length > 0 ) {
-					selectedValues.push( option.value );
-				}
-			}
-			return selectedValues;
-		}
-
-		return $selector.value;
-	};
-
-	const analyzeSelectorsX = ( condition ) => {
-		// const elements = document.querySelectorAll( selector );
-
-		const selectors = getConditionSelector( condition ).split( ',' );
-
-		const inputs = [];
-		const values = [];
-		const exists = [];
-
-		selectors.forEach( ( selector ) => {
-			const $sls = document.querySelectorAll( selector );
-
-			const radioGroup = new Set();
-			const checkboxGroup = new Set();
-
-			// Non checkbox and radio
-			$sls.forEach( ( $el ) => {
-				const type = getInputType( $el );
-
-				if ( [ 'CHECKBOX', 'RADIO' ].includes( type ) ) {
-					return false;
-				}
-
-				if ( type === 'SELECT-MULTIPLE' ) {
-					const selectValues = Array.from( $el.selectedOptions )
-						.filter( ( opt ) => opt.length > 0 )
-						.map( ( opt ) => opt.value );
-					values.push( selectValues );
-					inputs.push( `INPUT:${ type }` );
-					exists.push( selectValues.length > 0 );
-				} else {
-					inputs.push( `INPUT:${ type }` );
-					values.push( $el.value.length > 0 ? $el.value : '' );
-					exists.push( $el.value.length > 0 );
-				}
-			} );
-
-			// Only Checkbox
-			$sls.forEach( ( $el ) => {
-				const type = getInputType( $el );
-
-				if ( ! [ 'CHECKBOX' ].includes( type ) ) {
-					return false;
-				}
-
-				if ( ! checkboxGroup.has( selector ) ) {
-					inputs.push( `INPUT:${ type }` );
-
-					const checkboxes = Array.from( $sls )
-						.filter( ( c ) => getInputType( c ) === 'CHECKBOX' )
-						.filter( ( c ) => c.checked && c.value.length > 0 )
-						.map( ( c ) => c.value );
-
-					values.push( checkboxes );
-					exists.push( checkboxes.length > 0 );
-
-					checkboxGroup.add( selector );
-				}
-			} );
-
-			// Only Radio
-			$sls.forEach( ( $el ) => {
-				const type = getInputType( $el );
-
-				if ( ! [ 'RADIO' ].includes( type ) ) {
-					return false;
-				}
-
-				const name = $el.name;
-
-				if ( ! radioGroup.has( name ) ) {
-					inputs.push( `INPUT:${ type }` );
-					// Find all radios in the same group within the nodeList
-					const radio = Array.from( $sls )
-						.filter(
-							( r ) =>
-								r.name === name && getInputType( r ) === 'RADIO'
-						)
-						.find( ( r ) => r.checked && r.value.length > 0 );
-
-					const value = radio ? radio.value : '';
-
-					values.push( value );
-					exists.push( value.length > 0 );
-
-					radioGroup.add( name );
-				}
-			} );
-		} );
-
-		return {
-			inputs,
-			values,
-			empty: ! exists.every( ( val ) => val ),
-		};
-	};
-
 	const analyzeSelectors = ( $selectors, _selectors ) => {
-		// const elements = document.querySelectorAll( selector );
-
 		const inputs = [];
 		const values = [];
+		let count = 0;
 		const exists = [];
 		const selectors = _selectors.split( ',' );
 		const map = [];
@@ -510,16 +333,16 @@ export function Plugin( element, options ) {
 			} );
 
 			const specialTypes = [ 'SELECT-MULTIPLE', 'CHECKBOX', 'RADIO' ];
-			const numericTypes = [ 'NUMBER', 'RANGE' ];
 
 			// MultiSelect.
 			if ( type === 'SELECT-MULTIPLE' ) {
 				const selectValues = Array.from( $selector.selectedOptions )
 					.filter( ( option ) => option.value.length > 0 )
 					.map( ( option ) => option.value );
-				values.push( selectValues );
+				values.push( ...selectValues );
 				inputs.push( `INPUT:${ type }` );
 				exists.push( selectValues.length > 0 );
+				count += selectValues.length;
 				map.push( {
 					input: selectValues,
 					length: selectValues.length,
@@ -541,9 +364,9 @@ export function Plugin( element, options ) {
 					.filter( ( c ) => c.checked && c.value.length > 0 )
 					.map( ( c ) => c.value );
 
-				values.push( checkboxes );
+				values.push( ...checkboxes );
 				exists.push( checkboxes.length > 0 );
-
+				count += checkboxes.length;
 				map.push( {
 					input: checkboxes,
 					length: checkboxes.length,
@@ -569,6 +392,7 @@ export function Plugin( element, options ) {
 
 				values.push( value );
 				exists.push( value.length > 0 );
+				count += value.length;
 
 				map.push( {
 					input: value.length > 0 ? [ value ] : [],
@@ -584,236 +408,26 @@ export function Plugin( element, options ) {
 			if ( ! specialTypes.includes( type ) ) {
 				inputs.push( `INPUT:${ type }` );
 				const value = $selector.value.length > 0 ? $selector.value : '';
-				const mapValue = {
+				values.push( value );
+				exists.push( value.length > 0 );
+				count += value.length;
+				map.push( {
+					input: value.length > 0 ? [ value ] : [],
 					length: value.length,
 					multiple: false,
 					type,
-				};
-
-				// if ( numericTypes.includes( type ) ) {
-				//	values.push( Number( value ) );
-				//	mapValue.input = value.length > 0 ? [ Number( value ) ] : [];
-				// } else {
-				values.push( value );
-				mapValue.input = value.length > 0 ? [ value ] : [];
-				// }
-
-				exists.push( value.length > 0 );
-				map.push( mapValue );
+				} );
 			}
 		} );
 
 		return {
 			inputs,
 			values,
+			count,
 			empty: ! exists.every( ( val ) => val ),
 			notEmpty: exists.every( ( val ) => val ),
 			map,
 		};
-	};
-
-	const getInputsValue = ( $selectors, condition ) => {
-		const values = [];
-		const map = new Map();
-		const conditionSelectors =
-			getConditionSelector( condition ).split( ',' );
-		//const selectors = conditionSelector.split(',');
-
-		let index = 0;
-		const checkInputs = [];
-		const otherInputs = [];
-		const v = [];
-		const TYPES = [ 'SELECT-MULTIPLE', 'CHECKBOX', 'RADIO' ];
-		conditionSelectors.forEach( ( selector ) => {
-			//v[index] = [];
-
-			document.querySelectorAll( selector ).forEach( ( s ) => {
-				if ( [ 'CHECKBOX' ].includes( getInputType( s ) ) ) {
-					checkInputs[ index ] = selector;
-					if ( ! v[ index ] ) {
-						//	v[index] = [];
-					}
-					const val = s.value.trim();
-
-					v.push( [ val ] );
-					if ( s.checked && val.length > 0 ) {
-						//v[index].push(val);
-					} else {
-						//v[index].push();
-					}
-				}
-
-				if ( [ 'RADIO' ].includes( getInputType( s ) ) ) {
-					const val = s.value.trim();
-					otherInputs.push( selector );
-					if ( s.checked && val.length > 0 ) {
-						v.push( [ val ] );
-					} else {
-						v.push();
-					}
-				}
-
-				if ( [ 'SELECT-MULTIPLE' ].includes( getInputType( s ) ) ) {
-					otherInputs.push( selector );
-					const mv = [];
-					for ( const $option of s.options ) {
-						const val = $option.value.trim();
-						if ( $option.selected && val.length > 0 ) {
-							mv.push( [ val ] );
-						}
-					}
-
-					v.push( mv );
-				}
-
-				if ( ! TYPES.includes( getInputType( s ) ) ) {
-					otherInputs.push( selector );
-
-					const val = s.value.trim();
-					v.push( [ val ] );
-					if ( val.length > 0 ) {
-						//v.push(val);
-					} else {
-						//v.push();
-					}
-				}
-			} );
-
-			index++;
-		} );
-
-		const selectors = otherInputs.concat( checkInputs.filter( Boolean ) );
-
-		let increment = 0;
-		$selectors.forEach( ( $selector ) => {
-			// const isMulti = isMultiValueInputType($selector);
-
-			if ( [ 'CHECKBOX' ].includes( getInputType( $selector ) ) ) {
-				const currentValue = $selector.value.trim();
-				if ( $selector.checked && currentValue.length > 0 ) {
-					values.push( currentValue );
-
-					const selector = conditionSelectors.find( ( _selector ) => {
-						return $selector.matches( _selector );
-					} );
-
-					//const ext = `${selector}:${increment}`;
-					const ext = `${ selector }`;
-
-					if ( ! map.has( ext ) ) {
-						map.set( ext, {
-							multiple: false,
-							input: [],
-							length: 0,
-						} );
-					}
-
-					map.get( ext ).input.push( currentValue );
-					map.get( ext ).length = map.get( ext ).input.length;
-					map.get( ext ).multiple = map.get( ext ).length > 1;
-				}
-			}
-
-			if ( [ 'RADIO' ].includes( getInputType( $selector ) ) ) {
-				const currentValue = $selector.value.trim();
-				if ( $selector.checked && currentValue.length > 0 ) {
-					values.push( currentValue );
-
-					const selector = conditionSelectors.find( ( _selector ) => {
-						return $selector.matches( _selector );
-					} );
-
-					const ext = `${ selector }:${ increment }`;
-
-					if ( ! map.has( ext ) ) {
-						map.set( ext, {
-							multiple: false,
-							input: [],
-							length: 0,
-						} );
-					}
-
-					map.get( ext ).input.push( currentValue );
-					map.get( ext ).length = map.get( ext ).input.length;
-					map.get( ext ).multiple = map.get( ext ).length > 1;
-				}
-			}
-
-			if ( [ 'SELECT-MULTIPLE' ].includes( getInputType( $selector ) ) ) {
-				for ( const $option of $selector.options ) {
-					const currentValue = $option.value.trim();
-					if ( $option.selected && currentValue.length > 0 ) {
-						values.push( currentValue );
-
-						//
-
-						const selector = conditionSelectors.find(
-							( _selector ) => {
-								return $selector.matches( _selector );
-							}
-						);
-
-						const ext = `${ selector }:${ increment }`;
-
-						if ( ! map.has( ext ) ) {
-							map.set( ext, {
-								multiple: false,
-								input: [],
-								length: 0,
-							} );
-						}
-						map.get( ext ).input.push( currentValue );
-						map.get( ext ).length = map.get( ext ).input.length;
-						map.get( ext ).multiple = map.get( ext ).length > 1;
-					}
-				}
-			}
-
-			if (
-				! [ 'SELECT-MULTIPLE', 'CHECKBOX', 'RADIO' ].includes(
-					getInputType( $selector )
-				)
-			) {
-				const currentValue = $selector.value.trim();
-				if ( currentValue.length > 0 ) {
-					values.push( currentValue );
-
-					//
-					const selector = conditionSelectors.find( ( _selector ) => {
-						return $selector.matches( _selector );
-					} );
-
-					const ext = `${ selector }:${ increment }`;
-
-					if ( ! map.has( ext ) ) {
-						map.set( ext, {
-							multiple: false,
-							input: [],
-							length: 0,
-						} );
-					}
-					map.get( ext ).input.push( currentValue );
-					map.get( ext ).length = map.get( ext ).input.length;
-					map.get( ext ).multiple = map.get( ext ).length > 1;
-				}
-			}
-
-			increment++;
-		} );
-
-		const inputs = Array.from( map, ( [ value ] ) => value );
-
-		return [
-			inputs,
-			map.size === selectors.length,
-			map.size,
-			selectors.length,
-			map,
-			values,
-			'-----',
-			selectors,
-			v,
-		];
 	};
 
 	const isValidRegExp = ( value ) => {
@@ -952,7 +566,7 @@ export function Plugin( element, options ) {
 	 * based on `strict` and `required` flags.
 	 *
 	 * @param {string[]} selected       The array of selected items.
-	 * @param {number}  selectedLength The length of selected items. not array length.
+	 * @param {number}   selectedLength The length of selected items. not array length.
 	 * @param {string}   condition      The array of condition items.
 	 * @param {boolean}  strict         If true, isRequired should be false. `selected` and `condition` must have the same length and elements.
 	 * @param {boolean}  sensitive      If true.
@@ -1256,79 +870,77 @@ export function Plugin( element, options ) {
 
 		ELEMENT: ( condition, $selector, $selectors, caller ) => {
 			const selectors = getConditionSelector( condition );
-			const elements = getConditionValue( condition );
-
-			// const inputValue = getInputValue($selector, $selectors);
 
 			const COMPARE_FUNCTION = getConditionCheck( condition );
-			const COMPARE_FUNCTION_EXT = [ 'NUMBER', 'STRING' ].includes(
-				COMPARE_FUNCTION
-			)
-				? '-ARRAY'
-				: '';
-
-			const isElementCaller = [
-				'ELEMENT_INPUT',
-				'ELEMENT_INIT',
-			].includes( caller );
-			const target = isElementCaller ? selectors : elements;
-
-			const { notEmpty, map } = analyzeSelectors(
-				document.querySelectorAll( target ),
-				target
-			);
-
-			const lengthCheck = [
-				'NUMBER',
-				'NUMBER-ARRAY',
-				'RANGE',
-				'MINMAX',
-			].includes( COMPARE_FUNCTION );
-
 			const isVisibleCheck = [ 'VISIBLE' ].includes( COMPARE_FUNCTION );
 
-			if ( notEmpty ) {
-				map.map( ( { input, multiple, length } ) => {
-					const c = {
-						...condition,
-						[ getValueOperatorKey() ]: lengthCheck
-							? [ length ]
-							: input,
-					};
+			const $sls = document.querySelectorAll( selectors );
 
-					if ( isVisibleCheck ) {
-						c[ `${ getValueOperatorKey() }` ] = elements;
-					}
+			if ( isVisibleCheck ) {
+				const c = {
+					...condition,
+				};
 
-					/*console.log(
-						c,
-						`${ COMPARE_FUNCTION }${ COMPARE_FUNCTION_EXT }`,
-						caller
-					);*/
+				COMPARE_FUNCTIONS[ `${ COMPARE_FUNCTION }` ](
+					c,
+					$selector,
+					$sls
+				);
 
-					COMPARE_FUNCTIONS[
-						`${ COMPARE_FUNCTION }${ COMPARE_FUNCTION_EXT }`
-					]( c, $selector, $selectors );
-				} );
+				return;
 			}
 
-			/*
-						const c = {
-							...condition,
-							[ getValueOperatorKey() ]: lengthCheck
-								? compareLengths
-								: compareValues,
-						};
+			const elements = getConditionValue( condition );
+			const $els = document.querySelectorAll( elements );
+			const { notEmpty, map } = analyzeSelectors( $els, elements );
 
-						if ( isVisibleCheck ) {
-							c[ `${ getValueOperatorKey() }` ] = elements;
+			const is_multi =
+				map.some( ( { multiple } ) => multiple === true ) ||
+				map.length > 1;
+
+			const values = is_multi
+				? map.reduce( ( prev, { input, length } ) => {
+						if (
+							[ 'RANGE', 'MINMAX' ].includes( COMPARE_FUNCTION )
+						) {
+							prev.push( ...input.map( ( i ) => Number( i ) ) );
+						} else if ( COMPARE_FUNCTION === 'NUMBER' ) {
+							prev.push( length );
+						} else {
+							prev.push( ...input );
 						}
 
-						COMPARE_FUNCTIONS[
-							`${ COMPARE_FUNCTION }${ COMPARE_FUNCTION_EXT }`
-						]( c, $selector, $selectors );
+						return prev;
+				  }, [] )
+				: map.reduce( ( prev, { input, length } ) => {
+						const v = input.at( 0 );
 
-						*/
+						if ( COMPARE_FUNCTION === 'NUMBER' ) {
+							prev = length;
+						} else {
+							prev = v ? v : '';
+						}
+
+						return prev;
+				  }, '' );
+
+			const COMPARE_FUNCTION_EXT =
+				[ 'STRING', 'NUMBER' ].includes( COMPARE_FUNCTION ) && is_multi
+					? '-ARRAY'
+					: '';
+
+			const c = {
+				...condition,
+				[ getValueOperatorKey() ]: values,
+			};
+
+			// console.log( `${ COMPARE_FUNCTION }${ COMPARE_FUNCTION_EXT }` );
+			console.log( '----->', COMPARE_FUNCTION_EXT, values, c );
+			if ( notEmpty ) {
+				COMPARE_FUNCTIONS[
+					`${ COMPARE_FUNCTION }${ COMPARE_FUNCTION_EXT }`
+				]( c, $selector, $sls );
+			}
 		},
 	};
 
@@ -1569,9 +1181,6 @@ export function Plugin( element, options ) {
 		} );
 
 		availableConditions.forEach( ( condition ) => {
-			const selectors = getConditionSelector( condition );
-			const $selectors = document.querySelectorAll( selectors );
-
 			if ( getConditionType( condition ) === 'ELEMENT' ) {
 				const elements = getConditionValue( condition );
 				const $elements = document.querySelectorAll( elements );
@@ -1591,15 +1200,17 @@ export function Plugin( element, options ) {
 							{ signal: this.signal, passive: true }
 						);
 					} );
-
 					checkConditions(
 						condition,
 						$selector,
-						$selectors,
+						$elements,
 						'ELEMENT_INIT'
 					);
 				} );
 			}
+			// else {
+			const selectors = getConditionSelector( condition );
+			const $selectors = document.querySelectorAll( selectors );
 
 			$selectors.forEach( ( $selector ) => {
 				OPERATORS.EVENTS.forEach( ( eventType ) => {
@@ -1624,6 +1235,7 @@ export function Plugin( element, options ) {
 					'SELECTOR_INIT'
 				);
 			} );
+			// }
 		} );
 	};
 

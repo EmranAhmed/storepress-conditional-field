@@ -83,18 +83,121 @@
 			<li class="input-group">
 				<label for="InputEmail">#InputEmail: <code class="inline">{"selector":"#InputEmail", "value":[10, 20]}</code></label>
 				<input type="email" class="form-control input-name" id="InputEmail">
-				<p inert data-storepress-conditional-field='{"selector":"#InputEmail", "value": [10, 20]}' class="message">
+				<!--<p inert data-storepress-conditional-field='{"selector":"#InputEmail", "value": [10, 20]}' class="message">
 					{"selector":"#InputRange", "value":[10, 20]}
-				</p>
+				</p>-->
 			</li>
 
 			<li class="input-group">
 				<label for="InputEmail2">#InputEmail2: <code class="inline">{"selector":"#InputEmail", "value":"/[\w.-]+@[\w.-]+\.\w+/g"}</code></label>
-				<input type="email" class="form-control input-name-2" id="InputEmail2">
-				<p inert data-storepress-conditional-field='{"selector":"input.input-name-2[type=email]", "value": "/[\w.-]+@[\w.-]+\.\w+/g"}' class="message">
+				<input type="email" class="form-control input-name" id="InputEmail2">
+				<!--<p inert data-storepress-conditional-field='{"selector":"input.input-name-2[type=email]", "value": "/[\w.-]+@[\w.-]+\.\w+/g"}' class="message">
 					{"selector":"#InputEmail2", "value":"/[\w.-]+@[\w.-]+\.\w+/g"}
-				</p>
+				</p>-->
 			</li>
+
+			<li>
+
+				.checkbox-element-group
+				<ul class="checkbox-group checkbox-element-group">
+
+					<li>
+						<label for="InputElementCheck1">Input Check value: empty</label>
+						<input id="InputElementCheck1" type="checkbox" value="">
+					</li>
+					<li>
+						<label for="InputElementCheck2">Input Check value: 1</label>
+						<input id="InputElementCheck2" type="checkbox" value="1">
+					</li>
+					<li>
+						<label for="InputElementCheck3">Input Check value: 2</label>
+						<input id="InputElementCheck3" type="checkbox" value="2">
+					</li>
+					<li>
+						<label for="InputElementCheck4">Input Check value: three</label>
+						<input id="InputElementCheck4" type="checkbox" value="three">
+					</li>
+					<li>
+						<label for="InputElementCheck5">Input Check value: four</label>
+						<input id="InputElementCheck5" type="checkbox" value="four">
+					</li>
+					<li>
+						<label for="InputElementCheck6">Input Check value: FIVE</label>
+						<input id="InputElementCheck6" type="checkbox" value="FIVE">
+					</li>
+					<li>
+						<label for="InputElementCheck7">Input Check value: SIX</label>
+						<input id="InputElementCheck7" type="checkbox" value="SIX">
+					</li>
+
+				</ul>
+			</li>
+
+			<li class="input-group">
+
+				.checkbox-selector-group
+				<code class="inline"></code>
+
+				<ul class="checkbox-group checkbox-selector-group">
+
+
+					<li>
+						<label for="InputCheckboxE">Input Check value: empty</label>
+						<input type="checkbox" value="" id="InputCheckboxE">
+					</li>
+
+					<li>
+						<label for="InputCheckbox1">Input Check value: 1</label>
+						<input type="checkbox" value="1" id="InputCheckbox1">
+					</li>
+					<li>
+						<label for="InputCheckbox1x">Input Check value: 2</label>
+						<input type="checkbox" value="2" id="InputCheckbox1x">
+					</li>
+					<li>
+						<label for="InputCheckbox2">Input Check value: three</label>
+						<input type="checkbox" value="three" id="InputCheckbox2">
+					</li>
+					<li>
+						<label for="InputCheckbox2x">Input Check value: four</label>
+						<input type="checkbox" value="four" id="InputCheckbox2x">
+					</li>
+					<li>
+						<label for="InputCheckbox3x">Input Check value: FIVE</label>
+						<input type="checkbox" value="FIVE" id="InputCheckbox3x">
+					</li>
+					<li>
+						<label for="InputCheckbox3">Input Check value: SIX</label>
+						<input type="checkbox" value="SIX" id="InputCheckbox3">
+					</li>
+					<li>
+						<label for="InputCheckbox4">Input Check value: Seven</label>
+						<input type="checkbox" value="Seven" id="InputCheckbox4">
+					</li>
+					<li>
+						<label for="InputCheckbox5x">Input Check value: Eight</label>
+						<input type="checkbox" value="Eight" id="InputCheckbox5x">
+					</li>
+				</ul>
+
+<!--
+				<p inert data-storepress-conditional-field='{"selector":".checkbox-selector-group input", "value": ".checkbox-element-group input", "type": "ELEMENT"}' class="message">{"selector":".checkbox-selector-group input", "value": ".checkbox-element-group input", "type": "ELEMENT"}</p>
+-->
+				<p id="InputEmail2Msg" inert data-storepress-conditional-field='{"selector":".checkbox-selector-group input", "value": "#InputEmail2", "type": "ELEMENT"}' class="message">{"selector":".checkbox-selector-group input", "value": "#InputEmail2", "type": "ELEMENT"}</p>
+				<!--
+								<p inert data-storepress-conditional-field='{"selector":".checkbox-selector-group input", "value": ".input-name", "type": "ELEMENT"}' class="message">{"selector":".checkbox-selector-group input", "value": ".input-name", "type": "ELEMENT"}</p>
+								<p inert data-storepress-conditional-field='{"selector":".checkbox-selector-group input", "value": ".input-name", "type": "ELEMENT", "strict": true}' class="message">{"selector":".checkbox-selector-group input", "value": ".input-name", "type": "ELEMENT", "strict": true}</p>
+								<p inert data-storepress-conditional-field='{"selector":".checkbox-selector-group input", "value": ".input-name", "type": "ELEMENT", "require": true}' class="message">{"selector":".checkbox-selector-group input", "value": ".input-name", "type": "ELEMENT", "require": true}</p>
+				-->
+				<!--
+								<p inert data-storepress-conditional-field='{"selector":".checkbox-selector-group input", "value": ".input-name", "type": "ELEMENT", "check": "RANGE"}' class="message">{"selector":".checkbox-selector-group input", "value": ".input-name", "type": "ELEMENT", "check": "RANGE"}</p>
+				-->
+
+				<p inert data-storepress-conditional-field='{"selector":".checkbox-selector-group input", "value": "#InputEmail2Msg", "type": "ELEMENT", "check": "VISIBLE"}' class="message">{"selector":".checkbox-selector-group input", "value": "#InputEmail2Msg", "type": "ELEMENT", "check": "VISIBLE"}</p>
+
+
+			</li>
+
 			<!--
 						<li class="input-group">
 							<label for="InputText">#InputText: <code class="inline">{"selector":"#InputText", "value":"hello"}</code></label>
