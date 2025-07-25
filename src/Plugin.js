@@ -876,8 +876,12 @@ export function Plugin( element, options ) {
 			}
 
 			const elements = getConditionValue( condition );
-			const $els = document.querySelectorAll( elements );
-			const { notEmpty, map } = analyzeSelectors( $els, elements );
+			const $elements = document.querySelectorAll( elements );
+			const { notEmpty, map } = analyzeSelectors( $elements, elements );
+
+			const selectors = getConditionSelector( condition );
+			const $selectors = document.querySelectorAll( selectors );
+			const { notEmpty: ns } = analyzeSelectors( $selectors, selectors );
 
 			const is_multi =
 				map.some( ( { multiple } ) => multiple === true ) ||
@@ -919,11 +923,9 @@ export function Plugin( element, options ) {
 				[ getValueOperatorKey() ]: values,
 			};
 
-			if ( notEmpty ) {
-				COMPARE_FUNCTIONS[
-					`${ COMPARE_FUNCTION }${ COMPARE_FUNCTION_EXT }`
-				]( c );
-			}
+			COMPARE_FUNCTIONS[
+				`${ COMPARE_FUNCTION }${ COMPARE_FUNCTION_EXT }`
+			]( c );
 		},
 	};
 
