@@ -3,10 +3,17 @@
  */
 import { getOptionsFromAttribute } from '@storepress/utils';
 
+/**
+ * Initializes the conditional field logic for a given element.
+ *
+ * @param {HTMLElement} element The DOM element to which the conditional logic is applied. This element will be shown or hidden (using the 'inert' attribute) based on the conditions.
+ * @param {Object}      options Configuration options for the plugin, which can be overridden by data attributes on the element.
+ * @return {{reset: function(): void}} An object containing public methods to control the plugin instance, such as `reset`.
+ */
 export function Plugin( element, options ) {
 	const PRIVATE = {};
 
-	// Collecting settings from html attribute
+	// Collecting settings from html attributes.
 	const ATTRIBUTE = 'storepress-conditional-field'; // data-storepress-conditional-field
 
 	const OPERATORS = {
@@ -20,6 +27,8 @@ export function Plugin( element, options ) {
 				LT: [ 'LESS THAN', '<', 'LT' ],
 				GTEQ: [ 'GREATER THAN OR EQUAL', '>=', 'GTEQ' ],
 				LTEQ: [ 'LESS THAN OR EQUAL', '<=', 'LTEQ' ],
+				// Only for string and string-array
+				INCLUDES: [ 'HAS', 'INCLUDES', 'CONTAINS', 'IN', 'LIKE' ],
 			},
 		},
 
@@ -131,91 +140,203 @@ export function Plugin( element, options ) {
 		relation: OPERATORS.RELATION_OPERATOR.DEFAULT,
 	};
 
+	/**
+	 * Gets the internal function name corresponding to a given condition type.
+	 *
+	 * @param {string} type The condition type (e.g., 'STRING', 'NUMBER').
+	 * @return {string} The name of the comparison function.
+	 */
 	const getFnNameByType = ( type ) => {
 		return OPERATORS.FUNCTIONS_FOR_TYPE[ type ];
 	};
 
+	/**
+	 * Gets the key for the selector operator.
+	 *
+	 * @return {string} The operator key.
+	 */
 	const getSelectorOperatorKey = () => {
 		return OPERATORS.SELECTOR_OPERATOR.KEY;
 	};
 
+	/**
+	 * Gets the key for the case sensitivity operator.
+	 *
+	 * @return {string} The operator key.
+	 */
 	const getCaseOperatorKey = () => {
 		return OPERATORS.CASE_SENSITIVITY_OPERATOR.KEY;
 	};
 
+	/**
+	 * Gets the key for the element "check" function operator.
+	 *
+	 * @return {string} The operator key.
+	 */
 	const getCheckOperatorKey = () => {
 		return OPERATORS.ELEMENT_CHECK_FN.KEY;
 	};
 
+	/**
+	 * Gets the key for the "fn" operator.
+	 *
+	 * @return {string} The operator key.
+	 */
 	const getFnOperatorKey = () => {
 		return OPERATORS.FN_OPERATOR.KEY;
 	};
 
+	/**
+	 * Gets the key for the "value" operator.
+	 *
+	 * @return {string} The operator key.
+	 */
 	const getValueOperatorKey = () => {
 		return OPERATORS.VALUE_OPERATOR.KEY;
 	};
 
+	/**
+	 * Gets the key for the "require" operator.
+	 *
+	 * @return {string} The operator key.
+	 */
 	const getRequireOperatorKey = () => {
 		return OPERATORS.REQUIRE_OPERATOR.KEY;
 	};
 
+	/**
+	 * Gets the default value for the "require" operator.
+	 *
+	 * @return {boolean} The default value.
+	 */
 	const getRequireOperatorDefault = () => {
 		return OPERATORS.REQUIRE_OPERATOR.DEFAULT;
 	};
 
+	/**
+	 * Gets the default value for the "value" operator.
+	 *
+	 * @return {boolean} The default value.
+	 */
 	const getValueOperatorDefault = () => {
 		return OPERATORS.VALUE_OPERATOR.DEFAULT;
 	};
 
+	/**
+	 * Gets the default value for the "case" sensitivity operator.
+	 *
+	 * @return {boolean} The default value.
+	 */
 	const getCaseOperatorDefault = () => {
 		return OPERATORS.CASE_SENSITIVITY_OPERATOR.DEFAULT;
 	};
 
+	/**
+	 * Gets the default value for the element "check" function operator.
+	 *
+	 * @return {string} The default value.
+	 */
 	const getCheckOperatorDefault = () => {
 		return OPERATORS.ELEMENT_CHECK_FN.DEFAULT;
 	};
 
+	/**
+	 * Gets the list of available element "check" operators.
+	 *
+	 * @return {string[]} The list of available operators.
+	 */
 	const getAvailableCheckOperators = () => {
 		return OPERATORS.ELEMENT_CHECK_FN.AVAILABLE;
 	};
 
+	/**
+	 * Gets the key for the "type" operator.
+	 *
+	 * @return {string} The operator key.
+	 */
 	const getTypeOperatorKey = () => {
 		return OPERATORS.TYPE_OPERATOR.KEY;
 	};
 
+	/**
+	 * Gets the default value for the "type" operator.
+	 *
+	 * @return {string} The default value.
+	 */
 	const getTypeOperatorDefault = () => {
 		return OPERATORS.TYPE_OPERATOR.DEFAULT;
 	};
 
+	/**
+	 * Gets the key for the "inert" operator.
+	 *
+	 * @return {string} The operator key.
+	 */
 	const getInertOperatorKey = () => {
 		return OPERATORS.INERT_OPERATOR.KEY;
 	};
 
+	/**
+	 * Gets the default value for the "inert" operator.
+	 *
+	 * @return {boolean} The default value.
+	 */
 	const getInertOperatorDefault = () => {
 		return OPERATORS.INERT_OPERATOR.DEFAULT;
 	};
 
+	/**
+	 * Gets the key for the "strict" operator.
+	 *
+	 * @return {string} The operator key.
+	 */
 	const getStrictOperatorKey = () => {
 		return OPERATORS.STRICT_OPERATOR.KEY;
 	};
 
+	/**
+	 * Gets the default value for the "strict" operator.
+	 *
+	 * @return {boolean} The default value.
+	 */
 	const getStrictOperatorDefault = () => {
 		return OPERATORS.STRICT_OPERATOR.DEFAULT;
 	};
 
+	/**
+	 * Gets the key for the "compare" operator.
+	 *
+	 * @return {string} The operator key.
+	 */
 	const getCompareOperatorKey = () => {
 		return OPERATORS.COMPARE_OPERATOR.KEY;
 	};
 
+	/**
+	 * Gets the default value for the "compare" operator.
+	 *
+	 * @return {string} The default value.
+	 */
 	const getCompareOperatorDefault = () => {
 		return OPERATORS.COMPARE_OPERATOR.DEFAULT;
 	};
 
-	// Get condition data from html attribute.
+	/**
+	 * Gets the function name from a condition object.
+	 *
+	 * @param {Object} condition The condition object.
+	 * @return {string} The function name.
+	 */
 	const getConditionFn = ( condition ) => {
 		return condition[ getFnOperatorKey() ];
 	};
 
+	/**
+	 * Gets the "require" value from a condition object.
+	 *
+	 * @param {Object} condition The condition object.
+	 * @return {boolean} The require value.
+	 */
 	const getConditionRequire = ( condition ) => {
 		return condition[ getRequireOperatorKey() ];
 	};
@@ -230,10 +351,6 @@ export function Plugin( element, options ) {
 
 	const getConditionSelector = ( condition ) => {
 		return condition[ getSelectorOperatorKey() ];
-	};
-
-	const setConditionSelector = ( condition, value ) => {
-		condition[ getSelectorOperatorKey() ] = value;
 	};
 
 	const getConditionCase = ( condition ) => {
@@ -297,21 +414,29 @@ export function Plugin( element, options ) {
 		condition[ getStrictOperatorKey() ] = value;
 	};
 
-	// Get Input type.
+	/**
+	 * Gets the `type` attribute of an input element in uppercase.
+	 *
+	 * @param {HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement} $selector The input element.
+	 * @return {string} The uppercase type of the input (e.g., 'TEXT', 'CHECKBOX').
+	 */
 	const getInputType = ( $selector ) => {
 		return $selector.type.toUpperCase();
-	};
-
-	const isArrayValueInputType = ( $selector ) => {
-		return [ 'CHECKBOX', 'SELECT-MULTIPLE' ].includes(
-			getInputType( $selector )
-		);
 	};
 
 	const isNumberValueInputType = ( $selector ) => {
 		return [ 'RANGE', 'NUMBER' ].includes( getInputType( $selector ) );
 	};
 
+	/**
+	 * Analyzes a NodeList of form elements to extract their values, counts, and other metadata,
+	 * correctly handling grouped inputs like radio buttons and checkboxes.
+	 *
+	 * @param {*}      $selectors The NodeList of elements to analyze.
+	 * @param {string} selectors  The original CSS selector string used to find the elements.
+	 * @return {{inputs: string[], values: (string|string[])[], count: number, empty: boolean, notEmpty: boolean, map: object[]}}
+	 * An object containing aggregated data about the selectors' state.
+	 */
 	const analyzeSelectors = ( $selectors, selectors ) => {
 		const inputs = [];
 		const values = [];
@@ -434,6 +559,12 @@ export function Plugin( element, options ) {
 		};
 	};
 
+	/**
+	 * Checks if a string is a valid regular expression literal (e.g., /pattern/flags).
+	 *
+	 * @param {*} value The value to check.
+	 * @return {boolean} `true` if the string is a valid RegExp literal, otherwise `false`.
+	 */
 	const isValidRegExp = ( value ) => {
 		return (
 			typeof value === 'string' &&
@@ -441,6 +572,12 @@ export function Plugin( element, options ) {
 		);
 	};
 
+	/**
+	 * Extracts the pattern and flags from a RegExp literal string.
+	 *
+	 * @param {string} value The RegExp literal string (e.g., '/hello/i').
+	 * @return {{pattern: string, flags: string, _: string}} An object with the pattern and flags.
+	 */
 	const getRegExpParams = ( value ) => {
 		const [ _, pattern, flags ] = value.match( /^\/(.+)\/([gimuy]*)$/ );
 		return { pattern, flags, _ };
@@ -452,14 +589,23 @@ export function Plugin( element, options ) {
 	 * @param {string[]} where             The array of strings to search within.
 	 * @param {string}   what              The string to search for.
 	 * @param {boolean}  [sensitive=false] If true, the search is case-sensitive. If false, it's case-insensitive.
+	 * @param {boolean}  [isWord=false]    If true, the regexp pattern will be word wrapper.
 	 * @return {boolean} True if the string is found at least once, otherwise false.
 	 */
-	const inArrayAny = ( where, what, sensitive = false ) => {
-		const c = RegExp.escape( what );
-		const r = new RegExp( `^${ c }$`, 'ui' );
-		return sensitive
-			? where.includes( what )
-			: where.some( ( value ) => r.test( value ) );
+	const inArrayAny = ( where, what, sensitive = false, isWord = false ) => {
+		if ( sensitive ) {
+			return isWord
+				? where.toString().includes( what )
+				: where.includes( what );
+		}
+
+		const w = RegExp.escape( what );
+
+		const r = isWord
+			? new RegExp( `\\b${ w }\\b`, 'ui' )
+			: new RegExp( `^${ w }$`, 'ui' );
+
+		return where.some( ( value ) => r.test( value ) );
 	};
 
 	/**
@@ -468,14 +614,23 @@ export function Plugin( element, options ) {
 	 * @param {string[]} where             The array of strings to check.
 	 * @param {string}   what              The string to match against the elements.
 	 * @param {boolean}  [sensitive=false] Toggles the matching behavior.
+	 * @param {boolean}  [isWord=false]    regexp word.
 	 * @return {boolean} The result of the check.
 	 */
-	const inArrayAll = ( where, what, sensitive = false ) => {
-		const c = RegExp.escape( what );
-		const r = new RegExp( `^${ c }$`, 'ui' );
-		return sensitive
-			? where.includes( what )
-			: where.every( ( value ) => r.test( value ) );
+	const inArrayAll = ( where, what, sensitive = false, isWord = false ) => {
+		if ( sensitive ) {
+			return isWord
+				? where.toString().includes( what )
+				: where.includes( what );
+		}
+
+		const w = RegExp.escape( what );
+
+		const r = isWord
+			? new RegExp( `\\b${ w }\\b`, 'ui' )
+			: new RegExp( `^${ w }$`, 'ui' );
+
+		return where.every( ( value ) => r.test( value ) );
 	};
 
 	/**
@@ -484,19 +639,38 @@ export function Plugin( element, options ) {
 	 * @param {string[]} where             The source array. Every element from this array will be checked for its presence in the `what` array.
 	 * @param {string[]} what              The target array to search within.
 	 * @param {boolean}  [sensitive=false] If true, the comparison is case-sensitive. If false, it's case-insensitive.
+	 * @param {boolean}  [isWord=false]    If true, the comparison is case-sensitive. If false, it's case-insensitive.
 	 * @return {boolean} Returns `true` if all elements of the `where` array are found in the `what` array, otherwise `false`.
 	 */
-	const arrayInArrayAll = ( where, what, sensitive = false ) => {
+	const arrayInArrayAll = (
+		where,
+		what,
+		sensitive = false,
+		isWord = false
+	) => {
 		if ( ! Array.isArray( where ) || ! Array.isArray( what ) ) {
 			return false;
 		}
 
 		if ( sensitive ) {
-			return where.every( ( value ) => what.includes( value ) );
+			return isWord
+				? what.every( ( value ) => where.includes( value ) )
+				: where.every( ( value ) => what.includes( value ) );
 		}
+
+		if ( isWord ) {
+			return what.every( ( value ) => {
+				const w = RegExp.escape( value );
+				const r = new RegExp( `\\b${ w }\\b`, 'ui' );
+
+				return where.some( ( v ) => r.test( v ) );
+			} );
+		}
+
 		return where.every( ( value ) => {
-			const c = RegExp.escape( value );
-			const r = new RegExp( `^${ c }$`, 'ui' );
+			const w = RegExp.escape( value );
+			const r = new RegExp( `^${ w }$`, 'ui' );
+
 			return what.some( ( v ) => r.test( v ) );
 		} );
 	};
@@ -507,19 +681,38 @@ export function Plugin( element, options ) {
 	 * @param {string[]} where             The source array. The function checks if any of its elements are in the `what` array.
 	 * @param {string[]} what              The target array to search within.
 	 * @param {boolean}  [sensitive=false] If true, the comparison is case-sensitive. If false, it's case-insensitive.
+	 * @param {boolean}  [isWord=false]    If true, the comparison is case-sensitive. If false, it's case-insensitive.
 	 * @return {boolean} Returns `true` if any element from `where` is found in `what`, otherwise `false`.
 	 */
-	const arrayInArrayAny = ( where, what, sensitive = false ) => {
+	const arrayInArrayAny = (
+		where,
+		what,
+		sensitive = false,
+		isWord = false
+	) => {
 		if ( ! Array.isArray( where ) || ! Array.isArray( what ) ) {
 			return false;
 		}
 
 		if ( sensitive ) {
-			return where.some( ( value ) => what.includes( value ) );
+			return isWord
+				? what.some( ( value ) => where.includes( value ) )
+				: where.some( ( value ) => what.includes( value ) );
 		}
+
+		if ( isWord ) {
+			return what.some( ( value ) => {
+				const w = RegExp.escape( value );
+				const r = new RegExp( `\\b${ w }\\b`, 'ui' );
+
+				return where.some( ( v ) => r.test( v ) );
+			} );
+		}
+
 		return where.some( ( value ) => {
-			const c = RegExp.escape( value );
-			const r = new RegExp( `^${ c }$`, 'ui' );
+			const w = RegExp.escape( value );
+			const r = new RegExp( `^${ w }$`, 'ui' );
+
 			return what.some( ( v ) => r.test( v ) );
 		} );
 	};
@@ -533,6 +726,7 @@ export function Plugin( element, options ) {
 	 * @param {boolean}  strict    If true, isRequired should be false. `selected` and `condition` must have the same length and elements.
 	 * @param {boolean}  required  If true (and `strict` is false), every item in `condition` must be in `selected`.
 	 * @param {boolean}  sensitive If true.
+	 * @param {boolean}  word      If true.
 	 * @return {boolean} Returns true if the validation passes, otherwise false.
 	 */
 
@@ -541,7 +735,8 @@ export function Plugin( element, options ) {
 		condition,
 		strict,
 		required,
-		sensitive
+		sensitive,
+		word
 	) => {
 		// Case 1: strict = true
 		// `selected` and `condition` must have the same length
@@ -550,19 +745,19 @@ export function Plugin( element, options ) {
 		if ( strict ) {
 			return (
 				selected.length === condition.length &&
-				arrayInArrayAll( condition, selected, sensitive )
+				arrayInArrayAll( condition, selected, sensitive, word )
 			);
 		}
 
 		// Case 2: strict = false, required = true
 		// Every item in `condition` must be present in `selected`.
 		if ( required ) {
-			return arrayInArrayAll( condition, selected, sensitive );
+			return arrayInArrayAll( condition, selected, sensitive, word );
 		}
 
 		// Case 3: strict = false, required = false
 		// At least one item from `condition` must be present in `selected`.
-		return arrayInArrayAny( condition, selected, sensitive );
+		return arrayInArrayAny( condition, selected, sensitive, word );
 	};
 
 	/**
@@ -574,6 +769,7 @@ export function Plugin( element, options ) {
 	 * @param {string}   condition      The array of condition items.
 	 * @param {boolean}  strict         If true, isRequired should be false. `selected` and `condition` must have the same length and elements.
 	 * @param {boolean}  sensitive      If true.
+	 * @param {boolean}  word           If true.
 	 * @return {boolean} Returns true if the validation passes, otherwise false.
 	 */
 	const validateStringInArray = (
@@ -581,7 +777,8 @@ export function Plugin( element, options ) {
 		selectedLength,
 		condition,
 		strict,
-		sensitive
+		sensitive,
+		word
 	) => {
 		// Case 1: strict = true
 		// `selected` length should be 1
@@ -590,16 +787,26 @@ export function Plugin( element, options ) {
 		if ( strict ) {
 			return (
 				selectedLength === 1 &&
-				inArrayAll( selected, condition, sensitive )
+				inArrayAll( selected, condition, sensitive, word )
 			);
 		}
 
 		// Case 2: strict = false, required = false
 		// At least one item from `condition` must be present in `selected`.
-		return inArrayAny( selected, condition, sensitive );
+		return inArrayAny( selected, condition, sensitive, word );
 	};
 
+	/**
+	 * @namespace COMPARE_FUNCTIONS
+	 * @description A collection of functions to evaluate different types of conditions.
+	 * Each function determines whether `this.showField` should be true or false.
+	 */
 	const COMPARE_FUNCTIONS = {
+		/**
+		 * Checks if the target input(s) have a non-empty value.
+		 *
+		 * @param {Object} condition The condition configuration object.
+		 */
 		EXISTS: ( condition ) => {
 			this.showField = getConditionInert( condition );
 
@@ -613,6 +820,12 @@ export function Plugin( element, options ) {
 			}
 		},
 
+		/**
+		 * Compares the target input's value against a specific string.
+		 * For multi-value inputs, it can check if any or all selected values match.
+		 *
+		 * @param {Object} condition The condition configuration object.
+		 */
 		STRING: ( condition ) => {
 			this.showField = getConditionInert( condition );
 
@@ -625,6 +838,8 @@ export function Plugin( element, options ) {
 
 			const { notEmpty, map } = analyzeSelectors( $selectors, selectors );
 
+			const inWordCheck = getConditionCompare( condition ) === 'INCLUDES';
+
 			if ( notEmpty ) {
 				const available = map.every(
 					( { input, multiple, length } ) => {
@@ -634,12 +849,14 @@ export function Plugin( element, options ) {
 									length,
 									conditionValue,
 									isStrict,
-									isCaseSensitive
+									isCaseSensitive,
+									inWordCheck
 							  )
 							: inArrayAny(
 									input,
 									conditionValue,
-									isCaseSensitive
+									isCaseSensitive,
+									inWordCheck
 							  );
 					}
 				);
@@ -650,15 +867,18 @@ export function Plugin( element, options ) {
 			}
 		},
 
+		/**
+		 * Compares the length or count of the target input's value against a number.
+		 * Supports operators: EQ, GT, GTEQ, LT, LTEQ.
+		 *
+		 * @param {Object} condition The condition configuration object.
+		 */
 		NUMBER: ( condition ) => {
+			this.showField = getConditionInert( condition );
 			const conditionValue = Number( getConditionValue( condition ) );
-
 			const compare = getConditionCompare( condition );
-
 			const selectors = getConditionSelector( condition );
 			const $selectors = document.querySelectorAll( selectors );
-
-			this.showField = getConditionInert( condition );
 
 			const { notEmpty, map } = analyzeSelectors( $selectors, selectors );
 
@@ -689,6 +909,12 @@ export function Plugin( element, options ) {
 			}
 		},
 
+		/**
+		 * Checks if the target input's value(s) are present in an array of strings.
+		 * Supports strict, required, and any-match modes.
+		 *
+		 * @param {Object} condition The condition configuration object.
+		 */
 		'STRING-ARRAY': ( condition ) => {
 			this.showField = getConditionInert( condition );
 
@@ -698,6 +924,7 @@ export function Plugin( element, options ) {
 			const isCaseSensitive = getConditionCase( condition );
 			const selectors = getConditionSelector( condition );
 			const $selectors = document.querySelectorAll( selectors );
+			const inWordCheck = getConditionCompare( condition ) === 'INCLUDES';
 
 			const { notEmpty, map } = analyzeSelectors( $selectors, selectors );
 
@@ -709,12 +936,14 @@ export function Plugin( element, options ) {
 								conditionValue,
 								isStrict,
 								isRequire,
-								isCaseSensitive
+								isCaseSensitive,
+								inWordCheck
 						  )
 						: arrayInArrayAny(
 								input,
 								conditionValue,
-								isCaseSensitive
+								isCaseSensitive,
+								inWordCheck
 						  );
 				} );
 
@@ -724,6 +953,11 @@ export function Plugin( element, options ) {
 			}
 		},
 
+		/**
+		 * Checks if the target input's value length/count is present in an array of numbers.
+		 *
+		 * @param {Object} condition The condition configuration object.
+		 */
 		'NUMBER-ARRAY': ( condition ) => {
 			this.showField = getConditionInert( condition );
 
@@ -745,6 +979,11 @@ export function Plugin( element, options ) {
 			}
 		},
 
+		/**
+		 * Checks if the target input's value length/count falls within a [min, max] range.
+		 *
+		 * @param {Object} condition The condition configuration object.
+		 */
 		MINMAX: ( condition ) => {
 			this.showField = getConditionInert( condition );
 
@@ -767,7 +1006,11 @@ export function Plugin( element, options ) {
 			}
 		},
 
-		// Only for Input NUMBER and RANGE Type.
+		/**
+		 * Checks if the numeric value of a 'number' or 'range' input falls within a [start, end] range.
+		 *
+		 * @param {Object} condition The condition configuration object.
+		 */
 		RANGE: ( condition ) => {
 			this.showField = getConditionInert( condition );
 
@@ -795,6 +1038,11 @@ export function Plugin( element, options ) {
 			}
 		},
 
+		/**
+		 * Checks if the target input's value matches a regular expression.
+		 *
+		 * @param {Object} condition The condition configuration object.
+		 */
 		REGEXP: ( condition ) => {
 			this.showField = getConditionInert( condition );
 
@@ -838,6 +1086,13 @@ export function Plugin( element, options ) {
 			}
 		},
 
+		/**
+		 * Checks if the target element(s) are visible in the DOM.
+		 * `strict: true` requires all elements to be visible.
+		 * `strict: false` requires at least one element to be visible.
+		 *
+		 * @param {Object} condition The condition configuration object.
+		 */
 		VISIBLE: ( condition ) => {
 			this.showField = getConditionInert( condition );
 
@@ -861,6 +1116,11 @@ export function Plugin( element, options ) {
 			}
 		},
 
+		/**
+		 * Delegates the check to another comparison function, using the value of another element as the condition's value.
+		 *
+		 * @param {Object} condition The condition configuration object.
+		 */
 		ELEMENT: ( condition ) => {
 			const COMPARE_FUNCTION = getConditionCheck( condition );
 
@@ -937,6 +1197,11 @@ export function Plugin( element, options ) {
 		},
 	};
 
+	/**
+	 * Toggles the `inert` attribute on the plugin's main element to control its visibility and interactivity.
+	 *
+	 * @param {boolean} [value=true] If `true`, adds the `inert` attribute (hides); otherwise, removes it (shows).
+	 */
 	const toggleInertAttribute = ( value = true ) => {
 		if ( value === true ) {
 			this.$element.setAttribute( 'inert', '' );
@@ -945,7 +1210,12 @@ export function Plugin( element, options ) {
 		}
 	};
 
-	// Check
+	/**
+	 * Executes the appropriate comparison function for a given condition and updates the element's state based on the result and the overall relation logic (AND, OR, etc.).
+	 *
+	 * @param {Object} condition  The condition object to check.
+	 * @param {*}      $selectors The target elements related to the condition.
+	 */
 	const checkConditions = ( condition, $selectors ) => {
 		const CF = getConditionFn( condition );
 
@@ -993,6 +1263,9 @@ export function Plugin( element, options ) {
 		}
 	};
 
+	/**
+	 * Resets the plugin to its initial state, hides the element, clears conditions, and removes event listeners.
+	 */
 	const reset = () => {
 		toggleInertAttribute( true );
 
@@ -1005,10 +1278,23 @@ export function Plugin( element, options ) {
 		this.controller.abort();
 	};
 
+	/**
+	 * Checks if the `value` property of a condition is an array.
+	 *
+	 * @param {Object} condition The condition object.
+	 * @return {boolean} `true` if the value is an array, otherwise `false`.
+	 */
 	const isArrayValue = ( condition ) =>
 		typeof condition[ getValueOperatorKey() ] === 'object' &&
 		Array.isArray( condition[ getValueOperatorKey() ] );
 
+	/**
+	 * Populates a condition object with default values and determines the correct comparison function (`fn`) based on the value's type.
+	 * This sanitizes and prepares the condition object for evaluation.
+	 *
+	 * @param {Object} condition The raw condition object from settings.
+	 * @return {Object} The normalized condition object.
+	 */
 	const normalizeCondition = ( condition ) => {
 		// Remove Predefined FN, we will add fn based on type.
 		delete condition[ getFnOperatorKey() ];
@@ -1137,6 +1423,9 @@ export function Plugin( element, options ) {
 		return condition;
 	};
 
+	/**
+	 * Parses the settings object and creates a normalized list of conditions to be evaluated.
+	 */
 	const prepareConditions = () => {
 		for ( const key in this.settings ) {
 			if ( ! isNaN( key ) ) {
@@ -1152,15 +1441,32 @@ export function Plugin( element, options ) {
 		}
 	};
 
+	/**
+	 * Returns the array of normalized conditions for the plugin instance.
+	 *
+	 * @return {Object[]} The array of condition objects.
+	 */
 	const getConditions = () => {
 		return this.conditions;
 	};
 
-	// Expose to public.
+	/**
+	 * Creates and returns the public API object for the plugin instance.
+	 *
+	 * @return {{reset: function(): void}} An object with public methods.
+	 */
 	const expose = () => ( {
 		reset,
 	} );
 
+	/**
+	 * Returns a handler function for the form's reset event.
+	 * This ensures conditions are re-evaluated after a form reset.
+	 *
+	 * @param {Object} condition  The condition object.
+	 * @param {*}      $selectors The target elements for the condition.
+	 * @return {function(): void} The event handler.
+	 */
 	const onFormReset = ( condition, $selectors ) => {
 		return () => {
 			setTimeout( () => {
@@ -1169,6 +1475,10 @@ export function Plugin( element, options ) {
 		};
 	};
 
+	/**
+	 * Sets up the initial state and attaches event listeners for all conditions.
+	 * This is the final step in the setup process.
+	 */
 	const initial = () => {
 		const availableConditions = getConditions();
 
@@ -1216,6 +1526,7 @@ export function Plugin( element, options ) {
 				checkConditions( condition, $selectors );
 			} );
 
+			// Form Reset.
 			this.$parent.addEventListener(
 				'reset',
 				onFormReset( condition, $selectors ),
@@ -1227,7 +1538,12 @@ export function Plugin( element, options ) {
 		} );
 	};
 
-	// Do what you need and return expose fn.
+	/**
+	 * The main initialization function that orchestrates the entire setup of the plugin instance.
+	 * It sets properties, prepares conditions, and kicks off the initial evaluation.
+	 *
+	 * @return {Object} The exposed public API for the instance.
+	 */
 	const init = () => {
 		this.$element = element;
 		this.settings = {

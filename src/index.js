@@ -5,7 +5,6 @@ import {
 	createPluginInstance,
 	triggerEvent,
 	getPluginInstance,
-	waitAsync,
 } from '@storepress/utils';
 
 /**

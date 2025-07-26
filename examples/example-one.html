@@ -43,30 +43,43 @@
 
 		<select id="test-box">
 			<option>{"selector":"#selector"}</option>
+
 			<option>{"selector":"#selector", "value": "hello"}</option>
-			<option>{"selector":"#selector", "value": "hello", "strict": true}</option>
 			<option>{"selector":"#selector", "value": "hello", "case": true}</option>
+			<option>{"selector":"#selector", "value": "hello", "strict": true}</option>
+			<option>{"selector":"#selector", "value": "hello", "require": true}</option>
 			<option>{"selector":"#selector", "value": "hello", "strict": true, "case": true}</option>
 			<option>{"selector":"#selector", "value": "hello", "inert": true}</option>
+			<option>{"selector":"#selector", "value": "hello", "compare": "HAS"}</option>
 
+			<option>{"selector":"#selector", "value": "three"}</option>
+			<option>{"selector":"#selector", "value": "three", "compare": "HAS"}</option>
+			<option>{"selector":"#selector", "value": "THREE"}</option>
+			<option>{"selector":"#selector", "value": "three", "case": true}</option>
+			<option>{"selector":"#selector", "value": "three", "case": true, "strict": true}</option>
+			<option>{"selector":"#selector", "value": "THREE", "case": true, "strict": true}</option>
 
-
-			<option>{"selector":"#selector", "value": ["hello"]}</option>
+			<option>{"selector":"#selector", "value": ["three", "four"]}</option>
+			<option>{"selector":"#selector", "value": ["three", "four"], "compare": "HAS"}</option>
+			<option>{"selector":"#selector", "value": ["three", "four"], "require": true}</option>
+			<option>{"selector":"#selector", "value": ["Three", "four"], "case": true}</option>
+			<option>{"selector":"#selector", "value": ["three", "four"], "strict": true}</option>
+			<option>{"selector":"#selector", "value": ["THREE", "FOUR"]}</option>
+			<option>{"selector":"#selector", "value": ["THREE", "FOUR"], "strict": true}</option>
+			<option>{"selector":"#selector", "value": ["THREE", "FOUR"], "require": true}</option>
 
 
 			<option>{"selector":"#selector", "value": 4}</option>
-			<option>{"selector":"#selector", "value": [4, 6]}</option>
-			<option>{"selector":"#selector", "value": [4, 6], "type": "MINMAX"}</option>
-			<option>{"selector":"#selector", "value": [50, 80.5], "type": "RANGE"}</option>
 			<option>{"selector":"#selector", "value": 4, "compare":">"}</option>
 			<option>{"selector":"#selector", "value": 4, "compare":">="}</option>
 			<option>{"selector":"#selector", "value": 4, "compare":"<="}</option>
 			<option>{"selector":"#selector", "value": 4, "compare":"<"}</option>
 
-			<option>{"selector":"#selector", "value": "1"}</option>
-			<option>{"selector":"#selector", "value": "1", "inert": true}</option>
 
-			<option>{"selector":"#selector", "value": ["1", "2"]}</option>
+			<option>{"selector":"#selector", "value": [4, 6]}</option>
+			<option>{"selector":"#selector", "value": [4, 6], "type": "MINMAX"}</option>
+			<option>{"selector":"#selector", "value": [50, 80.5], "type": "RANGE"}</option>
+
 
 			<option>{"selector":"#selector", "value": "three"}</option>
 			<option>{"selector":"#selector", "value": "THREE"}</option>
@@ -78,13 +91,7 @@
 
 			<option>{"selector":"#selector", "value": "THREE", "strict": true}</option>
 
-			<option>{"selector":"#selector", "value": ["three", "four"]}</option>
-			<option>{"selector":"#selector", "value": ["three", "four"], "require": true}</option>
-			<option>{"selector":"#selector", "value": ["Three", "four"], "case": true}</option>
-			<option>{"selector":"#selector", "value": ["three", "four"], "strict": true}</option>
-			<option>{"selector":"#selector", "value": ["THREE", "FOUR"]}</option>
-			<option>{"selector":"#selector", "value": ["THREE", "FOUR"], "strict": true}</option>
-			<option>{"selector":"#selector", "value": ["THREE", "FOUR"], "require": true}</option>
+
 
 			<option>{"selector":"#selector", "value": "FIVE"}</option>
 			<option>{"selector":"#selector", "value": "FIVE", "strict": true}</option>
@@ -93,7 +100,9 @@
 			<option>{"selector":"#selector", "value": "Eight"}</option>
 			<option>{"selector":"#selector", "value": "Eight", "strict": true}</option>
 			<option>{"selector":"#selector", "value": ["Eight"], "strict": true}</option>
-			<option>{"selector":"#selector", "value": "Eight", "inert": true}</option>
+
+
+
 			<option>{"selector":"#selector", "value": "/^[\w.-]+@[\w.-]+\.\w+$/g"}</option>
 			<option> {"selector":"#selector", "value": "#InputElement1", "type": "ELEMENT"}</option>
 			<option>{"selector":"#selector", "value": "#InputElement1", "type": "ELEMENT", "check": "STRING"}</option>
