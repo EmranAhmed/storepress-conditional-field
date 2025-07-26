@@ -104,8 +104,6 @@ function StorePressConditionalField() {
 document.addEventListener( 'DOMContentLoaded', () => {
 	StorePressConditionalField();
 
-	//await waitAsync(1000);
-
 	triggerEvent( document, 'storepress_conditional_field_init', {
 		element: [ '[data-storepress-conditional-field]' ],
 		settings: {},
