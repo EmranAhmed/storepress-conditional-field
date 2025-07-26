@@ -297,7 +297,7 @@ export function Plugin( element, options ) {
 		condition[ getStrictOperatorKey() ] = value;
 	};
 
-	// Get Input data.
+	// Get Input type.
 	const getInputType = ( $selector ) => {
 		return $selector.type.toUpperCase();
 	};
@@ -348,6 +348,7 @@ export function Plugin( element, options ) {
 					length: selectValues.length,
 					multiple: true,
 					type,
+					selector: $selector,
 				} );
 			}
 
@@ -372,6 +373,7 @@ export function Plugin( element, options ) {
 					length: checkboxes.length,
 					multiple: true,
 					type,
+					selector: $selector,
 				} );
 
 				checkboxGroup.add( group );
@@ -399,6 +401,7 @@ export function Plugin( element, options ) {
 					length: value.length,
 					multiple: false,
 					type,
+					selector: $selector,
 				} );
 
 				radioGroup.add( name );
@@ -416,6 +419,7 @@ export function Plugin( element, options ) {
 					length: value.length,
 					multiple: false,
 					type,
+					selector: $selector,
 				} );
 			}
 		} );
@@ -590,7 +594,7 @@ export function Plugin( element, options ) {
 			);
 		}
 
-		// Case 3: strict = false, required = false
+		// Case 2: strict = false, required = false
 		// At least one item from `condition` must be present in `selected`.
 		return inArrayAny( selected, condition, sensitive );
 	};
@@ -676,11 +680,7 @@ export function Plugin( element, options ) {
 						return true;
 					}
 
-					if ( compare === 'LTEQ' && length <= conditionValue ) {
-						return true;
-					}
-
-					return false;
+					return compare === 'LTEQ' && length <= conditionValue;
 				} );
 
 				if ( available ) {
@@ -767,7 +767,7 @@ export function Plugin( element, options ) {
 			}
 		},
 
-		// Only for NUMBER and RANGE Type.
+		// Only for Input NUMBER and RANGE Type.
 		RANGE: ( condition ) => {
 			this.showField = getConditionInert( condition );
 
@@ -781,9 +781,9 @@ export function Plugin( element, options ) {
 			const { notEmpty, map } = analyzeSelectors( $selectors, selectors );
 
 			if ( notEmpty ) {
-				const available = map.every( ( { input, type } ) => {
+				const available = map.every( ( { input, selector } ) => {
 					return (
-						[ 'NUMBER', 'RANGE' ].includes( type ) &&
+						isNumberValueInputType( selector ) &&
 						start <= Number( input.at( 0 ) ) &&
 						end >= Number( input.at( 0 ) )
 					);
@@ -863,6 +863,14 @@ export function Plugin( element, options ) {
 
 		ELEMENT: ( condition ) => {
 			const COMPARE_FUNCTION = getConditionCheck( condition );
+
+			const availableCheckOperators =
+				getAvailableCheckOperators( condition );
+
+			if ( ! availableCheckOperators.includes( COMPARE_FUNCTION ) ) {
+				return;
+			}
+
 			const isVisibleCheck = [ 'VISIBLE' ].includes( COMPARE_FUNCTION );
 
 			if ( isVisibleCheck ) {
@@ -877,11 +885,11 @@ export function Plugin( element, options ) {
 
 			const elements = getConditionValue( condition );
 			const $elements = document.querySelectorAll( elements );
-			const { notEmpty, map } = analyzeSelectors( $elements, elements );
+			const { map } = analyzeSelectors( $elements, elements );
 
-			const selectors = getConditionSelector( condition );
-			const $selectors = document.querySelectorAll( selectors );
-			const { notEmpty: ns } = analyzeSelectors( $selectors, selectors );
+			// const selectors = getConditionSelector( condition );
+			// const $selectors = document.querySelectorAll( selectors );
+			// const { notEmpty } = analyzeSelectors( $selectors, selectors );
 
 			const is_multi =
 				map.some( ( { multiple } ) => multiple === true ) ||
@@ -938,11 +946,11 @@ export function Plugin( element, options ) {
 	};
 
 	// Check
-	const checkConditions = ( condition, $selector, $selectors, caller ) => {
+	const checkConditions = ( condition, $selectors ) => {
 		const CF = getConditionFn( condition );
 
 		if ( typeof COMPARE_FUNCTIONS[ CF ] === 'function' ) {
-			COMPARE_FUNCTIONS[ CF ]( condition, $selector, $selectors, caller );
+			COMPARE_FUNCTIONS[ CF ]( condition, $selectors );
 		} else {
 			throw new Error( 'Compare function "' + CF + '" not available.' );
 		}
@@ -1126,11 +1134,6 @@ export function Plugin( element, options ) {
 			);
 		}
 
-		// ELEMENT TYPE.
-		/*if (['ELEMENT'].includes(getConditionType(condition))) {
-			setConditionType(condition, 'ELEMENT');
-		}*/
-
 		return condition;
 	};
 
@@ -1158,6 +1161,14 @@ export function Plugin( element, options ) {
 		reset,
 	} );
 
+	const onFormReset = ( condition, $selectors ) => {
+		return () => {
+			setTimeout( () => {
+				checkConditions( condition, $selectors );
+			}, 1 );
+		};
+	};
+
 	const initial = () => {
 		const availableConditions = getConditions();
 
@@ -1166,34 +1177,28 @@ export function Plugin( element, options ) {
 		} );
 
 		availableConditions.forEach( ( condition ) => {
+			// Elements.
 			if ( getConditionType( condition ) === 'ELEMENT' ) {
 				const elements = getConditionValue( condition );
 				const $elements = document.querySelectorAll( elements );
 
-				$elements.forEach( ( $selector ) => {
+				$elements.forEach( ( $element ) => {
+					// Event
 					OPERATORS.EVENTS.forEach( ( eventType ) => {
-						$selector.addEventListener(
+						$element.addEventListener(
 							eventType,
-							( event ) => {
-								checkConditions(
-									condition,
-									event.target,
-									$elements,
-									'ELEMENT_INPUT'
-								);
+							() => {
+								checkConditions( condition, $elements );
 							},
 							{ signal: this.signal, passive: true }
 						);
 					} );
-					checkConditions(
-						condition,
-						$selector,
-						$elements,
-						'ELEMENT_INIT'
-					);
+					// First load.
+					checkConditions( condition, $elements );
 				} );
 			}
-			// else {
+
+			// Selectors.
 			const selectors = getConditionSelector( condition );
 			const $selectors = document.querySelectorAll( selectors );
 
@@ -1201,26 +1206,24 @@ export function Plugin( element, options ) {
 				OPERATORS.EVENTS.forEach( ( eventType ) => {
 					$selector.addEventListener(
 						eventType,
-						( event ) => {
-							checkConditions(
-								condition,
-								event.target,
-								$selectors,
-								'SELECTOR_INPUT'
-							);
+						() => {
+							checkConditions( condition, $selectors );
 						},
 						{ signal: this.signal, passive: true }
 					);
 				} );
 
-				checkConditions(
-					condition,
-					$selector,
-					$selectors,
-					'SELECTOR_INIT'
-				);
+				checkConditions( condition, $selectors );
 			} );
-			// }
+
+			this.$parent.addEventListener(
+				'reset',
+				onFormReset( condition, $selectors ),
+				{
+					signal: this.signal,
+					passive: true,
+				}
+			);
 		} );
 	};
 
