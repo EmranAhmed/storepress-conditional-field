@@ -15,6 +15,7 @@ project.properties
 .sublimelinterrc
 .husky/_
 src/block.json
+package-lock.json
 
 # Sass
 .sass-cache/
