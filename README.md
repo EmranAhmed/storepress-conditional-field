@@ -31,13 +31,24 @@
 ### HTML Attribute
 
 ```markdown
+- "strict" and "require" are use for checkbox and multi select box.
+- if "strict" true, "require" will always be false.
+- "case" true to check case sensitivity.
+- `"compare":"LIKE"` to check string in string with case in sensitive.
+- `"compare":">"` `"compare":"<"` `"compare":">="` `"compare":"<="` to check number range.
+- `"value": [4, 6], "type":"MINMAX"` to check min value and max value.
+- `"value": [4, 6], "type":"RANGE"` to check range in between value.
+- `"value": "#InputElement1", "type":"ELEMENT"` to compare value in other element.
+- `"value": "/^[\w.-]+@[\w.-]+\.\w+$/g", "type":"REGEXP"` to check regular expression.
+  
 - {"selector":"#InputName"} // Show if: value is not empty
 - {"selector":"#InputName", "value": true} // Show if: value is not empty
 - {"selector":"#InputName", "value": false} // Show if: value is empty
 - {"selector":"#InputName", "value": "hello"} // Show if: value is "hello"
+- {"selector":"#InputName", "value": "hello", "strict": true}
 - {"selector":"#InputName", "value": ["yes", "no"]} // Show if: value is "yes" or "no"
 - {"selector":"#InputName", "value": 5} // Show if: value length is more or equal to 5
-- {"selector":"#InputName","value":[10, 20]} // Show if: value length between 10 to 20
+- {"selector":"#InputName","value":[10, 20]} // Show if: value length between 10 and 20
 - {"selector":"#InputText", "value":"#InputText2", "type": "ELEMENT"} // Match both element have same equal value
 - [{"selector":"#InputText"}, {"selector":"#InputText2"}] // Match both element have some value
 - data-storepress-conditional-field--relation="OR" // Use to compare with OR default is AND
@@ -49,12 +60,12 @@
 /**
  * External dependencies
  */
-import StorePressConditionalFieldPlugin from '@storepress/conditional-field';
+import StorePressConditionalField from '@storepress/conditional-field';
 import domReady from '@wordpress/dom-ready';
 import { triggerEvent } from '@storepress/utils';
 
 domReady(function () {
-  StorePressConditionalFieldPlugin();
+  StorePressConditionalField();
   triggerEvent(document, 'storepress_conditional_field_init', {
     element: ['[data-storepress-conditional-field]'],
     settings: {},
