@@ -1242,25 +1242,6 @@ export function Plugin( element, options ) {
 				toggleInertAttribute( true );
 			}
 		}
-
-		if ( this.relation === 'XOR' ) {
-			if (
-				[ ...this.matched.values() ].filter( ( t ) => t === true )
-					.length === 1
-			) {
-				toggleInertAttribute( false );
-			} else {
-				toggleInertAttribute( true );
-			}
-		}
-
-		if ( this.relation === 'NOT' ) {
-			if ( ! [ ...this.matched.values() ].every( ( t ) => t === true ) ) {
-				toggleInertAttribute( false );
-			} else {
-				toggleInertAttribute( true );
-			}
-		}
 	};
 
 	/**

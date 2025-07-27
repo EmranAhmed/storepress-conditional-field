@@ -4,8 +4,8 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Conditional Field Display</title>
-	<link rel="stylesheet" href="../build/style-conditional-field.css" />
-	<link rel="stylesheet" href="../style.css" />
+	<link rel="stylesheet" href="build/style-conditional-field.css" />
+	<link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
@@ -25,20 +25,18 @@
 
 		- {"selector":"#InputName", "value": [4, 5, 8]} // Length should be 4 or 5 or 8
 
-		- "strict" and "require" use to compare Array in Array
+		- "strict" and "require" use for checkbox and multi select box.
 
 		- {"selector":"#InputName", "value": ["hello", "hi"]} // Show if input value available in array, Case in-sensitive.
 		- {"selector":"#InputName", "value": ["hello", "hi"], "case": true} // Show if input value available in array, Case sensitive.
 		- {"selector":"#InputName", "value": ["hello", "hi"], "strict": true} // Only "hello" and "hi" should be chosen other value will be NOT allowed.
 		- {"selector":"#InputName", "value": ["hello", "hi"], "require": true} // "hello" and "hi" should be chosen other value will be allowed.
 
-
-
 	</code>
 
 
 	<form action="#" method="post">
-		<h1>Example With <code class="inline">EXISTS</code></h1>
+		<h1>Examples</h1>
 
 
 		<select id="test-box">
@@ -130,9 +128,11 @@
 
 			<li class="input-group">
 				<label for="InputElement1">#InputElement1: </label>
-				<input type="text" class="form-control input-name" id="InputElement1">
+				<input type="text" class="form-control input-name" id="InputElement1" />
+
 				<label for="InputElement2">#InputElement2: </label>
-				<input type="number" class="form-control input-name" id="InputElement2">
+				<input type="number" class="form-control input-name" id="InputElement2" />
+
 				<label for="InputElement3">#InputElement3: </label>
 				<select multiple id="InputElement3">
 					<option value="">No Value</option>
@@ -145,12 +145,10 @@
 					<option>HELLO</option>
 					<option>Three</option>
 					<option>THREE</option>
-
 				</select>
 
-				.checkbox-element-group
-				<ul class="checkbox-group checkbox-element-group">
 
+				<ul class="checkbox-group checkbox-element-group">
 					<li>
 						<label for="InputElementCheck1">Input Check value: empty</label>
 						<input id="InputElementCheck1" type="checkbox" value="">
@@ -415,7 +413,7 @@
 </div>
 
 
-<script src="../build/storepress-utils.js"></script>
+<script src="build/storepress-utils.js"></script>
 
 
 <script type="text/javascript">
@@ -469,6 +467,6 @@
 	});
 </script>
 
-<script src="../build/conditional-field.js"></script>
+<script src="build/conditional-field.js"></script>
 </body>
 </html>

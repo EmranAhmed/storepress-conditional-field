@@ -21,43 +21,7 @@
 		- {"selector":"#InputName", "value": ["yes", "no"]} // Show if: value = "yes" or "no"
 		- {"selector":"#InputName", "value": 5} // Show if: value length >= 5
 
-
-		///
-
-		{"selector":"#color"}
-		{"selector":"#color","value":true, "compare": "NOT EMPTY", "type": "STRING"}
-
-
-		{"selector":"#color", "value":false}
-		{"selector":"#color","value":false, "compare": "EMPTY", "type": "STRING"}
-
-
-		{"selector":"#color","value":"blue"}
-		{"selector":"#color","value":"blue", "compare": "EQUAL", "type": "STRING"}
-
-
-		{"selector":"#color","value":10}
-		{"selector":"#color","value":10, "compare": "GREATER THAN OR EQUAL", "type": "CHAR"}
-
-
-		{"selector":"#color","value":["yes", "no"]}
-		{"selector":"#color","value":["yes", "no"], "compare": "IN", "type": "STRING"}
-
-
-		{"selector":"#color","value":[10, 20]}
-		{"selector":"#color","value":[10, 20], "compare": "BETWEEN", "type": "CHAR"}
-
-		{"selector":"#color","value":[10, 20], "compare": "RANGE"}
-
-
-		{"selector":"#color","value":"#blue", "type": "ELEMENT"}
-		{"selector":"#color","value":"#blue", "compare": "EQUAL", "type": "ELEMENT"}
-
-
-		{"selector":"#color","value":"#blue","compare": "GREATER THAN OR EQUAL", "type": "ELEMENT"}
-		{"selector":"#color","value":"#blue", "compare": "GREATER THAN OR EQUAL", "type": "ELEMENT"}
-
-		{"relation": "AND","0": {"selector": "#r1"},"1": {"selector": "#r2"}}
+		- {"relation": "AND","0": {"selector": "#r1"},"1": {"selector": "#r2"}}
 
 		- data-storepress-conditional-field--relation="OR"
 
@@ -124,9 +88,6 @@
 					This field will show if "Input Field" value length in 5 or 10.
 				</p>
 			</li>
-
-
-
 
 			<li>
 				<label for="InputText2">Input Field 2:</label>

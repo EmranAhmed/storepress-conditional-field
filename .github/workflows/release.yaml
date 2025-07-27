@@ -10,7 +10,7 @@ on:
 permissions: write-all
 
 env:
-  REPOSITORY_NAME: $
+  REPOSITORY_NAME: ${{ github.event.repository.name }}
 
 name: Release
 
@@ -39,7 +39,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-      - run: npm clean-install
+      - run: npm install
 
       - name: "Make Zip"
         run: npm run plugin-zip --if-present
@@ -55,8 +55,8 @@ jobs:
       - name: "Upload Release"
         uses: softprops/action-gh-release@v2
         with:
-          files: ./$.zip
+          files: ./${{ env.RELEASE_NAME }}.zip
           make_latest: true
-          name: Release - v$
+          name: Release - v${{ env.RELEASE_TAG }}
         env:
-          GITHUB_TOKEN: $
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
