@@ -34,8 +34,8 @@
 	},
 	"files": [
 		"build/**",
-		"src/**",
 		"index.html",
+		"style.css",
 		"README.md"
 	],
 	"main": "build/index.js",
