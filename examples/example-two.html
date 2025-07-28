@@ -6,6 +6,26 @@
 	<title>Conditional Field Display</title>
 	<link rel="stylesheet" href="../build/style-conditional-field.css" />
 	<link rel="stylesheet" href="../style.css" />
+	<style>
+		body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 2rem; background-color: #f4f7f9; }
+		fieldset { border: 1px solid #ccc; border-radius: 8px; margin-bottom: 2rem; padding: 1.5rem; background-color: #fff; }
+		legend { font-weight: bold; font-size: 1.2rem; padding: 0 10px; color: #333; }
+		.test-case { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px dashed #ddd; }
+		.test-case:last-child { border-bottom: none; }
+		label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #555; }
+		input[type="text"], input[type="email"], input[type="password"], input[type="number"], select, textarea {
+			width: 100%; max-width: 400px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+		}
+		.conditional-field {
+			padding: 1rem; margin-top: 1rem; border-radius: 4px; background-color: #e0f2fe; border: 1px solid #7dd3fc;
+			color: #0c4a6e; font-weight: bold; transition: opacity 0.3s, transform 0.3s;
+		}
+		.conditional-field[inert] {
+			opacity: 0.5; background-color: #f1f5f9; border-color: #cbd5e1; color: #64748b;
+			transform: scale(0.98); pointer-events: none;
+		}
+		code { background-color: #e2e8f0; padding: 2px 5px; border-radius: 3px; font-family: monospace; }
+	</style>
 </head>
 
 <body>
@@ -13,311 +33,265 @@
 <div class="wrapper">
 
 
-	<code>
-
-		- Logics:
-
-
-		- "value" = empty.
-		defaultValue=true.
-		TYPE = BOOLEAN,
-		default: inert = false
-
-
-		- "value" = true | false. TYPE = BOOLEAN, inert = false | true, if value:true inert=false
-
-		- "value" = "string". TYPE = STRING, inert = false
-		SUBTYPE=ELEMENT
-		SUBTYPE=REGEXP
-
-		- inert: true == hide
-		- {"selector":"#InputName", "value": true, "inert": false} // Show if: value = "hello"
-		- {"selector":"#InputName", "value": "hello", "compare": "NOT EQUAL"} // Show if: value not equal "hello"
-	</code>
-
-	<script type="text/javascript">
-		const LOGICS = [
-			{
-				'selector': '#selector',
-				'value': undefined,
-				'defaultValue': true,
-				'TYPE': 'BOOLEAN',
-				'inert': false,
-			},
-
-			// Will check if input have value, check by input value length.
-			// INPUT, RADIO, SELECT, CHECKBOX, SELECT-MULTIPLE
-			{
-				'selector': '#selector',
-				'value': true,
-				'TYPE': 'BOOLEAN',
-				'inert': false,
-			},
-			{
-				'selector': '#selector',
-				'value': false,
-				'TYPE': 'BOOLEAN',
-				'inert': true,
-			},
-			{
-				'selector': '#selector',
-				'value': false,
-				'TYPE': 'BOOLEAN',
-				'inert': true,
-			},
-			{
-				'selector': '#selector',
-				'value': false,
-				'TYPE': 'BOOLEAN',
-				'inert': true,
-			},
-
-		];
-	</script>
-
 
 	<form action="#" method="post">
-		<h1>Example With <code class="inline">EQUAL and NOT EQUAL</code></h1>
-		<ul>
-
-			<li class="input-group">
-				<label for="InputEmail">#InputEmail: <code class="inline">{"selector":"#InputEmail", "value":[10, 20]}</code></label>
-				<input type="email" class="form-control input-name" id="InputEmail">
-				<p inert data-storepress-conditional-field='{"selector":"#InputEmail", "value": [10, 20]}' class="message">
-					{"selector":"#InputRange", "value":[10, 20]}
-				</p>
-			</li>
-
-			<li class="input-group">
-				<label for="InputEmail2">#InputEmail2: <code class="inline">{"selector":"input.input-name-2[type=email]", "value":"/[\w.-]+@[\w.-]+\.\w+/g"}</code></label>
-				<input type="email" class="form-control input-name input-name-2" id="InputEmail2">
-				<p inert data-storepress-conditional-field='{"selector":"input.input-name-2[type=email]", "value": "/[\w.-]+@[\w.-]+\.\w+/g"}' class="message">
-					{"selector":"input.input-name-2[type=email]", "value":"/[\w.-]+@[\w.-]+\.\w+/g"}
-				</p>
-			</li>
-
-			<li>
-
-				.checkbox-element-group
-				<ul class="checkbox-group checkbox-element-group">
-
-					<li>
-						<label for="InputElementCheck1">Input Check value: empty</label>
-						<input id="InputElementCheck1" type="checkbox" value="">
-					</li>
-					<li>
-						<label for="InputElementCheck2">Input Check value: 1</label>
-						<input id="InputElementCheck2" type="checkbox" value="1">
-					</li>
-					<li>
-						<label for="InputElementCheck3">Input Check value: 2</label>
-						<input id="InputElementCheck3" type="checkbox" value="2">
-					</li>
-					<li>
-						<label for="InputElementCheck4">Input Check value: three</label>
-						<input id="InputElementCheck4" type="checkbox" value="three">
-					</li>
-					<li>
-						<label for="InputElementCheck5">Input Check value: four</label>
-						<input id="InputElementCheck5" type="checkbox" value="four">
-					</li>
-					<li>
-						<label for="InputElementCheck6">Input Check value: FIVE</label>
-						<input id="InputElementCheck6" type="checkbox" value="FIVE">
-					</li>
-					<li>
-						<label for="InputElementCheck7">Input Check value: SIX</label>
-						<input id="InputElementCheck7" type="checkbox" value="SIX">
-					</li>
-
-				</ul>
-			</li>
-
-			<li class="input-group">
-
-				.checkbox-selector-group
-				<code class="inline"></code>
-
-				<ul class="checkbox-group checkbox-selector-group">
 
 
-					<li>
-						<label for="InputCheckboxE">Input Check value: empty</label>
-						<input type="checkbox" value="" id="InputCheckboxE">
-					</li>
+		<h1>Conditional Field Test Suite</h1>
+		<p> Modify the inputs to see the conditional fields appear or disappear based on the logic defined in their <code>data-storepress-conditional-field</code> attribute.</p>
+		<p><code>data-storepress-conditional-field--relation="OR"</code></p>
 
-					<li>
-						<label for="InputCheckbox1">Input Check value: 1</label>
-						<input type="checkbox" value="1" id="InputCheckbox1">
-					</li>
-					<li>
-						<label for="InputCheckbox2">Input Check value: 2</label>
-						<input type="checkbox" value="2" id="InputCheckbox2">
-					</li>
-					<li>
-						<label for="InputCheckbox3">Input Check value: three</label>
-						<input type="checkbox" value="three" id="InputCheckbox3">
-					</li>
-					<li>
-						<label for="InputCheckbox4">Input Check value: four</label>
-						<input type="checkbox" value="four" id="InputCheckbox4">
-					</li>
-					<li>
-						<label for="InputCheckbox5">Input Check value: FIVE</label>
-						<input type="checkbox" value="FIVE" id="InputCheckbox5">
-					</li>
-					<li>
-						<label for="InputCheckbox6">Input Check value: SIX</label>
-						<input type="checkbox" value="SIX" id="InputCheckbox6">
-					</li>
-					<li>
-						<label for="InputCheckbox7">Input Check value: Seven</label>
-						<input type="checkbox" value="Seven" id="InputCheckbox7">
-					</li>
-					<li>
-						<label for="InputCheckbox8">Input Check value: Eight</label>
-						<input type="checkbox" value="Eight" id="InputCheckbox8">
-					</li>
-					<li>
-						<label for="InputCheckbox9">Input Check value: Hello</label>
-						<input type="checkbox" value="Hello" id="InputCheckbox9">
-					</li>
-					<li>
-						<label for="InputCheckbox10">Input Check value: hello</label>
-						<input type="checkbox" value="hello" id="InputCheckbox10">
-					</li>
-					<li>
-						<label for="InputCheckbox11">Input Check value: HELLO</label>
-						<input type="checkbox" value="HELLO" id="InputCheckbox11">
-					</li>
-				</ul>
+		<fieldset>
+			<legend>1. Basic String & Boolean Conditions</legend>
 
-				<p inert data-storepress-conditional-field='{"selector":".checkbox-selector-group input", "value": ".checkbox-element-group input", "type": "ELEMENT"}' class="message">{"selector":".checkbox-selector-group input", "value": ".checkbox-element-group input", "type": "ELEMENT"}</p>
-				<p id="InputEmail2Msg" inert data-storepress-conditional-field='{"selector":".checkbox-selector-group input", "value": "#InputEmail2", "type": "ELEMENT"}' class="message">{"selector":".checkbox-selector-group input", "value": "#InputEmail2", "type": "ELEMENT"}</p>
-				<p inert data-storepress-conditional-field='{"selector":".checkbox-selector-group input", "value": ".input-name", "type": "ELEMENT"}' class="message">{"selector":".checkbox-selector-group input", "value": ".input-name", "type": "ELEMENT"}</p>
-				<p inert data-storepress-conditional-field='{"selector":".checkbox-selector-group input", "value": ".input-name", "type": "ELEMENT", "strict": true}' class="message">{"selector":".checkbox-selector-group input", "value": ".input-name", "type": "ELEMENT", "strict": true}</p>
-				<p inert data-storepress-conditional-field='{"selector":".checkbox-selector-group input", "value": ".input-name", "type": "ELEMENT", "require": true}' class="message">{"selector":".checkbox-selector-group input", "value": ".input-name", "type": "ELEMENT", "require": true}</p>
-				<p inert data-storepress-conditional-field='{"selector":".checkbox-selector-group input", "value": ".input-name", "type": "ELEMENT", "check": "RANGE"}' class="message">{"selector":".checkbox-selector-group input", "value": ".input-name", "type": "ELEMENT", "check": "RANGE"}</p>
-
-				<p inert data-storepress-conditional-field='{"selector":".checkbox-selector-group input", "value": "#InputEmail2Msg", "type": "ELEMENT", "check": "VISIBLE"}' class="message">{"selector":".checkbox-selector-group input", "value": "#InputEmail2Msg", "type": "ELEMENT", "check": "VISIBLE"}</p>
-
-
-			</li>
-
-			<li class="input-group">
-				<label for="InputText">#InputText: <code class="inline">{"selector":"#InputText", "value":"hello"}</code></label>
-				<input type="search" class="form-control input-name" id="InputText">
-				<p inert data-storepress-conditional-field='{"selector":"#InputText", "value":"hello"}' class="message">{"selector":"#InputText", "value":"hello"}</p>
-			</li>
-
-			<li class="input-group">
-				<label for="InputText2">#InputText2: <code class="inline">{"selector":"#InputText2", "value":"hello", "inert": true}</code></label>
-				<input type="text" class="form-control input-name" id="InputText2">
-				<p inert data-storepress-conditional-field='{"selector":"#InputText2", "value":"hello", "inert": true}' class="message">{"selector":"#InputText2", "value":"hello","inert": true}</p>
-			</li>
-
-			<li class="input-group">
-				<label for="InputNumber">#InputNumber: <code class="inline">{"selector":"#InputNumber", "value":"5"}</code></label>
-				<input type="number" class="form-control input-name" id="InputNumber">
-				<p inert data-storepress-conditional-field='{"selector":"#InputNumber", "value":"5"}' class="message">{"selector":"#InputNumber", "value":"5"}</p>
-			</li>
-
-
-			<li class="select-group">
-				<label for="InputSelect"> Select Box Single <code class="inline">{"selector":"#InputSelect", "value":"3"}</code></label>
-				<select id="InputSelect" name="inp-select">
-					<option value=""> - Choose -</option>
-					<option value="1">One</option>
-					<option value="2">Two</option>
-					<option value="3">Three</option>
-					<option value="4">Four</option>
-					<option value="5">Five</option>
-					<option value="6">Six</option>
+			<div class="test-case">
+				<h4>Text Input (STRING)</h4>
+				<label for="text-1">Type "show" to reveal:</label>
+				<input type="text" id="text-1">
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-1", "value": "show"}'>✅ Visible! Value is "show".</div>
+			</div>
+			<div class="test-case">
+				<label for="text-2">Type "SENSITIVE" (case-sensitive):</label>
+				<input type="text" id="text-2">
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-2", "value": "SENSITIVE", "case": true}'>✅ Visible! Case-sensitive match.</div>
+			</div>
+			<div class="test-case">
+				<h4>Boolean (Exists)</h4>
+				<label for="text-3">Type anything to reveal:</label>
+				<input type="text" id="text-3">
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-3", "value": true}'>✅ Visible! Input is not empty.</div>
+			</div>
+			<div class="test-case">
+				<label for="text-4">Clear this input to reveal:</label>
+				<input type="text" id="text-4" value="Delete me">
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-4", "value": false}'>✅ Visible! Input is empty.</div>
+			</div>
+			<div class="test-case">
+				<h4>Select Input</h4>
+				<label for="select-1">Choose "Option B":</label>
+				<select id="select-1">
+					<option value="">Select...</option>
+					<option value="A">Option A</option>
+					<option value="B">Option B</option>
 				</select>
-				<p inert data-storepress-conditional-field='{"selector":"#InputSelect", "value":"3"}' class="message">{"selector":"#InputSelect", "value":"3"}</p>
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#select-1", "value": "B"}'>✅ Visible! Option B is selected.</div>
+			</div>
+		</fieldset>
 
-			</li>
+		<fieldset>
+			<legend>2. Number (Length) & MINMAX Conditions</legend>
 
-			<li class="select-group">
-				<label for="InputSelectMultiple"> Select Box Multiple <code class="inline">{"selector":"#InputSelectMultiple", "value":"3"}</code></label>
-				<select multiple id="InputSelectMultiple" name="inp-select">
-					<option value=""> - Choose -</option>
-					<option value="1">One</option>
-					<option value="2">Two</option>
-					<option value="3">Three</option>
-					<option value="4">Four</option>
-					<option value="5">Five</option>
-					<option value="6">Six</option>
+			<div class="test-case">
+				<h4>NUMBER (Length)</h4>
+				<label for="text-5">Type exactly 5 characters:</label>
+				<input type="text" id="text-5" maxlength="10">
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-5", "value": 5, "type": "NUMBER"}'>✅ Visible! Length is 5.</div>
+			</div>
+			<div class="test-case">
+				<label for="text-6">Type more than 3 characters (GT):</label>
+				<input type="text" id="text-6" maxlength="10">
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-6", "value": 3, "type": "NUMBER", "compare": "GT"}'>✅ Visible! Length > 3.</div>
+			</div>
+			<div class="test-case">
+				<label for="text-7">Type 3 or less characters (LTEQ):</label>
+				<input type="text" id="text-7" maxlength="10">
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-7", "value": 3, "type": "NUMBER", "compare": "LTEQ"}'>✅ Visible! Length &lt;= 3.</div>
+			</div>
+			<div class="test-case">
+				<h4>MINMAX (Length Range)</h4>
+				<label for="textarea-1">Type between 10 and 20 characters:</label>
+				<textarea id="textarea-1"></textarea>
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#textarea-1", "value": [10, 20], "type": "MINMAX"}'>✅ Visible! Length is between 10 and 20.</div>
+			</div>
+			<div class="test-case">
+				<label for="textarea-2">Type at least 5 characters:</label>
+				<textarea id="textarea-2"></textarea>
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#textarea-2", "value": [5], "type": "MINMAX"}'>✅ Visible! Length is at least 5.</div>
+			</div>
+		</fieldset>
+
+		<fieldset>
+			<legend>3. Range (Value) Conditions (ONLY for "number" and "range" input type)</legend>
+
+			<div class="test-case">
+				<h4>Number Input (RANGE)</h4>
+				<label for="num-1">Enter a value between 10 and 20:</label>
+				<input type="number" id="num-1" min="0" max="30">
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#num-1", "value": [10, 20], "type": "RANGE"}'>✅ Visible! Value is between 10 and 20.</div>
+			</div>
+			<div class="test-case">
+				<h4>Range Slider Input</h4>
+				<label for="range-1">Select a value greater than 75:</label>
+				<input type="range" id="range-1" min="0" max="100" /> <span></span>
+				<script>
+					document.querySelector('#range-1').addEventListener('input', (event)=>{
+						event.target.nextElementSibling.textContent = event.target.value
+					})
+				</script>
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#range-1", "value": [76], "type": "RANGE"}'>✅ Visible! Value is > 75.</div>
+			</div>
+			<div class="test-case">
+				<label for="range-2">Range value is exactly 50:</label>
+				<input type="range" id="range-2" min="0" max="100" /><span></span>
+				<script>
+					document.querySelector('#range-2').addEventListener('input', (event)=>{
+						event.target.nextElementSibling.textContent = event.target.value
+					})
+				</script>
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#range-2", "value": [50, 50], "type": "RANGE"}'>✅ Visible! Value is 50.</div>
+			</div>
+		</fieldset>
+
+		<fieldset>
+			<legend>4. Array-Based Conditions</legend>
+
+			<div class="test-case">
+				<h4>STRING-ARRAY (Select)</h4>
+				<label for="select-2">Select "A" or "C":</label>
+				<select id="select-2">
+					<option value="">Select...</option>
+					<option value="A">Value A</option>
+					<option value="B">Value B</option>
+					<option value="C">Value C</option>
 				</select>
-				<p inert data-storepress-conditional-field='{"selector":"#InputSelectMultiple", "value":"3"}' class="message">{"selector":"#InputSelectMultiple", "value":"3"}</p>
-			</li>
-
-			<li class="input-group">
-
-				<code class="inline">{"selector":".checkbox-group input", "value":"3"}</code>
-
-				<ul class="checkbox-group">
-					<li>
-						<label for="InputCheckbox101">Input Check value: 1</label>
-						<input type="checkbox" value="1" id="InputCheckbox101">
-					</li>
-					<li>
-						<label for="InputCheckbox102">Input Check value: 2</label>
-						<input type="checkbox" value="2" id="InputCheckbox102">
-					</li>
-					<li>
-						<label for="InputCheckbox103">Input Check value: 3</label>
-						<input type="checkbox" value="3" id="InputCheckbox103">
-					</li>
-					<li>
-						<label for="InputCheckbox104">Input Check value: 4</label>
-						<input type="checkbox" value="4" id="InputCheckbox104">
-					</li>
-					<li>
-						<label for="InputCheckbox105">Input Check value: 5</label>
-						<input type="checkbox" value="5" id="InputCheckbox105">
-					</li>
-					<li>
-						<label for="InputCheckbox106">Input Check value: 6</label>
-						<input type="checkbox" value="6" id="InputCheckbox106">
-					</li>
-				</ul>
-
-				<p inert data-storepress-conditional-field='{"selector":".checkbox-group input", "value":"3"}' class="message">
-					{"selector":".checkbox-group input", "value":"3"}
-				</p>
-			</li>
-
-			<li class="radio-group">
-				<p>Radio Group</p>
-				<code class="inline">{"selector":".radio-group input", "value":"3"}</code>
-				<label><input type="radio" name="radio" value=""> <span>Radio None</span></label>
-				<label><input type="radio" name="radio" value="1"> <span>Radio One</span></label>
-				<label><input type="radio" name="radio" value="2"> <span>Radio Two</span></label>
-				<label><input type="radio" name="radio" value="3"> <span>Radio Three</span></label>
-				<label><input type="radio" name="radio" value="4"> <span>Radio Four</span></label>
-
-				<p inert data-storepress-conditional-field='{"selector":".radio-group input", "value":"3"}' class="message">
-					{"selector":".radio-group input", "value":"3"}
-				</p>
-
-			</li>
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#select-2", "value": ["A", "C"]}'>✅ Visible! Value is in ["A", "C"].</div>
+			</div>
+			<div class="test-case">
+				<h4>STRING-ARRAY (Checkboxes - Any Match)</h4>
+				<label>Check Red or Blue:</label>
+				<label><input type="checkbox" name="colors" value="red"> Red</label>
+				<label><input type="checkbox" name="colors" value="green"> Green</label>
+				<label><input type="checkbox" name="colors" value="blue"> Blue</label>
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "[name=colors]", "value": ["red", "blue"]}'>✅ Visible! Red or Blue is checked.</div>
+			</div>
+			<div class="test-case">
+				<h4>STRING-ARRAY (Checkboxes - Require All)</h4>
+				<label>Check BOTH Red and Blue:</label>
+				<label><input type="checkbox" name="colors-req" value="red-req"> Red</label>
+				<label><input type="checkbox" name="colors-req" value="green-req"> Green</label>
+				<label><input type="checkbox" name="colors-req" value="blue-req"> Blue</label>
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "[name=colors-req]", "value": ["red-req", "blue-req"], "require": true}'>✅ Visible! Red AND Blue are checked.</div>
+			</div>
+			<div class="test-case">
+				<h4>STRING-ARRAY (Select Multiple - Strict Exact Match)</h4>
+				<label for="select-multi-1">Select ONLY Apple and Orange:</label>
+				<select id="select-multi-1" multiple>
+					<option value="apple">Apple</option>
+					<option value="orange">Orange</option>
+					<option value="banana">Banana</option>
+				</select>
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#select-multi-1", "value": ["apple", "orange"], "strict": true}'>✅ Visible! Exactly Apple and Orange are selected.</div>
+			</div>
+			<div class="test-case">
+				<h4>NUMBER-ARRAY (Length)</h4>
+				<label for="text-8">Type 3, 5, or 7 characters:</label>
+				<input type="text" id="text-8" maxlength="10">
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-8", "value": [3, 5, 7], "type": "NUMBER-ARRAY"}'>✅ Visible! Length is 3, 5, or 7.</div>
+			</div>
+		</fieldset>
 
 
-			<li class="input-group">
-				<label for="InputRange">#InputRange: <code class="inline">{"selector":"#InputRange", "value":"10"}</code></label>
-				<input min="0" max="50" type="range" class="form-control input-name" id="InputRange">
-				<p inert data-storepress-conditional-field='{"selector":"#InputRange", "value":"10"}' class="message">{"selector":"#InputRange", "value":"10"}</p>
-			</li>
+		<fieldset>
+			<legend>5. Advanced Conditions (RegExp, Element)</legend>
 
-			<li>
-				<p>1: <input type="text" class="form-control input-name" value="" id="r1" placeholder="R1"></p>
-				<p>2: <input type="text" class="form-control input-name" value="" id="r2" placeholder="R2"></p>
-				<p class="message" inert data-storepress-conditional-field='{"selector":"#r1", "value":"#r2", "type":"ELEMENT"}'>{"selector":"#r1", "value":"#r2", "type":"ELEMENT"}</p>
-			</li>
+			<div class="test-case">
+				<h4>REGEXP</h4>
+				<label for="email-1">Enter a valid email address:</label>
+				<input type="email" id="email-1" placeholder="user@example.com">
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#email-1", "value": "/[\\w.-]+@[\\w.-]+\\.\\w+/g", "type": "REGEXP"}'>✅ Visible! Value looks like an email.</div>
+			</div>
+			<div class="test-case">
+				<h4>ELEMENT (Value Equals Other Element's Value)</h4>
+				<label for="pass-1">Password:</label>
+				<input type="password" id="pass-1">
+				<label for="pass-2">Confirm Password (must match):</label>
+				<input type="password" id="pass-2">
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#pass-1", "value": "#pass-2", "type": "ELEMENT"}'>✅ Visible! Passwords match.</div>
+			</div>
+			<div class="test-case">
+				<h4>ELEMENT (Length Equals Other Element's Value)</h4>
+				<label for="text-9">Type some text:</label>
+				<input type="text" id="text-9">
+				<label for="num-2">Enter a number matching the length of the text above:</label>
+				<input type="number" id="num-2">
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-9", "value": "#num-2", "type": "ELEMENT", "check": "NUMBER"}'>✅ Visible! Text length matches the number.</div>
+			</div>
+			<div class="test-case">
+				<h4>ELEMENT (Value in Range of Other Element's Values)</h4>
+				<label for="num-min">Min Value:</label>
+				<input type="number" id="num-min" value="10">
+				<label for="num-max">Max Value:</label>
+				<input type="number" id="num-max" value="20">
+				<label for="num-check">Enter a value to check if it's in the range above:</label>
+				<input type="number" id="num-check">
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#num-check", "value": ["#num-min", "#num-max"], "type": "ELEMENT", "check": "RANGE"}'>✅ Visible! "Check" value is within the Min/Max range.</div>
+			</div>
+			<div class="test-case">
+				<h4>ELEMENT (Check Visibility)</h4>
+				<label for="name"><input type="checkbox" id="name" /> Check name</label>
+				<div data-storepress-conditional-field='{"selector": "#name"}' id="elem-to-check" style="padding: 10px; background: lightcoral;">I am the element to show on check name.</div>
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#name", "type": "ELEMENT", "check": "VISIBLE"}'>✅ Visible! The red element above is visible.</div>
+			</div>
+		</fieldset>
 
-		</ul>
-		<input type="reset">
+		<fieldset>
+			<legend>6. Relational Logic (AND, OR)</legend>
+
+			<div class="test-case">
+				<h4>AND Relation</h4>
+				<label for="and-1">Type "A":</label>
+				<input type="text" id="and-1">
+				<label for="and-2">Type "B":</label>
+				<input type="text" id="and-2">
+				<div class="conditional-field" data-storepress-conditional-field='{"relation": "AND", "0": {"selector": "#and-1", "value": "A"}, "1": {"selector": "#and-2", "value": "B"}}'>✅ Visible! Both A and B are correct.</div>
+			</div>
+			<div class="test-case">
+				<h4>OR Relation</h4>
+				<label for="or-1">Type "A":</label>
+				<input type="text" id="or-1">
+				<label for="or-2">Type "B":</label>
+				<input type="text" id="or-2">
+				<div class="conditional-field" data-storepress-conditional-field='{"relation": "OR", "0": {"selector": "#or-1", "value": "A"}, "1": {"selector": "#or-2", "value": "B"}}'>✅ Visible! Either A or B is correct.</div>
+			</div>
+
+			<div class="test-case">
+				<h4>Complex AND/OR</h4>
+				<label for="complex-1">Type "start":</label>
+				<input type="text" id="complex-1">
+				<label>Check A or B:</label>
+				<label><input type="checkbox" name="complex-cb" value="A"> A</label>
+				<label><input type="checkbox" name="complex-cb" value="B"> B</label>
+				<div class="conditional-field" data-storepress-conditional-field='{
+                "relation": "AND",
+                "0": {"selector": "#complex-1", "value": "start"},
+                "1": {"selector": "[name=complex-cb]", "value": ["A", "B"]}
+            }'>✅ Visible! Text is "start" AND (A or B is checked).</div>
+			</div>
+		</fieldset>
+
+		<fieldset>
+			<legend>7. `inert` Inversion Logic</legend>
+
+			<div class="test-case">
+				<h4>Inert on Match</h4>
+				<label for="inert-1">Type "hide" to hide the box below:</label>
+				<input type="text" id="inert-1">
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#inert-1", "value": "hide", "inert": true}'>I am visible by default. Typing "hide" will match the condition and apply `inert`, hiding me.</div>
+			</div>
+		</fieldset>
+
+		<fieldset>
+			<legend>8. Form Reset</legend>
+			<form id="test-form">
+				<div class="test-case">
+					<label for="reset-1">Type something, then click reset:</label>
+					<input type="text" id="reset-1">
+					<div class="conditional-field" data-storepress-conditional-field='{"selector": "#reset-1"}'>This box will disappear when you type, and reappear on form reset.</div>
+				</div>
+				<button type="reset">Reset Form</button>
+			</form>
+		</fieldset>
+
 	</form>
 </div>
 

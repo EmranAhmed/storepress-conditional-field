@@ -27,7 +27,7 @@ export function Plugin( element, options ) {
 				LT: [ 'LESS THAN', '<', 'LT' ],
 				GTEQ: [ 'GREATER THAN OR EQUAL', '>=', 'GTEQ' ],
 				LTEQ: [ 'LESS THAN OR EQUAL', '<=', 'LTEQ' ],
-				// Only for string and string-array
+				// ONLY IF VALUE TYPE STRING and STRING-ARRAY
 				INCLUDES: [ 'HAS', 'INCLUDES', 'CONTAINS', 'IN', 'LIKE' ],
 			},
 		},
@@ -76,7 +76,7 @@ export function Plugin( element, options ) {
 		RELATION_OPERATOR: {
 			DEFAULT: 'AND',
 			KEY: 'relation',
-			AVAILABLE: [ 'AND', 'OR', 'NOT', 'XOR' ],
+			AVAILABLE: [ 'AND', 'OR' ],
 		},
 
 		SELECTOR_OPERATOR: {
@@ -1096,9 +1096,9 @@ export function Plugin( element, options ) {
 		VISIBLE: ( condition ) => {
 			this.showField = getConditionInert( condition );
 
-			const elements = getConditionValue( condition );
 			const isStrict = getConditionStrict( condition ); // for Visible All Element or Visible any element.
 
+			const elements = getConditionValue( condition );
 			const $elements = document.querySelectorAll( elements );
 
 			const visibility = [];
@@ -1175,7 +1175,7 @@ export function Plugin( element, options ) {
 						if ( COMPARE_FUNCTION === 'NUMBER' ) {
 							prev = length;
 						} else {
-							prev = v ? v : '';
+							prev = v ?? '';
 						}
 
 						return prev;
@@ -1508,14 +1508,16 @@ export function Plugin( element, options ) {
 			} );
 
 			// Form Reset.
-			this.$parent.addEventListener(
-				'reset',
-				onFormReset( condition, $selectors ),
-				{
-					signal: this.signal,
-					passive: true,
-				}
-			);
+			if ( this.$parent.length > 0 ) {
+				this.$parent.addEventListener(
+					'reset',
+					onFormReset( condition, $selectors ),
+					{
+						signal: this.signal,
+						passive: true,
+					}
+				);
+			}
 		} );
 	};
 
