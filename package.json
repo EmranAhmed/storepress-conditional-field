@@ -1,6 +1,6 @@
 {
 	"name": "@storepress/conditional-field",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "StorePress Conditional Field Plugin",
 	"author": "EmranAhmed",
 	"license": "GPL-2.0-or-later",
@@ -24,7 +24,7 @@
 		"javascript",
 		"storepress"
 	],
-	"homepage": "https://github.com/EmranAhmed/storepress-conditional-field#readme",
+	"homepage": "https://emranahmed.github.io/storepress-conditional-field/",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/EmranAhmed/storepress-conditional-field.git"
@@ -52,12 +52,11 @@
 	"devDependencies": {
 		"@woocommerce/dependency-extraction-webpack-plugin": "^3.1.0",
 		"@woocommerce/eslint-plugin": "^2.3.0",
-		"@wordpress/base-styles": "^6.1.0",
-		"@wordpress/dependency-extraction-webpack-plugin": "^6.25.0",
-		"@wordpress/readable-js-assets-webpack-plugin": "^3.25.0",
-		"@wordpress/scripts": "^30.18.0",
+		"@wordpress/base-styles": "^6.3.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "^6.27.0",
+		"@wordpress/scripts": "^30.20.0",
 		"eslint-formatter-pretty": "5.0.0",
-		"eslint-plugin-prettier": "^5.5.0",
+		"eslint-plugin-prettier": "^5.5.3",
 		"eslint-plugin-you-dont-need-lodash-underscore": "^6.14.0",
 		"fs-extra": "^11.3.0",
 		"husky": "^9.1.7",

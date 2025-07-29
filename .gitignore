@@ -13,7 +13,7 @@ project.properties
 *.sublime-project
 *.sublime-workspace
 .sublimelinterrc
-.husky/_
+.husky
 src/block.json
 package-lock.json
 

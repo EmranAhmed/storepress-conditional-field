@@ -148,10 +148,10 @@ Alternate way to add `relation` from `data-*`
 ## Usages
 
 - `npm i @storepress/conditional-field @storepress/utils --save`
-- Load `./build/style-conditional-field.css`
+
 - Load `./build/storepress-utils.js`
 - Load `./build/conditional-field.js`
-
+- Load `./build/style-conditional-field.css`
 
 ### Markup
 
@@ -217,7 +217,7 @@ domReady( () => {
   StorePressConditionalField();
   
   // trigger: `storepress_conditional_field_re_init` if new element appended to page. 
-  triggerEvent(document, 'storepress_conditional_field_re_init', {
+  triggerEvent(document, 'storepress_conditional_field_reload', {
     element: ['[data-storepress-conditional-field]'],
     settings: {},
   });
@@ -227,12 +227,6 @@ domReady( () => {
     element: ['[data-storepress-conditional-field]'],
     settings: {},
   });
-});
-
-// OR
-
-document.addEventListener('DOMContentLoaded', () => {
-
 });
 ```
 

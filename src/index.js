@@ -83,7 +83,7 @@ function StorePressConditionalField() {
 
 	// Slider ReInit.
 	document.addEventListener(
-		'storepress_conditional_field_re_init',
+		'storepress_conditional_field_reload',
 		( event ) => {
 			const defaultSettings = {};
 			const settings = { ...defaultSettings, ...event.detail?.settings };
