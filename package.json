@@ -1,23 +1,9 @@
 {
 	"name": "@storepress/conditional-field",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"description": "StorePress Conditional Field Plugin",
 	"author": "EmranAhmed",
 	"license": "GPL-2.0-or-later",
-	"lint-staged": {
-		"./src/**/*.scss": [
-			"npm run lint:css"
-		],
-		"./src/**/*.{js,ts,tsx}": [
-			"npm run lint:js"
-		],
-		"./*.md": [
-			"npm run lint:md:docs"
-		],
-		"./package.json": [
-			"npm run lint:pkg-json"
-		]
-	},
 	"keywords": [
 		"html",
 		"dom",
@@ -33,6 +19,7 @@
 		"url": "https://github.com/EmranAhmed/storepress-conditional-field/issues"
 	},
 	"files": [
+		"src/**",
 		"build/**",
 		"index.html",
 		"style.css",
