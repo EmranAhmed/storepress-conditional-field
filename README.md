@@ -96,7 +96,6 @@ This shows a field if the user selects "Email" OR "Phone" as their preferred con
 
 This shows a "Submit" button only when the password and confirmation password fields match
 
-
 ```html
 <label for="ex5-pass">Password:</label>
 <input type="password" id="ex5-pass" />
@@ -236,7 +235,7 @@ domReady( () => {
 
 @charset "UTF-8";
 
-@use "~@storepress/conditional-field/src/mixins" as conditional-field;
+@use "~@storepress/conditional-field/src/mixins" as plugin;
 
 :where(
 [data-storepress-conditional-field],
@@ -246,7 +245,7 @@ domReady( () => {
 [data-storepress-conditional-field--relation],
 [data-storepress-conditional-field--compare]
 ) {
-  @include conditional-field.init();
+  @include plugin.init();
 }
 ```
 
