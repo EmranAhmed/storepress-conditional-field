@@ -4,27 +4,83 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Conditional Field Display</title>
-	<link rel="stylesheet" href="build/style-conditional-field.css" />
-	<link rel="stylesheet" href="style.css" />
-	<style>
-		body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 2rem; background-color: #f4f7f9; }
-		fieldset { border: 1px solid #ccc; border-radius: 8px; margin-bottom: 2rem; padding: 1.5rem; background-color: #fff; }
-		legend { font-weight: bold; font-size: 1.2rem; padding: 0 10px; color: #333; }
-		.test-case { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px dashed #ddd; }
-		.test-case:last-child { border-bottom: none; }
-		label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #555; }
+	<link rel="stylesheet" href="./build/style-conditional-field.css" />
+	<link rel="stylesheet" href="global-style.css" />
+	<style type="text/css">
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+			margin: 0;
+			padding: 2rem;
+			background-color: #f4f7f9;
+		}
+
+		fieldset {
+			border: 1px solid #ccc;
+			border-radius: 8px;
+			margin-bottom: 2rem;
+			padding: 1.5rem;
+			background-color: #fff;
+		}
+
+		legend {
+			font-weight: bold;
+			font-size: 1.2rem;
+			padding: 0 10px;
+			color: #333;
+		}
+
+		.test-case {
+			margin-bottom: 1.5rem;
+			padding-bottom: 1.5rem;
+			border-bottom: 1px dashed #ddd;
+		}
+
+		.test-case:last-child {
+			border-bottom: none;
+		}
+
+		label {
+			display: block;
+			margin-bottom: 0.5rem;
+			font-weight: 500;
+			color: #555;
+		}
+
 		input[type="text"], input[type="email"], input[type="password"], input[type="number"], select, textarea {
-			width: 100%; max-width: 400px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+			width: 100%;
+			max-width: 400px;
+			padding: 8px;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			box-sizing: border-box;
 		}
+
 		.conditional-field {
-			padding: 1rem; margin-top: 1rem; border-radius: 4px; background-color: #e0f2fe; border: 1px solid #7dd3fc;
-			color: #0c4a6e; font-weight: bold; transition: opacity 0.3s, transform 0.3s;
+			padding: 1rem;
+			margin-top: 1rem;
+			border-radius: 4px;
+			background-color: #e0f2fe;
+			border: 1px solid #7dd3fc;
+			color: #0c4a6e;
+			font-weight: bold;
+			transition: opacity 0.3s, transform 0.3s;
 		}
+
 		.conditional-field[inert] {
-			opacity: 0.5; background-color: #f1f5f9; border-color: #cbd5e1; color: #64748b;
-			transform: scale(0.98); pointer-events: none;
+			opacity: 0.5;
+			background-color: #f1f5f9;
+			border-color: #cbd5e1;
+			color: #64748b;
+			transform: scale(0.98);
+			pointer-events: none;
 		}
-		code { background-color: #e2e8f0; padding: 2px 5px; border-radius: 3px; font-family: monospace; }
+
+		code {
+			background-color: #e2e8f0;
+			padding: 2px 5px;
+			border-radius: 3px;
+			font-family: monospace;
+		}
 	</style>
 </head>
 
@@ -33,13 +89,17 @@
 <div class="wrapper">
 
 
-
 	<form action="#" method="post">
 
 
 		<h1>Conditional Field Example</h1>
 		<p> Modify the inputs to see the conditional fields appear or disappear based on the logic defined in their <code>data-storepress-conditional-field</code> attribute.</p>
 		<p><code>data-storepress-conditional-field--relation="OR"</code></p>
+
+
+		<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-1", "value": "/^[\w.-]+@[\w.-]+\.\w+$/g"}'>
+			XXX
+		</div>
 
 		<fieldset>
 			<legend>1. Basic String & Boolean Conditions</legend>
@@ -127,9 +187,9 @@
 				<label for="range-1">Select a value greater than 75:</label>
 				<input type="range" id="range-1" min="0" max="100" /> <span></span>
 				<script>
-					document.querySelector('#range-1').addEventListener('input', (event)=>{
-						event.target.nextElementSibling.textContent = event.target.value
-					})
+					document.querySelector('#range-1').addEventListener('input', (event) => {
+						event.target.nextElementSibling.textContent = event.target.value;
+					});
 				</script>
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#range-1", "value": [76], "type": "RANGE"}'>✅ Visible! Value is > 75.</div>
 			</div>
@@ -137,9 +197,9 @@
 				<label for="range-2">Range value is exactly 50:</label>
 				<input type="range" id="range-2" min="0" max="100" /><span></span>
 				<script>
-					document.querySelector('#range-2').addEventListener('input', (event)=>{
-						event.target.nextElementSibling.textContent = event.target.value
-					})
+					document.querySelector('#range-2').addEventListener('input', (event) => {
+						event.target.nextElementSibling.textContent = event.target.value;
+					});
 				</script>
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#range-2", "value": [50, 50], "type": "RANGE"}'>✅ Visible! Value is 50.</div>
 			</div>
@@ -161,28 +221,28 @@
 			</div>
 			<div class="test-case">
 				<h4>STRING-ARRAY (Checkboxes - Any Match)</h4>
-				<label>Check "Red" or "Blue":</label>
-				<label><input type="checkbox" name="colors" value="red"> Red</label>
-				<label><input type="checkbox" name="colors" value="green"> Green</label>
-				<label><input type="checkbox" name="colors" value="blue"> Blue</label>
+				<strong>Check "Red" or "Blue":</strong>
+				<label><input type="checkbox" name="colors" value="red" /> Red</label>
+				<label><input type="checkbox" name="colors" value="green" /> Green</label>
+				<label><input type="checkbox" name="colors" value="blue" /> Blue</label>
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "[name=colors]", "value": ["red", "blue"]}'>✅ Visible! Red or Blue is checked.</div>
 			</div>
 			<div class="test-case">
 				<h4>STRING-ARRAY (Checkboxes - All Match)</h4>
-				<label>Check BOTH "Red" and "Blue":</label>
-				<label><input type="checkbox" name="colors-req" value="red-req"> Red</label>
-				<label><input type="checkbox" name="colors-req" value="green-req"> Green</label>
-				<label><input type="checkbox" name="colors-req" value="blue-req"> Blue</label>
+				<strong>Check BOTH "Red" and "Blue":</strong>
+				<label><input type="checkbox" name="colors-req" value="red-req" /> Red</label>
+				<label><input type="checkbox" name="colors-req" value="green-req" /> Green</label>
+				<label><input type="checkbox" name="colors-req" value="blue-req" /> Blue</label>
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "[name=colors-req]", "value": ["red-req", "blue-req"], "require": true}'>✅ Visible! Red AND Blue are checked.</div>
 			</div>
 
 			<div class="test-case">
 				<h4>STRING-ARRAY (Checkboxes - Exact Match)</h4>
-				<label>Check BOTH "Red" and "Blue":</label>
-				<label><input type="checkbox" name="colors-req" value="red-req"> Red</label>
-				<label><input type="checkbox" name="colors-req" value="green-req"> Green</label>
-				<label><input type="checkbox" name="colors-req" value="blue-req"> Blue</label>
-				<div class="conditional-field" data-storepress-conditional-field='{"selector": "[name=colors-req]", "value": ["red-req", "blue-req"], "strict": true}'>✅ Visible! Exactly Red AND Blue are checked..</div>
+				<strong>Check BOTH "Red" and "Blue":</strong>
+				<label><input type="checkbox" name="colors-req2" value="red-req"> Red</label>
+				<label><input type="checkbox" name="colors-req2" value="green-req"> Green</label>
+				<label><input type="checkbox" name="colors-req2" value="blue-req"> Blue</label>
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "[name=colors-req2]", "value": ["red-req", "blue-req"], "strict": true}'>✅ Visible! Exactly Red AND Blue are checked..</div>
 			</div>
 
 			<div class="test-case">
@@ -239,9 +299,9 @@
 			<div class="test-case">
 				<h4>ELEMENT (Value Equals Other Element's Value)</h4>
 				<label for="pass-1">Password:</label>
-				<input type="password" id="pass-1">
+				<input type="password" autocomplete="off" id="pass-1">
 				<label for="pass-2">Confirm Password (must match):</label>
-				<input type="password" id="pass-2">
+				<input type="password" autocomplete="off" id="pass-2">
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#pass-1", "value": "#pass-2", "type": "ELEMENT"}'>✅ Visible! Passwords match.</div>
 			</div>
 			<div class="test-case">
@@ -254,17 +314,29 @@
 			</div>
 			<div class="test-case">
 				<h4>ELEMENT (Value in Range of Other Element's Values)</h4>
+				<strong style="color: red">NOT SUPPORTED YET:</strong>
 				<label for="num-min">Min Value:</label>
 				<input type="number" id="num-min" value="10">
 				<label for="num-max">Max Value:</label>
 				<input type="number" id="num-max" value="20">
 				<label for="num-check">Enter a value to check if it's in the range above:</label>
 				<input type="number" id="num-check">
-				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#num-check", "value": ["#num-min", "#num-max"], "type": "ELEMENT", "check": "RANGE"}'>✅ Visible! "Check" value is within the Min/Max range.</div>
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#num-check", "value": ["#num-min", "#num-max"], "type": "ELEMENT", "check": "RANGE"}'>✅ Visible! "Check" value is within the range.</div>
+			</div>
+			<div class="test-case">
+				<h4>ELEMENT (Value in MinMax of Other Element's Values)</h4>
+				<strong style="color: red">NOT SUPPORTED YET:</strong>
+				<label for="num-min">Min Value:</label>
+				<input type="number" id="num-min2" value="10">
+				<label for="num-max">Max Value:</label>
+				<input type="number" id="num-max2" value="20">
+				<label for="num-check">Enter a value to check if it's in the range above:</label>
+				<input type="number" id="num-check2">
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#num-check2", "value": ["#num-min2", "#num-max2"], "type": "ELEMENT", "check": "MINMAX"}'>✅ Visible! "Check" value is within the Min/Max.</div>
 			</div>
 			<div class="test-case">
 				<h4>ELEMENT (Check Visibility)</h4>
-				<label for="name"><input type="checkbox" id="name" /> Check name</label>
+				<label><input autocomplete="off" type="checkbox" id="name" /> Check name</label>
 				<div data-storepress-conditional-field='{"selector": "#name"}' id="elem-to-check" style="padding: 10px; background: lightcoral;">I am the element to show on check name.</div>
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#name", "type": "ELEMENT", "check": "VISIBLE"}'>✅ Visible! The red element above is visible.</div>
 			</div>
@@ -298,14 +370,16 @@
 				<h4>Complex AND/OR</h4>
 				<label for="complex-1">Type "start":</label>
 				<input type="text" id="complex-1">
-				<label>Check A or B:</label>
+				<br />
+				<strong>Check A or B:</strong>
 				<label><input type="checkbox" name="complex-cb" value="A"> A</label>
 				<label><input type="checkbox" name="complex-cb" value="B"> B</label>
 				<div class="conditional-field" data-storepress-conditional-field='{
                 "relation": "AND",
                 "0": {"selector": "#complex-1", "value": "start"},
                 "1": {"selector": "[name=complex-cb]", "value": ["A", "B"]}
-            }'>✅ Visible! Text is "start" AND (A or B is checked).</div>
+            }'>✅ Visible! Text is "start" AND (A or B is checked).
+				</div>
 			</div>
 		</fieldset>
 
@@ -335,7 +409,7 @@
 	</form>
 </div>
 
-<script src="build/storepress-utils.js"></script>
-<script src="build/conditional-field.js"></script>
+<script src="./build/storepress-utils.js"></script>
+<script src="./build/conditional-field.js"></script>
 </body>
 </html>

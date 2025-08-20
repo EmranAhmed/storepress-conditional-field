@@ -1,0 +1,14 @@
+@charset "UTF-8";
+
+@use "./src/mixins" as conditional-field;
+
+:where(
+[data-storepress-conditional-field],
+[data-storepress-conditional-field--selector],
+[data-storepress-conditional-field--value],
+[data-storepress-conditional-field--type],
+[data-storepress-conditional-field--relation],
+[data-storepress-conditional-field--compare]
+) {
+	@include conditional-field.init();
+}

@@ -7,6 +7,7 @@ const {
 	requestToHandle,
 	requestToExternalModule,
 	getFile,
+	getRootFile,
 	getWebPackAlias,
 } = require( './tools/webpack-helpers' );
 const WoocommerceDependencyExtractionWebpackPlugin = require( '@woocommerce/dependency-extraction-webpack-plugin' );
@@ -17,9 +18,16 @@ const scriptConfig = {
 	...defaultJSConfig,
 	entry: {
 		[ `conditional-field` ]: [
-			getFile( 'style.scss' ),
-			getFile( 'index.js' ),
+			getRootFile( 'style.scss' ),
+			getRootFile( 'script.js' ),
 		],
+		/*[ `storepress-utils` ]: {
+			import: getRootFile( 'utils.js' ),
+			library: {
+				name: [ 'StorePress', 'Utils' ],
+				type: 'window',
+			},
+		},*/
 		[ `storepress-utils` ]: {
 			import: '@storepress/utils/build-module/index.js',
 			library: {

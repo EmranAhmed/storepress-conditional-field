@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+// import { getOptionsFromAttribute } from '@storepress/utils';
 import { getOptionsFromAttribute } from '@storepress/utils';
 
 /**
@@ -568,7 +569,7 @@ export function Plugin( element, options ) {
 	const isValidRegExp = ( value ) => {
 		return (
 			typeof value === 'string' &&
-			new RegExp( '/(.+)/([gimuy]*)' ).test( value )
+			new RegExp( '/(.+)/([gimsuyx]*)' ).test( value )
 		);
 	};
 
@@ -579,7 +580,7 @@ export function Plugin( element, options ) {
 	 * @return {{pattern: string, flags: string, _: string}} An object with the pattern and flags.
 	 */
 	const getRegExpParams = ( value ) => {
-		const [ _, pattern, flags ] = value.match( /^\/(.+)\/([gimuy]*)$/ );
+		const [ _, pattern, flags ] = value.match( /^\/(.+)\/([gimsuyx]*)$/ );
 		return { pattern, flags, _ };
 	};
 
@@ -1122,6 +1123,7 @@ export function Plugin( element, options ) {
 		 * @param {Object} condition The condition configuration object.
 		 */
 		ELEMENT: ( condition ) => {
+			// @TODO: Add RANGE and MINMAX with value: ['#el', '#el2'] style.
 			const COMPARE_FUNCTION = getConditionCheck( condition );
 
 			const availableCheckOperators =
@@ -1145,18 +1147,24 @@ export function Plugin( element, options ) {
 
 			const elements = getConditionValue( condition );
 			const $elements = document.querySelectorAll( elements );
-			const { map } = analyzeSelectors( $elements, elements );
+			const { map: elementsMap } = analyzeSelectors(
+				$elements,
+				elements
+			);
 
-			// const selectors = getConditionSelector( condition );
-			// const $selectors = document.querySelectorAll( selectors );
-			// const { notEmpty } = analyzeSelectors( $selectors, selectors );
+			/*const selectors = getConditionSelector( condition );
+			const $selectors = document.querySelectorAll( selectors );
+			const { notEmpty, map: selectorsMap } = analyzeSelectors(
+				$selectors,
+				selectors
+			);
 
-			const is_multi =
-				map.some( ( { multiple } ) => multiple === true ) ||
-				map.length > 1;
+			const isMultiInSelector =
+				selectorsMap.some( ( { multiple } ) => multiple === true ) ||
+				selectorsMap.length > 1;
 
-			const values = is_multi
-				? map.reduce( ( prev, { input, length } ) => {
+			const selectorValue = isMultiInSelector
+				? selectorsMap.reduce( ( prev, { input, length } ) => {
 						if (
 							[ 'RANGE', 'MINMAX' ].includes( COMPARE_FUNCTION )
 						) {
@@ -1169,11 +1177,44 @@ export function Plugin( element, options ) {
 
 						return prev;
 				  }, [] )
-				: map.reduce( ( prev, { input, length } ) => {
+				: selectorsMap.reduce( ( prev, { input, length, type } ) => {
 						const v = input.at( 0 );
 
 						if ( COMPARE_FUNCTION === 'NUMBER' ) {
-							prev = length;
+							prev = [ 'NUMBER', 'RANGE' ].includes( type )
+								? v ?? 0
+								: length;
+						} else {
+							prev = v ?? '';
+						}
+
+						return prev;
+				  }, '' );*/
+
+			const isMultiInElement =
+				elementsMap.some( ( { multiple } ) => multiple === true ) ||
+				elementsMap.length > 1;
+			const elementValue = isMultiInElement
+				? elementsMap.reduce( ( prev, { input, length } ) => {
+						if (
+							[ 'RANGE', 'MINMAX' ].includes( COMPARE_FUNCTION )
+						) {
+							prev.push( ...input.map( ( i ) => Number( i ) ) );
+						} else if ( COMPARE_FUNCTION === 'NUMBER' ) {
+							prev.push( length );
+						} else {
+							prev.push( ...input );
+						}
+
+						return prev;
+				  }, [] )
+				: elementsMap.reduce( ( prev, { input, length, type } ) => {
+						const v = input.at( 0 );
+
+						if ( COMPARE_FUNCTION === 'NUMBER' ) {
+							prev = [ 'NUMBER', 'RANGE' ].includes( type )
+								? v ?? 0
+								: length;
 						} else {
 							prev = v ?? '';
 						}
@@ -1182,13 +1223,14 @@ export function Plugin( element, options ) {
 				  }, '' );
 
 			const COMPARE_FUNCTION_EXT =
-				[ 'STRING', 'NUMBER' ].includes( COMPARE_FUNCTION ) && is_multi
+				[ 'STRING', 'NUMBER' ].includes( COMPARE_FUNCTION ) &&
+				isMultiInElement
 					? '-ARRAY'
 					: '';
 
 			const c = {
 				...condition,
-				[ getValueOperatorKey() ]: values,
+				[ getValueOperatorKey() ]: elementValue,
 			};
 
 			COMPARE_FUNCTIONS[
@@ -1365,6 +1407,21 @@ export function Plugin( element, options ) {
 
 		// If "value" type array.
 		if ( isArrayValue( condition ) ) {
+			if ( [ 'ELEMENT' ].includes( getConditionType( condition ) ) ) {
+				// @TODO: Add Array Element value support.
+				if (
+					[ 'MINMAX', 'RANGE' ].includes(
+						getConditionCheck( condition )
+					)
+				) {
+					setConditionFn( condition, 'NUMBER-ARRAY' );
+				} else {
+					setConditionFn( condition, 'STRING-ARRAY' );
+				}
+
+				return condition;
+			}
+
 			const IS_NUMBER_ARRAY = getConditionValue( condition ).every(
 				( v ) => typeof v === 'number'
 			);
@@ -1385,6 +1442,7 @@ export function Plugin( element, options ) {
 				);
 			} else {
 				setConditionType( condition, 'STRING-ARRAY' );
+
 				setConditionFn(
 					condition,
 					getFnNameByType( getConditionType( condition ) )
@@ -1471,6 +1529,9 @@ export function Plugin( element, options ) {
 			// Elements.
 			if ( getConditionType( condition ) === 'ELEMENT' ) {
 				const elements = getConditionValue( condition );
+
+				// @TODO: Add Support Condition value ARRAY with ELEMENT.
+
 				const $elements = document.querySelectorAll( elements );
 
 				$elements.forEach( ( $element ) => {
@@ -1532,7 +1593,11 @@ export function Plugin( element, options ) {
 		this.settings = {
 			...DEFAULTS,
 			...options,
-			...getOptionsFromAttribute( this.$element, ATTRIBUTE ),
+			...getOptionsFromAttribute( this.$element, ATTRIBUTE, {
+				parseNumber: false,
+				parseBoolean: false,
+				parseRegex: false,
+			} ),
 			...PRIVATE,
 		};
 

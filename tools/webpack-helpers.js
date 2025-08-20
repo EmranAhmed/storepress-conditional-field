@@ -10,12 +10,12 @@ const { sep } = require( 'path' );
 // react-dom --> window.ReactDOM
 // Add `slick-carousel`, `@woocommerce/blocks-registry`,`@woocommerce/settings` on `.eslintrc.js` -> 'import/core-modules'
 const externalScriptsMap = {
-    '@storepress/utils' : ['StorePress','Utils'],
+	'@storepress/utils': [ 'StorePress', 'Utils' ],
 };
 
 // @babel/runtime/regenerator --> wp-polyfill
 const scriptHandleMap = {
-     '@storepress/utils' : 'storepress-utils',
+	'@storepress/utils': 'storepress-utils',
 };
 
 const externalModulesMap = {
@@ -82,6 +82,10 @@ function requestToExternalModule( request ) {
 	}
 }
 
+function getRootFile( fileName ) {
+	return fromProjectRoot( fileName );
+}
+
 function getFile( fileName ) {
 	return fromProjectRoot( getProjectSourcePath() + sep + fileName );
 }
@@ -89,13 +93,15 @@ function getFile( fileName ) {
 function getWebPackAlias() {
 	return {
 		// '@utils': getFile('utils/Plugin'), // Add @utils on .eslintrc.js -> 'import/core-modules'
-		//'@storepress/icons': getFile('packages/icons'),
+		'@storepress/conditional-field': getFile( 'index.js' ),
+		// '@storepress/utils': getRootFile( 'utils' ),
 		//'@storepress/utils': getFile('packages/utils'),
 		//'@storepress/components': getFile('packages/components'),
 	};
 }
 
 module.exports = {
+	getRootFile,
 	getFile,
 	getWebPackAlias,
 	requestToExternal,
