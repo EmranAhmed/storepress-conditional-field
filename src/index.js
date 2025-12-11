@@ -12,7 +12,7 @@ const StorePressConditionalField = createStorePressPlugin( {
 	selector: '[data-storepress-conditional-field]',
 	options: {},
 	plugin: Plugin,
-	namespace: 'Conditional',
+	namespace: 'conditional',
 } );
 
 StorePressConditionalField.setup();

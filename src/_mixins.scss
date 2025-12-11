@@ -3,7 +3,6 @@
 // :where(.selector){ @include plugin.init(); }
 
 @mixin init() {
-
 	&[inert] {
 		display: none;
 	}

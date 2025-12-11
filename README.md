@@ -208,31 +208,14 @@ Alternate way to add `relation` from `data-*`
  */
 import StorePressConditionalField from '@storepress/conditional-field';
 import domReady from '@wordpress/dom-ready';
-import { triggerEvent } from '@storepress/utils';
 
 // document.addEventListener('DOMContentLoaded', () => {
 domReady( () => {
-  
   StorePressConditionalField();
-  
-  // trigger: `storepress_conditional_field_re_init` if new element appended to page. 
-  triggerEvent(document, 'storepress_conditional_field_reload', {
-    element: ['[data-storepress-conditional-field]'],
-    settings: {},
-  });
-
-  // trigger: `storepress_conditional_field_destroy` to destroy conditional_field instances.
-  triggerEvent(document, 'storepress_conditional_field_destroy', {
-    element: ['[data-storepress-conditional-field]'],
-    settings: {},
-  });
 });
 ```
 
 ```scss
-
-// dependency.scss
-
 @charset "UTF-8";
 
 @use "~@storepress/conditional-field/src/mixins" as plugin;
@@ -276,6 +259,33 @@ domReady( () => {
 - `npm run format:css` - Format SCSS
 - `npm run format` - Format `./src`
 
-## Release
+## Control from external script
 
-- `npm publish`
+```js
+/**
+ * External dependencies
+ */
+import { getStorePressPlugin } from '@storepress/utils'
+
+// getStorePressPlugin is also available globally by: StorePress.Utils.getStorePressPlugin
+
+document.getElementById('custom-button').addEventListener('click', () => {
+  const Plugin = getStorePressPlugin('conditional')
+  Plugin.destroy()
+  Plugin.init()
+
+  Plugin.setup()
+  Plugin.clear()
+})
+
+
+const $plugin1 = StorePress.Utils.getPluginInstance('li.item', 'conditional')
+const $plugin2 = StorePress.Utils.getStorePressPlugin('conditional').get('ul')
+const $plugin3 = StorePress.Utils.getStorePressPlugin('conditional').get()
+```
+
+## Publish
+
+- Add Tag - `git tag $(node -p "require('./package.json').version") && git push origin "$_"`
+- Delete Tag - `git tag -d $(node -p "require('./package.json').version") && git push origin --delete "$_"`
+- Publish - `npm publish`
