@@ -89,7 +89,13 @@
 <div class="wrapper">
 
 
-	<form action="#" method="post">
+	<form action="./?action=submit" method="get">
+
+
+<!--		<div inert>
+			<input readonly="readonly" type="text" placeholder="F" required="required" />
+		</div>
+		<input type="submit">-->
 
 
 		<h1>Conditional Field Example</h1>
@@ -97,9 +103,7 @@
 		<p><code>data-storepress-conditional-field--relation="OR"</code></p>
 
 
-		<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-1", "value": "/^[\w.-]+@[\w.-]+\.\w+$/g"}'>
-			XXX
-		</div>
+
 
 		<fieldset>
 			<legend>1. Basic String & Boolean Conditions</legend>
@@ -108,8 +112,20 @@
 				<h4>Text Input (STRING)</h4>
 				<label for="text-1">Type "show" to reveal:</label>
 				<input type="text" id="text-1">
+
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-1"}'>
+					<input type="text" name="r" placeholder="Should read only if parent inert" required="required" />
+				</div>
+
+				<input type="submit">
+
+
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-1", "value": "show"}'>
 					✅ Visible! Value is "show".
+				</div>
+
+				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-1", "value": "/^[\w.-]+@[\w.-]+\.\w+$/g"}'>
+					✅ Visible! Value is like "email address".
 				</div>
 
 			</div>

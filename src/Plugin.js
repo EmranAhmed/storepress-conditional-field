@@ -139,6 +139,9 @@ export function Plugin( element, options ) {
 	// Default Settings
 	const DEFAULTS = {
 		relation: OPERATORS.RELATION_OPERATOR.DEFAULT,
+		disableInertInput: true,
+		readOnlyInertInput: false,
+		inertInput: 'input, select, textarea',
 	};
 
 	/**
@@ -1245,10 +1248,29 @@ export function Plugin( element, options ) {
 	 * @param {boolean} [value=true] If `true`, adds the `inert` attribute (hides); otherwise, removes it (shows).
 	 */
 	const toggleInertAttribute = ( value = true ) => {
+		const $innerInputs = this.$element.querySelectorAll(
+			this.settings.inertInput
+		);
+
 		if ( value === true ) {
 			this.$element.setAttribute( 'inert', '' );
+
+			if ( this.settings.disableInertInput ) {
+				$innerInputs.forEach( ( el ) => ( el.disabled = true ) );
+			}
+
+			if ( this.settings.readOnlyInertInput ) {
+				$innerInputs.forEach( ( el ) => ( el.readOnly = true ) );
+			}
 		} else {
 			this.$element.removeAttribute( 'inert' );
+			if ( this.settings.disableInertInput ) {
+				$innerInputs.forEach( ( el ) => ( el.disabled = false ) );
+			}
+
+			if ( this.settings.readOnlyInertInput ) {
+				$innerInputs.forEach( ( el ) => ( el.readOnly = false ) );
+			}
 		}
 	};
 
