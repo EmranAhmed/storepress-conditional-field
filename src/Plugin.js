@@ -14,7 +14,7 @@ import { getOptionsFromAttribute } from '@storepress/utils';
 export function Plugin( element, options ) {
 	const PRIVATE = {};
 
-	// Collecting settings from html attributes.
+	// Collecting settings from HTML attributes.
 	const ATTRIBUTE = 'storepress-conditional-field'; // data-storepress-conditional-field
 
 	const OPERATORS = {
