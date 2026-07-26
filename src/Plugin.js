@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-// import { getOptionsFromAttribute } from '@storepress/utils';
 import { getOptionsFromAttribute } from '@storepress/utils';
 
 /**

@@ -5,36 +5,34 @@
  */
 const AdmZip = require( 'adm-zip' );
 const { sync: glob } = require( 'fast-glob' );
-const { dirname } = require( 'path' );
+const { dirname, join } = require( 'path' );
 const { stdout } = require( 'process' );
 const fs = require( 'fs-extra' );
-/**
- * Internal dependencies
- */
 
+/**
+ * WordPress dependencies
+ */
 const {
 	hasPackageProp,
 	getPackageProp,
 	hasArgInCLI,
 } = require( '@wordpress/scripts/utils' );
 
-const npm_package_name = getPackageProp( 'name' );
-const npm_package_version = getPackageProp( 'version' );
+const packageName = getPackageProp( 'name' );
+const packageVersion = getPackageProp( 'version' );
 
-stdout.write(
-	`Creating package for \`${ npm_package_name }\` plugin... 🎁\n\n`
-);
+stdout.write( `Creating package for \`${ packageName }\` plugin... 🎁\n\n` );
 const zip = new AdmZip();
 const isZip = hasArgInCLI( '--zip' );
 
 let files = [];
 
-if ( hasPackageProp( 'zip' ) ) {
+if ( hasPackageProp( 'files' ) ) {
 	stdout.write(
 		'Using the `files` field from `package.json` to detect files:\n\n'
 	);
 
-	files = glob( getPackageProp( 'zip' ), {
+	files = glob( getPackageProp( 'files' ), {
 		caseSensitiveMatch: false,
 	} );
 } else {
@@ -44,12 +42,11 @@ if ( hasPackageProp( 'zip' ) ) {
 	// See https://developer.wordpress.org/plugins/plugin-basics/best-practices/#file-organization.
 	files = glob(
 		[
-			'admin/**',
 			'build/**',
 			'includes/**',
 			'languages/**',
-			'public/**',
-			`${ npm_package_name }.php`,
+			'templates/**',
+			`${ packageName }.php`,
 			'uninstall.php',
 			'block.json',
 			'changelog.*',
@@ -64,31 +61,38 @@ if ( hasPackageProp( 'zip' ) ) {
 
 if ( isZip ) {
 	stdout.write(
-		`Creating archive for \`${ npm_package_name }\` plugin... 🎁\n\n`
+		`Creating archive for \`${ packageName }\` plugin... 🎁\n\n`
 	);
 	files.forEach( ( file ) => {
 		stdout.write( `  🥳 Adding \`${ file }\`.\n` );
 		const zipDirectory = dirname( file );
-		zip.addLocalFile( file, zipDirectory !== '.' ? zipDirectory : '' );
+		// Prefix every entry with the slug folder
+		const targetDir =
+			zipDirectory !== '.'
+				? join( packageName, zipDirectory )
+				: packageName;
+		zip.addLocalFile( file, targetDir );
 	} );
 
-	zip.writeZip( `./${ npm_package_name }.zip` );
-	stdout.write( `\nDone. \`${ npm_package_name }.zip\` is ready! 🎉\n` );
+	zip.writeZip( `./${ packageName }-v${ packageVersion }.zip` );
+	stdout.write(
+		`\nDone. \`${ packageName }-v${ packageVersion }.zip\` is ready! 🎉\n`
+	);
 } else {
-	fs.remove( npm_package_name ).then( () => {
-		fs.ensureDir( npm_package_name, () => {
+	fs.remove( packageName ).then( () => {
+		fs.ensureDir( packageName, () => {
 			stdout.write(
-				`Creating directory for \`${ npm_package_name }\` plugin... 🎁\n\n`
+				`Creating directory for \`${ packageName }\` plugin... 🎁\n\n`
 			);
 
 			files.forEach( ( file ) => {
-				const to = `${ npm_package_name }/${ file }`;
+				const to = `${ packageName }/${ file }`;
 				stdout.write( `  🥳 Adding \`${ file }\`.\n` );
 				fs.copy( file, to );
 			} );
 
 			stdout.write(
-				`\n\nDone. \`${ npm_package_name }\` directory is ready! 🎉\n`
+				`\n\nDone. \`${ packageName }\` directory is ready! 🎉\n`
 			);
 		} );
 	} );

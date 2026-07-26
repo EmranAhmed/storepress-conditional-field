@@ -1,0 +1,9 @@
+{
+	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"@storepress/conditional-field": [ "src" ]
+		}
+	},
+	"exclude": [ "node_modules", "build", "vendor" ]
+}

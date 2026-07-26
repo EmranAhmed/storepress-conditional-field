@@ -4,26 +4,24 @@ Conditional Fields is a lightweight, dependency-free JavaScript utility for show
 
 The script works by making the controlled element inert (disabling it and hiding it from assistive technology) when its conditions are not met. You must provide your own CSS to visually hide the element based on the `[inert]` attribute.
 
-
 ## Configuration API
 
-| Key	| Type	| Required?	| Description                                                                                                                                                                                                                  |
-|---|---|---|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|selector|	String |	Yes | 	A CSS selector for the input field(s) that control this element.                                                                                                                                                            |
-|relation	| String |	No	| How to evaluate multiple conditions. Defaults to `AND`. Options: `AND`, `OR`                                                                                                                                                 |
-|value	| Any	| No	| The value to compare against. Defaults to `true` (checking for existence).                                                                                                                                                   |
-|type	| String |	No	| The type of comparison to perform. The script auto-detects based on the value, but you can set it explicitly. Options: BOOLEAN, STRING, NUMBER, STRING-ARRAY, NUMBER-ARRAY, REGEXP, MINMAX, RANGE,ELEMENT.                   |
-|compare|	String |	No	| For type: "NUMBER". The comparison operator. Defaults to `EQ`. Options: `EQ`, `GT`, `GTEQ`, `LT`, `LTEQ`.  For type: "STRING" or "STRING-ARRAY" Options: `LIKE`.                                                             |
-|inert	| Boolean |	No	| Inverts the behavior. If `true`, the element will be shown by default and hidden when the condition is met. Defaults to `false`.                                                                                             |
-|case	| Boolean	| No	| For type: "STRING" or STRING-ARRAY". If true, the string comparison will be case-sensitive. Defaults to `false`.                                                                                                             |
-|strict|	Boolean	| No	| For array types like multiple selectbox or checkboxes. If `true`, the input's values must be an exact match to the value array. Defaults to `false`.                                                                         |
-|require|	Boolean	| No	| For array types like multiple selectbox or checkboxes and when **strict** is `false`. If `true`, all items in the value array must be present in the input's selected values. Defaults to `false` (any match is sufficient). |
-|check	| String	| No	| Only For type: "ELEMENT". Specifies the comparison type to use against the target element's value. Defaults to `STRING`.                                                                                                       |
+| Key	      | Type	    | Required?	 | Description                                                                                                                                                                                                                  |
+|----------|---------|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| selector | 	String  | 	Yes       | 	A CSS selector for the input field(s) that control this element.                                                                                                                                                             |
+| relation	 | String  | 	No	        | How to evaluate multiple conditions. Defaults to `AND`. Options: `AND`, `OR`                                                                                                                                                 |
+| value	    | Any	     | No	        | The value to compare against. Defaults to `true` (checking for existence).                                                                                                                                                   |
+| type	     | String  | 	No	        | The type of comparison to perform. The script auto-detects based on the value, but you can set it explicitly. Options: BOOLEAN, STRING, NUMBER, STRING-ARRAY, NUMBER-ARRAY, REGEXP, MINMAX, RANGE,ELEMENT.                   |
+| compare  | 	String  | 	No	        | For type: "NUMBER". The comparison operator. Defaults to `EQ`. Options: `EQ`, `GT`, `GTEQ`, `LT`, `LTEQ`.  For type: "STRING" or "STRING-ARRAY" Options: `LIKE`.                                                             |
+| inert	    | Boolean | 	No	        | Inverts the behavior. If `true`, the element will be shown by default and hidden when the condition is met. Defaults to `false`.                                                                                             |
+| case	     | Boolean	 | No	        | For type: "STRING" or STRING-ARRAY". If true, the string comparison will be case-sensitive. Defaults to `false`.                                                                                                             |
+| strict   | 	Boolean	 | No	        | For array types like multiple selectbox or checkboxes. If `true`, the input's values must be an exact match to the value array. Defaults to `false`.                                                                         |
+| require  | 	Boolean	 | No	        | For array types like multiple selectbox or checkboxes and when **strict** is `false`. If `true`, all items in the value array must be present in the input's selected values. Defaults to `false` (any match is sufficient). |
+| check	    | String	  | No	        | Only For type: "ELEMENT". Specifies the comparison type to use against the target element's value. Defaults to `STRING`.                                                                                                     |
 
 ## Examples
 
-- Simple Text Input Match 
-This shows a field when the user types the exact word `CONFIRM`.
+- Simple Text Input Match This shows a field when the user types the exact word `CONFIRM`.
 
 ```html
 <label for="ex1">Type CONFIRM to proceed:</label>
@@ -34,8 +32,7 @@ This shows a field when the user types the exact word `CONFIRM`.
 </div>
 ```
 
-- Checkbox Group Requirement
-This shows a field only if both "Terms and Conditions" and "Privacy Policy" are checked.
+- Checkbox Group Requirement This shows a field only if both "Terms and Conditions" and "Privacy Policy" are checked.
 
 ```html
 <label><input type="checkbox" name="agreement" value="terms" /> I agree to the Terms</label>
@@ -63,8 +60,7 @@ This shows a field only if both "Terms and Conditions" and "Privacy Policy" are 
 </div>
 ```
 
-`RANGE` checks the actual numeric value. This example shows a field if the entered age is between 18 and 65. 
-Note: `RANGE` only support `NUMBER` and `RANGE` Input type.
+`RANGE` checks the actual numeric value. This example shows a field if the entered age is between 18 and 65. Note: `RANGE` only support `NUMBER` and `RANGE` Input type.
 
 ```html
 <label for="ex3-range">Age:</label>
@@ -75,8 +71,7 @@ Note: `RANGE` only support `NUMBER` and `RANGE` Input type.
 </div>
 ```
 
-- Radio Check
-This shows a field if the user selects "Email" OR "Phone" as their preferred contact method.
+- Radio Check This shows a field if the user selects "Email" OR "Phone" as their preferred contact method.
 
 ```html
 <p>Preferred Contact Method:</p>
@@ -115,34 +110,35 @@ This shows a "Submit" button only when the password and confirmation password fi
 - Relation Check
 
 ```html
+
 <div class="test-case">
-    <h4>Complex AND/OR</h4>
-    <label for="complex-1">Type "start":</label>
-    <input type="text" id="complex-1" />
-  
-    <label for="complex-2">Check A or B:</label>
-    <label><input type="checkbox" name="complex-cb" value="A"> A</label>
-    <label><input type="checkbox" name="complex-cb" value="B"> B</label>
-  
-    <div class="conditional-field" data-storepress-conditional-field='{
+  <h4>Complex AND/OR</h4>
+  <label for="complex-1">Type "start":</label>
+  <input type="text" id="complex-1" />
+
+  <label for="complex-2">Check A or B:</label>
+  <label><input type="checkbox" name="complex-cb" value="A"> A</label>
+  <label><input type="checkbox" name="complex-cb" value="B"> B</label>
+
+  <div class="conditional-field" data-storepress-conditional-field='{
             "relation": "AND",
             "0": {"selector": "#complex-1", "value": "start"},
             "1": {"selector": "[name=complex-cb]", "value": ["A", "B"]}
         }'>✅ Visible! Text is "start" AND (A or B is checked).
-    </div>
+  </div>
 </div>
 ```
 
 Alternate way to add `relation` from `data-*`
 
 ```html
+
 <div class="conditional-field" data-storepress-conditional-field--relation="OR" data-storepress-conditional-field='[
         {"selector": "#complex-1", "value": "start"},
         {"selector": "[name=complex-cb]", "value": ["A", "B"]}
     ]'>✅ Visible! Text is "start" AND (A or B is checked).
 </div>
 ```
-
 
 ## Usages
 
@@ -155,6 +151,7 @@ Alternate way to add `relation` from `data-*`
 ### Markup
 
 ```html
+
 <li class="input-group">
   <label for="InputText">Input Field:</label>
   <input type="text" class="form-control input-name" value="" id="InputText" placeholder="Input Field">
@@ -162,7 +159,7 @@ Alternate way to add `relation` from `data-*`
 
 <li inert data-storepress-conditional-field='{"selector":"#InputText"}'>
   <p class="message">
-        This field will show if "Input Field" have some value.
+    This field will show if "Input Field" have some value.
   </p>
 </li>
 
@@ -185,7 +182,7 @@ Alternate way to add `relation` from `data-*`
 - `"value": [4, 6], "type":"RANGE"` to check range in between value.
 - `"value": "#InputElement1", "type":"ELEMENT"` to compare value in other element.
 - `"value": "/^[\w.-]+@[\w.-]+\.\w+$/g", "type":"REGEXP"` to check regular expression.
-  
+
 - {"selector":"#InputName"} // Show if: value is not empty
 - {"selector":"#InputName", "value": true} // Show if: value is not empty
 - {"selector":"#InputName", "value": false} // Show if: value is empty
@@ -210,8 +207,8 @@ import StorePressConditionalField from '@storepress/conditional-field';
 import domReady from '@wordpress/dom-ready';
 
 // document.addEventListener('DOMContentLoaded', () => {
-domReady( () => {
-  StorePressConditionalField();
+domReady(() => {
+  StorePressConditionalField.init();
 });
 ```
 
@@ -278,7 +275,6 @@ document.getElementById('custom-button').addEventListener('click', () => {
   Plugin.clear()
 })
 
-
 const $plugin1 = StorePress.Utils.getPluginInstance('li.item', 'conditional')
 const $plugin2 = StorePress.Utils.getStorePressPlugin('conditional').get('ul')
 const $plugin3 = StorePress.Utils.getStorePressPlugin('conditional').get()
@@ -288,4 +284,6 @@ const $plugin3 = StorePress.Utils.getStorePressPlugin('conditional').get()
 
 - Add Tag - `git tag $(node -p "require('./package.json').version") && git push origin "$_"`
 - Delete Tag - `git tag -d $(node -p "require('./package.json').version") && git push origin --delete "$_"`
+- Login - `npm login`
+- Dry Publish - `npm publish --dry-run`
 - Publish - `npm publish`
