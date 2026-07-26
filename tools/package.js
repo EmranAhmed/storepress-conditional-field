@@ -18,7 +18,8 @@ const {
 	hasArgInCLI,
 } = require( '@wordpress/scripts/utils' );
 
-const packageName = getPackageProp( 'name' );
+const packageName =  getPackageProp( 'name' );
+const packageSlug =  packageName.replace(/^@/, '').replace('/', '-');
 const packageVersion = getPackageProp( 'version' );
 
 stdout.write( `Creating package for \`${ packageName }\` plugin... 🎁\n\n` );
@@ -27,12 +28,15 @@ const isZip = hasArgInCLI( '--zip' );
 
 let files = [];
 
-if ( hasPackageProp( 'files' ) ) {
+const hasFiles = hasPackageProp( 'zip' ) || hasPackageProp( 'files' );
+const availableFiles = hasPackageProp( 'zip' ) ? getPackageProp( 'zip' ) : getPackageProp( 'files' )
+
+if ( hasFiles ) {
 	stdout.write(
 		'Using the `files` field from `package.json` to detect files:\n\n'
 	);
 
-	files = glob( getPackageProp( 'files' ), {
+	files = glob( availableFiles, {
 		caseSensitiveMatch: false,
 	} );
 } else {
@@ -69,30 +73,30 @@ if ( isZip ) {
 		// Prefix every entry with the slug folder
 		const targetDir =
 			zipDirectory !== '.'
-				? join( packageName, zipDirectory )
-				: packageName;
+				? join( packageSlug, zipDirectory )
+				: packageSlug;
 		zip.addLocalFile( file, targetDir );
 	} );
 
-	zip.writeZip( `./${ packageName }-v${ packageVersion }.zip` );
+	zip.writeZip( `./${ packageSlug }-v${ packageVersion }.zip` );
 	stdout.write(
-		`\nDone. \`${ packageName }-v${ packageVersion }.zip\` is ready! 🎉\n`
+		`\nDone. \`${ packageSlug }-v${ packageVersion }.zip\` is ready! 🎉\n`
 	);
 } else {
-	fs.remove( packageName ).then( () => {
-		fs.ensureDir( packageName, () => {
+	fs.remove( packageSlug ).then( () => {
+		fs.ensureDir( packageSlug, () => {
 			stdout.write(
 				`Creating directory for \`${ packageName }\` plugin... 🎁\n\n`
 			);
 
 			files.forEach( ( file ) => {
-				const to = `${ packageName }/${ file }`;
+				const to = `${ packageSlug }/${ file }`;
 				stdout.write( `  🥳 Adding \`${ file }\`.\n` );
 				fs.copy( file, to );
 			} );
 
 			stdout.write(
-				`\n\nDone. \`${ packageName }\` directory is ready! 🎉\n`
+				`\n\nDone. \`${ packageSlug }\` directory is ready! 🎉\n`
 			);
 		} );
 	} );

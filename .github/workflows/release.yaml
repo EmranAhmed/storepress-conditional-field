@@ -50,7 +50,7 @@ jobs:
 
             -   name: "Get release file base name."
                 run: |
-                    echo "RELEASE_NAME=$(node -p -e "require('./package.json').name")" >> $GITHUB_ENV
+                    echo "RELEASE_NAME=$(node -p -e "require('./package.json').name.replace(/^@/, '').replace('/', '-')")" >> $GITHUB_ENV
 
             -   name: "Upload Release"
                 uses: softprops/action-gh-release@v2

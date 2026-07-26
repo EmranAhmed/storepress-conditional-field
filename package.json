@@ -24,7 +24,7 @@
 	"zip": [
 		"build/**",
 		"index.html",
-		"style.css"
+		"page-style.css"
 	],
 	"module": "src/index.js",
 	"sideEffects": [
