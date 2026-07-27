@@ -35,7 +35,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             -   name: "Checks out the repository"
-                uses: actions/checkout@v4
+                uses: actions/checkout@v6
 
             -   name: "Setup and Install Node.js"
                 uses: actions/setup-node@v6
@@ -55,10 +55,12 @@ jobs:
                     echo "RELEASE_NAME=$(node -p -e "require('./package.json').name.replace(/^@/, '').replace('/', '-')")" >> $GITHUB_ENV
 
             -   name: "Upload Release"
-                uses: softprops/action-gh-release@v2
+                uses: softprops/action-gh-release@v3
                 with:
+                    name: Release - v${{ env.RELEASE_TAG }}
+                    tag_name: ${{ env.RELEASE_TAG }}
                     files: ./${{ env.RELEASE_NAME }}-v${{ env.RELEASE_TAG }}.zip
                     make_latest: true
-                    name: Release - v${{ env.RELEASE_TAG }}
+                    overwrite_files: true
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
