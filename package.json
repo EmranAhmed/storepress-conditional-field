@@ -77,7 +77,6 @@
 		"prepackage": "npm run build",
 		"package": "node ./tools/package.js",
 		"test:e2e": "wp-scripts test-e2e",
-		"test:unit": "wp-scripts test-unit-js",
-		"prepare": "husky"
+		"test:unit": "wp-scripts test-unit-js"
 	}
 }
