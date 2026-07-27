@@ -61,7 +61,7 @@
 		"packages-update": "wp-scripts packages-update",
 		"plugin-zip": "npm run package -- --zip",
 		"start": "rimraf build && wp-scripts start --webpack-copy-php --experimental-modules",
-		"postinstall": "git init -q && rimraf .husky && npx husky init && echo \"npx lint-staged\" > .husky/pre-commit",
+		"postinstall": "git init -q && rimraf .husky && npx husky && echo \"npx lint-staged\" > .husky/pre-commit",
 		"prebuild": "rimraf build",
 		"check-engines": "wp-scripts check-engines",
 		"check-licenses": "wp-scripts check-licenses",
