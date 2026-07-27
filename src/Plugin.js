@@ -1611,12 +1611,13 @@ export function Plugin( element, options ) {
 	 */
 	const init = () => {
 		this.$element = element;
+
 		this.settings = {
 			...DEFAULTS,
 			...options,
 			...getOptionsFromAttribute( this.$element, ATTRIBUTE, {
-				parseNumber: false,
-				parseBoolean: false,
+				parseNumber: true,
+				parseBoolean: true,
 				parseRegex: false,
 			} ),
 			...PRIVATE,
@@ -1633,6 +1634,7 @@ export function Plugin( element, options ) {
 		this.matched = new Map();
 
 		this.controller = new AbortController();
+
 		this.signal = this.controller.signal;
 
 		prepareConditions();

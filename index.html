@@ -55,7 +55,7 @@
 			box-sizing: border-box;
 		}
 
-		.conditional-field {
+		[data-storepress-conditional-field] {
 			padding: 1rem;
 			margin-top: 1rem;
 			border-radius: 4px;
@@ -64,15 +64,6 @@
 			color: #0c4a6e;
 			font-weight: bold;
 			transition: opacity 0.3s, transform 0.3s;
-		}
-
-		.conditional-field[inert] {
-			opacity: 0.5;
-			background-color: #f1f5f9;
-			border-color: #cbd5e1;
-			color: #64748b;
-			transform: scale(0.98);
-			pointer-events: none;
 		}
 
 		code {

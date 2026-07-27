@@ -215,18 +215,34 @@ domReady(() => {
 ```scss
 @charset "UTF-8";
 
-@use "~@storepress/conditional-field/src/mixins" as plugin;
+@use "~@storepress/conditional-field/src/mixins" as conditional;
 
-:where(
-[data-storepress-conditional-field],
-[data-storepress-conditional-field--selector],
-[data-storepress-conditional-field--value],
-[data-storepress-conditional-field--type],
-[data-storepress-conditional-field--relation],
-[data-storepress-conditional-field--compare]
-) {
-  @include plugin.init();
-}
+@include conditional.init();
+```
+
+## Custom Integration
+
+```js 
+/**
+ * External dependencies
+ * custom-dependency.js
+ */
+import StorePressConditionalField from '@storepress/conditional-field';
+import domReady from '@wordpress/dom-ready';
+
+// Clear previus instances.
+StorePressConditionalField.clear();
+
+// Setup new instances.
+StorePressConditionalField.setup({
+  selector: '.custom-selectors',
+  options: {},
+});
+
+// document.addEventListener('DOMContentLoaded', () => {
+domReady(() => {
+  StorePressConditionalField.init();
+});
 ```
 
 ## Development
@@ -241,18 +257,18 @@ domReady(() => {
 ## Lint
 
 - `npm run lint:js` - Lint Javascript
-- `npm run lint:js:report` - Lint Javascript and will generate `lint-report.html`. From terminal `open lint-report.html`
+- `npm run lint:js:report` - Lint JavaScript and will generate `lint-report.html`. From terminal `open lint-report.html`
 - `npm run lint:css` - Lint CSS
 - `npm run lint:css:report` - Lint CSS and will generate `scss-report.txt` file.
 
 ## Fix
 
-- `npm run lint:js:fix` - Fix Javascript Lint Issue.
+- `npm run lint:js:fix` - Fix JavaScript Lint Issue.
 - `npm run lint:css:fix` - Fix SCSS Lint Issue.
 
 ## Format
 
-- `npm run format:js` - Format Javascript
+- `npm run format:js` - Format JavaScript
 - `npm run format:css` - Format SCSS
 - `npm run format` - Format `./src`
 

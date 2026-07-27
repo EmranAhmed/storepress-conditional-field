@@ -1,9 +1,23 @@
+@use 'sass:list';
+@use 'sass:string';
 
-// @use "./mixins" as plugin;
-// :where(.selector){ @include plugin.init(); }
+$default-field: 'data-storepress-conditional-field' !default;
+$modifiers: selector, value, type, relation, compare, inert, case, strict, disable-inert-input, read-only-inert-input, inert-input !default;
 
-@mixin init() {
-	&[inert] {
-		display: none;
+@mixin init($field: $default-field) {
+	$selectors: string.unquote('[#{$field}]');
+
+	@each $modifier in $modifiers {
+		$selectors: list.append(
+				$selectors,
+				string.unquote('[#{$field}--#{$modifier}]'),
+			$separator: comma
+		);
+	}
+
+	:where(#{$selectors}) {
+		&[inert] {
+			display: none;
+		}
 	}
 }

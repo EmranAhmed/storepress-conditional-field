@@ -7,6 +7,7 @@ const {
 	requestToHandle,
 	requestToExternalModule,
 	getRootFile,
+	getFile,
 	getWebPackAlias,
 } = require( './tools/webpack-helpers' );
 const WoocommerceDependencyExtractionWebpackPlugin = require( '@woocommerce/dependency-extraction-webpack-plugin' );
@@ -17,7 +18,7 @@ const scriptConfig = {
 	...defaultJSConfig,
 	entry: {
 		[ `conditional-field` ]: [
-			getRootFile( 'style.scss' ),
+			getFile( 'style.scss' ),
 			getRootFile( 'script.js' ),
 		],
 
