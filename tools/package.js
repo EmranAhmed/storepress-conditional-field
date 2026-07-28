@@ -19,7 +19,7 @@ const {
 } = require( '@wordpress/scripts/utils' );
 
 const packageName =  getPackageProp( 'name' );
-const packageSlug =  packageName.replace(/^@/, '').replace('/', '-');
+const packageSlug =  packageName.replace(/^@/, '').replace('/', '-').toLowerCase();
 const packageVersion = getPackageProp( 'version' );
 
 stdout.write( `Creating package for \`${ packageName }\` plugin... 🎁\n\n` );

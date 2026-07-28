@@ -37,13 +37,12 @@ jobs:
         uses: actions/setup-node@v6
         with:
             node-version: '24.x'
-            cache: 'npm'
       # NPM Install and Build
       -   name: "Install and Build"
           run: npm install && npm run package --if-present
 
       - name: "Make Plain Package name"
-        run: echo "PLAIN_PACKAGE_NAME=$(node -p -e "require('./package.json').name.replace(/^@/, '').replace('/', '-')")" >> $GITHUB_ENV
+        run: echo "PLAIN_PACKAGE_NAME=$(node -p -e "require('./package.json').name.replace(/^@/, '').replace('/', '-').toLowerCase()")" >> $GITHUB_ENV
 
       - name: "Upload Artifact"
         uses: actions/upload-pages-artifact@v3
