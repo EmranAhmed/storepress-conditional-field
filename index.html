@@ -5,74 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Conditional Field Display</title>
 	<link rel="stylesheet" href="./build/style-conditional-field.css" />
-	<link rel="stylesheet" href="page-style.css" />
-	<style type="text/css">
-		body {
-			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-			margin: 0;
-			padding: 2rem;
-			background-color: #f4f7f9;
-		}
-
-		fieldset {
-			border: 1px solid #ccc;
-			border-radius: 8px;
-			margin-bottom: 2rem;
-			padding: 1.5rem;
-			background-color: #fff;
-		}
-
-		legend {
-			font-weight: bold;
-			font-size: 1.2rem;
-			padding: 0 10px;
-			color: #333;
-		}
-
-		.test-case {
-			margin-bottom: 1.5rem;
-			padding-bottom: 1.5rem;
-			border-bottom: 1px dashed #ddd;
-		}
-
-		.test-case:last-child {
-			border-bottom: none;
-		}
-
-		label {
-			display: block;
-			margin-bottom: 0.5rem;
-			font-weight: 500;
-			color: #555;
-		}
-
-		input[type="text"], input[type="email"], input[type="password"], input[type="number"], select, textarea {
-			width: 100%;
-			max-width: 400px;
-			padding: 8px;
-			border: 1px solid #ccc;
-			border-radius: 4px;
-			box-sizing: border-box;
-		}
-
-		[data-storepress-conditional-field] {
-			padding: 1rem;
-			margin-top: 1rem;
-			border-radius: 4px;
-			background-color: #e0f2fe;
-			border: 1px solid #7dd3fc;
-			color: #0c4a6e;
-			font-weight: bold;
-			transition: opacity 0.3s, transform 0.3s;
-		}
-
-		code {
-			background-color: #e2e8f0;
-			padding: 2px 5px;
-			border-radius: 3px;
-			font-family: monospace;
-		}
-	</style>
+	<link rel="stylesheet" href="./build/page-style.css" />
 </head>
 
 <body>
@@ -100,11 +33,10 @@
 				<input type="text" id="text-1">
 
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-1"}'>
-					<input type="text" name="r" placeholder="Should read only if parent inert" required="required" />
+					<input type="text" name="r" placeholder="Should disabled if parent inert" required="required" />
 				</div>
 
 				<input type="submit">
-
 
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-1", "value": "show"}'>
 					✅ Visible! Value is "show".
@@ -115,22 +47,26 @@
 				</div>
 
 			</div>
+
 			<div class="test-case">
 				<label for="text-2">Type "SENSITIVE" (case-sensitive):</label>
 				<input type="text" id="text-2">
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-2", "value": "SENSITIVE", "case": true}'>✅ Visible! Case-sensitive match.</div>
 			</div>
+
 			<div class="test-case">
 				<h4>Boolean (Exists)</h4>
 				<label for="text-3">Type anything to reveal:</label>
 				<input type="text" id="text-3">
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-3", "value": true}'>✅ Visible! Input is not empty.</div>
 			</div>
+
 			<div class="test-case">
 				<label for="text-4">Clear this input to reveal:</label>
 				<input type="text" id="text-4" value="Delete me">
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-4", "value": false}'>✅ Visible! Input is empty.</div>
 			</div>
+
 			<div class="test-case">
 				<h4>Select Input</h4>
 				<label for="select-1">Choose "Option B":</label>
@@ -152,22 +88,26 @@
 				<input type="text" id="text-5" maxlength="10">
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-5", "value": 5, "type": "NUMBER"}'>✅ Visible! Length is 5.</div>
 			</div>
+
 			<div class="test-case">
 				<label for="text-6">Type more than 3 characters (GT):</label>
 				<input type="text" id="text-6" maxlength="10">
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-6", "value": 3, "type": "NUMBER", "compare": "GT"}'>✅ Visible! Length > 3.</div>
 			</div>
+
 			<div class="test-case">
 				<label for="text-7">Type 3 or less characters (LTEQ):</label>
 				<input type="text" id="text-7" maxlength="10">
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#text-7", "value": 3, "type": "NUMBER", "compare": "LTEQ"}'>✅ Visible! Length &lt;= 3.</div>
 			</div>
+
 			<div class="test-case">
 				<h4>MINMAX (Length Range)</h4>
 				<label for="textarea-1">Type between 10 and 20 characters:</label>
 				<textarea id="textarea-1"></textarea>
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#textarea-1", "value": [10, 20], "type": "MINMAX"}'>✅ Visible! Length is between 10 and 20.</div>
 			</div>
+
 			<div class="test-case">
 				<label for="textarea-2">Type at least 5 characters:</label>
 				<textarea id="textarea-2"></textarea>
@@ -184,6 +124,7 @@
 				<input type="number" id="num-1" min="0" max="30">
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#num-1", "value": [10, 20], "type": "RANGE"}'>✅ Visible! Value is between 10 and 20.</div>
 			</div>
+
 			<div class="test-case">
 				<h4>Range Slider Input</h4>
 				<label for="range-1">Select a value greater than 75:</label>
@@ -195,6 +136,7 @@
 				</script>
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#range-1", "value": [76], "type": "RANGE"}'>✅ Visible! Value is > 75.</div>
 			</div>
+
 			<div class="test-case">
 				<label for="range-2">Range value is exactly 50:</label>
 				<input type="range" id="range-2" min="0" max="100" /><span></span>
@@ -205,6 +147,7 @@
 				</script>
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#range-2", "value": [50, 50], "type": "RANGE"}'>✅ Visible! Value is 50.</div>
 			</div>
+
 		</fieldset>
 
 		<fieldset>
@@ -221,6 +164,7 @@
 				</select>
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "#select-2", "value": ["A", "C"]}'>✅ Visible! Value is in ["A", "C"].</div>
 			</div>
+
 			<div class="test-case">
 				<h4>STRING-ARRAY (Checkboxes - Any Match)</h4>
 				<strong>Check "Red" or "Blue":</strong>
@@ -229,6 +173,7 @@
 				<label><input type="checkbox" name="colors" value="blue" /> Blue</label>
 				<div class="conditional-field" data-storepress-conditional-field='{"selector": "[name=colors]", "value": ["red", "blue"]}'>✅ Visible! Red or Blue is checked.</div>
 			</div>
+
 			<div class="test-case">
 				<h4>STRING-ARRAY (Checkboxes - All Match)</h4>
 				<strong>Check BOTH "Red" and "Blue":</strong>

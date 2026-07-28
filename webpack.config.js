@@ -17,6 +17,8 @@ const RemoveEmptyScriptsPlugin = require( 'webpack-remove-empty-scripts' );
 const scriptConfig = {
 	...defaultJSConfig,
 	entry: {
+		[ `page-style` ]: getRootFile( 'page-style.scss' ),
+
 		[ `conditional-field` ]: [
 			getFile( 'style.scss' ),
 			getRootFile( 'script.js' ),
