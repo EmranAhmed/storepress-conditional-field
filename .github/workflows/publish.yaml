@@ -46,22 +46,22 @@ jobs:
     # Name: NPM_TOKEN
     # Value: paste the token
 
-
     build:
         name: Publish
         runs-on: ubuntu-latest
         steps:
-            - name: "Checks out the repository"
-              uses: actions/checkout@v6
+            -   name: "Checks out the repository"
+                uses: actions/checkout@v6
 
-            - name: "Setup and Install Node.js"
-              uses: actions/setup-node@v6
-              with:
-                  node-version: '24.x'
+            -   name: "Setup and Install Node.js"
+                uses: actions/setup-node@v6
+                with:
+                    node-version: '24.x'
+                    cache: 'npm'
 
-            - name: "Publish to NPM"
-              run: |
-                  echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
-                  npm publish
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+            -   name: "Publish to NPM"
+                run: |
+                    echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
+                    npm publish
+                env:
+                    NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

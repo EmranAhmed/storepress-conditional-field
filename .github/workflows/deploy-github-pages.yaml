@@ -1,10 +1,10 @@
 # Simple workflow for deploying static content to GitHub Pages
-name: Deploy to Pages
+name: Deploy to Github Pages
 
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: [$default-branch]
+    branches: [main]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -29,27 +29,27 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      # Checkout
       - name: "Checkout"
         uses: actions/checkout@v6
-
       # Set up Node
       - name: "Setup Node"
         uses: actions/setup-node@v6
         with:
             node-version: '24.x'
+            cache: 'npm'
+      # NPM Install and Build
+      -   name: "Install and Build"
+          run: npm install && npm run package --if-present
 
-      - name: "Install and Build"
-        run: |
-          npm install
-          npm run build
-          rm -rf node_modules
-      #- name: Setup Pages
-      #  uses: actions/configure-pages@v5
-      - name: "Upload artifact"
+      - name: "Make Plain Package name"
+        run: echo "PLAIN_PACKAGE_NAME=$(node -p -e "require('./package.json').name.replace(/^@/, '').replace('/', '-')")" >> $GITHUB_ENV
+
+      - name: "Upload Artifact"
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '.'
+          path: ./${{ env.PLAIN_PACKAGE_NAME }}
+
       - name: "Deploy to GitHub Pages"
         id: deployment
         uses: actions/deploy-pages@v4

@@ -1,4 +1,4 @@
-name: Release to Github
+name: Github Release
 
 on:
     push:
@@ -29,7 +29,6 @@ jobs:
     # - Make Zip.
     # - Upload Release.
 
-
     build:
         name: Release
         runs-on: ubuntu-latest
@@ -41,18 +40,16 @@ jobs:
                 uses: actions/setup-node@v6
                 with:
                     node-version: '24.x'
-            -   run: npm install
+                    cache: 'npm'
 
-            -   name: "Make Zip"
-                run: npm run plugin-zip --if-present
+            -   name: "Install and ZIP"
+                run: npm install && npm run plugin-zip --if-present
 
             -   name: "Get release version."
-                run: |
-                    echo "RELEASE_TAG=$(node -p -e "require('./package.json').version")" >> $GITHUB_ENV
+                run: echo "RELEASE_TAG=$(node -p -e "require('./package.json').version")" >> $GITHUB_ENV
 
             -   name: "Get release file base name."
-                run: |
-                    echo "RELEASE_NAME=$(node -p -e "require('./package.json').name.replace(/^@/, '').replace('/', '-')")" >> $GITHUB_ENV
+                run: echo "RELEASE_NAME=$(node -p -e "require('./package.json').name.replace(/^@/, '').replace('/', '-')")" >> $GITHUB_ENV
 
             -   name: "Upload Release"
                 uses: softprops/action-gh-release@v3
